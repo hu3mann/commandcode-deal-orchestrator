@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "retrievedAt": "2026-07-23T00:00:00.000Z",
+  "source": "seed+official-pricing-docs+cmd-list-models",
+  "sourceHash": "seed-2026-07-23",
+  "models": [
+    {
+      "id": "deepseek/deepseek-v4-flash",
+      "contextWindow": 1000000,
+      "inputPerMillion": 0.14,
+      "outputPerMillion": 0.28,
+      "cacheReadPerMillion": 0.0028,
+      "priceBasis": "post_discount",
+      "qualityTier": "economical",
+      "availability": "available"
+    },
+    {
+      "id": "deepseek/deepseek-v4-pro",
+      "contextWindow": 1000000,
+      "inputPerMillion": 0.435,
+      "outputPerMillion": 0.87,
+      "cacheReadPerMillion": 0.003625,
+      "priceBasis": "post_discount",
+      "qualityTier": "capable",
+      "availability": "available",
+      "deal": {
+        "type": "permanent_price_reduction",
+        "label": "75-percent-off",
+        "expiresAt": null
+      }
+    },
+    {
+      "id": "xiaomi/mimo-v2.5",
+      "contextWindow": 1000000,
+      "inputPerMillion": 0.14,
+      "outputPerMillion": 0.28,
+      "cacheReadPerMillion": 0.0028,
+      "priceBasis": "post_discount",
+      "qualityTier": "economical",
+      "availability": "available",
+      "deal": {
+        "type": "permanent_price_reduction",
+        "label": "discounted-up-to-98-percent",
+        "expiresAt": null
+      }
+    },
+    {
+      "id": "xiaomi/mimo-v2.5-pro",
+      "contextWindow": 1000000,
+      "inputPerMillion": 0.435,
+      "outputPerMillion": 0.87,
+      "cacheReadPerMillion": 0.0036,
+      "priceBasis": "post_discount",
+      "qualityTier": "capable",
+      "availability": "available",
+      "deal": {
+        "type": "permanent_price_reduction",
+        "label": "discounted-up-to-99-percent",
+        "expiresAt": null
+      }
+    },
+    {
+      "id": "minimaxai/minimax-m3",
+      "contextWindow": 1000000,
+      "priceBasis": "post_discount",
+      "qualityTier": "capable",
+      "availability": "available",
+      "tiers": [
+        {
+          "maxContext": 512000,
+          "inputPerMillion": 0.3,
+          "outputPerMillion": 1.2,
+          "cacheReadPerMillion": 0.06
+        },
+        {
+          "maxContext": 1000000,
+          "inputPerMillion": 0.3,
+          "outputPerMillion": 1.2,
+          "cacheReadPerMillion": 0.06
+        }
+      ],
+      "deal": {
+        "type": "permanent_price_reduction",
+        "label": "50-percent-off",
+        "expiresAt": null
+      }
+    },
+    {
+      "id": "xai/grok-4.5",
+      "contextWindow": 500000,
+      "inputPerMillion": 2.0,
+      "outputPerMillion": 6.0,
+      "cacheReadPerMillion": 0.5,
+      "priceBasis": "current_rate",
+      "qualityTier": "frontier",
+      "availability": "available"
+    },
+    {
+      "id": "claude-sonnet-5",
+      "contextWindow": 1000000,
+      "inputPerMillion": 2.0,
+      "outputPerMillion": 10.0,
+      "cacheReadPerMillion": 0.2,
+      "cacheWritePerMillion": 2.5,
+      "priceBasis": "temporary_introductory_rate",
+      "qualityTier": "frontier",
+      "availability": "available",
+      "rateExpiresAt": "2026-09-01T00:00:00-07:00",
+      "replacementRate": {
+        "inputPerMillion": 3.0,
+        "outputPerMillion": 15.0,
+        "cacheReadPerMillion": 0.3,
+        "cacheWritePerMillion": 3.75
+      }
+    },
+    {
+      "id": "poolside/laguna-s-2.1-free",
+      "contextWindow": 256000,
+      "inputPerMillion": 0,
+      "outputPerMillion": 0,
+      "cacheReadPerMillion": 0,
+      "priceBasis": "post_discount",
+      "qualityTier": "economical",
+      "availability": "available",
+      "deal": {
+        "type": "free",
+        "label": "free-while-capacity-lasts",
+        "expiresAt": null,
+        "capacityLimited": true
+      }
+    },
+    {
+      "id": "inclusionai/ling-3.0-flash-free",
+      "contextWindow": 256000,
+      "inputPerMillion": 0,
+      "outputPerMillion": 0,
+      "cacheReadPerMillion": 0,
+      "priceBasis": "post_discount",
+      "qualityTier": "economical",
+      "availability": "available",
+      "deal": {
+        "type": "free",
+        "label": "free-through-2026-08-02",
+        "expiresAt": "2026-08-02T00:00:00-07:00"
+      }
+    },
+    {
+      "id": "tencent/hy3-paid",
+      "contextWindow": 262000,
+      "inputPerMillion": 0.14,
+      "outputPerMillion": 0.58,
+      "cacheReadPerMillion": 0.035,
+      "priceBasis": "current_rate",
+      "qualityTier": "economical",
+      "availability": "available"
+    },
+    {
+      "id": "tencent/Hy3",
+      "contextWindow": 262000,
+      "inputPerMillion": 0,
+      "outputPerMillion": 0,
+      "cacheReadPerMillion": 0,
+      "priceBasis": "post_discount",
+      "qualityTier": "economical",
+      "availability": "expired_deal",
+      "deal": {
+        "type": "free",
+        "label": "historical-free-deal",
+        "expiresAt": "2026-07-22T00:00:00-07:00"
+      }
+    }
+  ]
+}

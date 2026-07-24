@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "decision": {
+      "enum": ["ACCEPT", "REPAIR_REQUIRED", "BLOCKED", "PLAN_APPROVED", "PLAN_REQUIRES_REVISION"]
+    }
+  }
+}

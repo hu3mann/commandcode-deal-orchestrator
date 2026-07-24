@@ -1,0 +1,31 @@
+{
+  "verdict": "PASS_WITH_LIMITATIONS",
+  "commandCodeVersion": "1.3.1",
+  "nodeVersion": "v25.9.0",
+  "testsPassed": 87,
+  "testsFailed": 0,
+  "lineCoverage": 93.07,
+  "branchCoverage": 86.02,
+  "liveTestsRun": false,
+  "liveSpendEstimatedUsd": 0,
+  "knownLimitations": [
+    "Live CommandCode model invocation smoke not run (CCROUTE_LIVE not enabled)",
+    "Optional xai-direct adapter deferred",
+    "Network deal refresh validates reachability and re-seeds bundled official rates rather than full HTML price extraction"
+  ],
+  "unsupportedAssumptions": [
+    "No setModel()/transformInput session API",
+    "Custom agents do not provide per-agent model fields"
+  ],
+  "artifacts": [
+    "IMPLEMENTATION-SUMMARY.md",
+    "ACCEPTANCE.json",
+    "TEST-REPORT.md",
+    "SECURITY-REVIEW.md",
+    "docs/ARCHITECTURE.md",
+    "docs/IMPLEMENTATION-SPEC.md",
+    "docs/TRACEABILITY-MATRIX.md",
+    "docs/COMMANDCODE-CAPABILITY-BASELINE.md",
+    "commandcode-deal-orchestrator-0.1.0.tgz"
+  ]
+}

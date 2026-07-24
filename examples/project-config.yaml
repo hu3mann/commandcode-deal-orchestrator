@@ -1,0 +1,12 @@
+schemaVersion: 1
+task_classes:
+  high_risk_review:
+    minimum_tier: frontier
+    preferred:
+      - xai/grok-4.5
+      - claude-sonnet-5
+    token_priors:
+      freshInput: 15000
+      cachedInput: 80000
+      output: 7000
+      cacheWrite: 1000

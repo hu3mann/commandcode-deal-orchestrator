@@ -1,0 +1,124 @@
+schemaVersion: 1
+
+profiles:
+  cheapest:
+    costWeight: 1.0
+    reliabilityWeight: 0.15
+    latencyWeight: 0.05
+    qualityWeight: 0.0
+  balanced:
+    costWeight: 0.45
+    reliabilityWeight: 0.3
+    latencyWeight: 0.15
+    qualityWeight: 0.1
+  frontier:
+    costWeight: 0.25
+    reliabilityWeight: 0.2
+    latencyWeight: 0.1
+    qualityWeight: 0.45
+
+quality_tiers:
+  economical:
+    - deepseek/deepseek-v4-flash
+    - xiaomi/mimo-v2.5
+    - poolside/laguna-s-2.1-free
+    - inclusionai/ling-3.0-flash-free
+    - tencent/hy3-paid
+  capable:
+    - xiaomi/mimo-v2.5-pro
+    - deepseek/deepseek-v4-pro
+    - minimaxai/minimax-m3
+  frontier:
+    - xai/grok-4.5
+    - claude-sonnet-5
+
+task_classes:
+  read_only:
+    minimum_tier: economical
+    preferred:
+      - deepseek/deepseek-v4-flash
+      - xiaomi/mimo-v2.5
+    token_priors:
+      freshInput: 4000
+      cachedInput: 20000
+      output: 1500
+      cacheWrite: 0
+  trivial_edit:
+    minimum_tier: economical
+    preferred:
+      - xiaomi/mimo-v2.5
+      - deepseek/deepseek-v4-flash
+    token_priors:
+      freshInput: 6000
+      cachedInput: 30000
+      output: 2500
+      cacheWrite: 0
+  standard_build:
+    minimum_tier: capable
+    preferred:
+      - xiaomi/mimo-v2.5-pro
+      - deepseek/deepseek-v4-pro
+    token_priors:
+      freshInput: 12000
+      cachedInput: 80000
+      output: 6000
+      cacheWrite: 2000
+  complex_build:
+    minimum_tier: capable
+    preferred:
+      - deepseek/deepseek-v4-pro
+      - xiaomi/mimo-v2.5-pro
+      - xai/grok-4.5
+    token_priors:
+      freshInput: 20000
+      cachedInput: 150000
+      output: 10000
+      cacheWrite: 4000
+  architecture:
+    minimum_tier: frontier
+    preferred:
+      - xai/grok-4.5
+      - claude-sonnet-5
+      - deepseek/deepseek-v4-pro
+    token_priors:
+      freshInput: 18000
+      cachedInput: 60000
+      output: 8000
+      cacheWrite: 1000
+  high_risk_review:
+    minimum_tier: frontier
+    preferred:
+      - xai/grok-4.5
+      - claude-sonnet-5
+    token_priors:
+      freshInput: 15000
+      cachedInput: 80000
+      output: 7000
+      cacheWrite: 1000
+
+orchestration:
+  maxPlannerRevisions: 1
+  maxRepairs: 1
+  maxFormatRepairs: 1
+  plannerMaxTurns: 4
+  advisorMaxTurns: 4
+  executorMaxTurns: 20
+  reviewerMaxTurns: 5
+  minClassForOrchestration: standard_build
+
+security:
+  rejectUnknownSecurityKeys: true
+  allowUnsafeYoloDefault: false
+  maxPromptBytes: 500000
+  maxResultBytes: 2000000
+  defaultTimeoutMs: 600000
+
+telemetry:
+  enabled: true
+  path: "~/.commandcode/deal-router/telemetry.jsonl"
+  minObservationsForPenalty: 5
+
+reliability:
+  retryCostFactor: 0.35
+  escalationCostFactor: 0.5
+  latencyPenaltyPerSecondUsd: 0.00001

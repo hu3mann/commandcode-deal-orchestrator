@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "retrievedAt": "2026-07-23T00:00:00.000Z",
+  "source": "https://commandcode.ai/docs/resources/pricing-limits",
+  "sourceHash": "seed-deals-2026-07-23",
+  "deals": [
+    {
+      "modelId": "deepseek/deepseek-v4-pro",
+      "type": "permanent_price_reduction",
+      "label": "75-percent-off",
+      "expiresAt": null
+    },
+    {
+      "modelId": "minimaxai/minimax-m3",
+      "type": "permanent_price_reduction",
+      "label": "50-percent-off",
+      "expiresAt": null
+    },
+    {
+      "modelId": "xiaomi/mimo-v2.5",
+      "type": "permanent_price_reduction",
+      "label": "discounted-up-to-98-percent",
+      "expiresAt": null
+    },
+    {
+      "modelId": "xiaomi/mimo-v2.5-pro",
+      "type": "permanent_price_reduction",
+      "label": "discounted-up-to-99-percent",
+      "expiresAt": null
+    },
+    {
+      "modelId": "poolside/laguna-s-2.1-free",
+      "type": "free",
+      "label": "free-while-capacity-lasts",
+      "expiresAt": null,
+      "capacityLimited": true
+    },
+    {
+      "modelId": "inclusionai/ling-3.0-flash-free",
+      "type": "free",
+      "label": "free-through-2026-08-02",
+      "expiresAt": "2026-08-02T00:00:00-07:00"
+    },
+    {
+      "modelId": "tencent/Hy3",
+      "type": "free",
+      "label": "historical-free-deal",
+      "expiresAt": "2026-07-22T00:00:00-07:00"
+    }
+  ]
+}

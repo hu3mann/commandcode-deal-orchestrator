@@ -1,0 +1,59 @@
+{
+  "name": "commandcode-deal-orchestrator",
+  "version": "0.1.0",
+  "description": "Deterministic deal-aware CommandCode model router and role orchestrator",
+  "type": "module",
+  "bin": {
+    "ccroute": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "config",
+    "prompts",
+    "skills",
+    "hooks",
+    "schemas",
+    "examples",
+    "README.md",
+    "LICENSE",
+    "ATTRIBUTION.md",
+    "AGENTS.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && node scripts/chmod-bin.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "biome check src tests scripts",
+    "lint:fix": "biome check --write src tests scripts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:live": "CCROUTE_LIVE=1 vitest run tests/live",
+    "prepack": "npm run build"
+  },
+  "keywords": [
+    "commandcode",
+    "router",
+    "orchestration",
+    "cli"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^13.1.0",
+    "yaml": "^2.7.1",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^22.13.10",
+    "@vitest/coverage-v8": "^3.0.9",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.9"
+  }
+}

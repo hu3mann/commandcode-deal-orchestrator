@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./hooks/child-session-context.mjs",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "shell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./hooks/child-recursion-guard.mjs",
+            "timeout": 2
+          }
+        ]
+      }
+    ]
+  }
+}
