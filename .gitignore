@@ -7,3 +7,6 @@ coverage/
 .commandcode/taste/
 *.log
 .turbo/
+
+.commandcode/settings.json
+.commandcode/settings.local.json
