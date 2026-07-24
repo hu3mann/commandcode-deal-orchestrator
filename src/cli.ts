@@ -358,6 +358,7 @@ program
         timeoutMs: loaded.config.security.defaultTimeoutMs,
         maxStdoutBytes: loaded.config.security.maxResultBytes,
         cwd: process.cwd(),
+        role: "executor",
         runId,
       });
 
