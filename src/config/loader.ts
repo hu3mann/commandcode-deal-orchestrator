@@ -76,7 +76,9 @@ export function loadConfig(options?: {
   const sources = ["built-in defaults"];
   if (user) sources.push(userPath);
   if (project) sources.push(projectPath);
-  if (options?.cliOverrides) sources.push("CLI flags");
+  if (options?.cliOverrides && Object.keys(options.cliOverrides).length > 0) {
+    sources.push("CLI flags");
+  }
 
   return {
     config: parsed.data,

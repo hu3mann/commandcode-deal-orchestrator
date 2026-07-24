@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { buildCmdArgv } from "../../src/security/command-policy.js";
-import { assertNotRecursive, readDepth } from "../../src/security/recursion-guard.js";
+import {
+  assertNotRecursive,
+  childEnv,
+  readDepth,
+} from "../../src/security/recursion-guard.js";
 
 describe("security extras", () => {
   it("buildCmdArgv includes plan yolo maxTurns trust outputFormat", () => {
@@ -29,5 +33,11 @@ describe("security extras", () => {
 
   it("readDepth invalid", () => {
     expect(readDepth({ CCROUTE_DEPTH: "nope" } as NodeJS.ProcessEnv)).toBe(0);
+  });
+
+  it("childEnv accumulates depth from parent", () => {
+    const e = childEnv("executor", "run-2", 1);
+    expect(e.CCROUTE_DEPTH).toBe("2");
+    expect(e.CCROUTE_CHILD).toBe("1");
   });
 });

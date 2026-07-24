@@ -42,7 +42,7 @@
 | REQ-OVERRIDES | §25 | classifier+cli | markers+flags | unit | DONE |
 | REQ-FAIL-CLOSED | §26 | router+config | select/loader | unit | DONE |
 | REQ-TESTS | §27 | tests/ | unit+integration | npm test | DONE |
-| REQ-LIVE-OPTIN | §28 | tests/live | test:live | opt-in | OPTIONAL |
+| REQ-LIVE-OPTIN | §28 | tests/live | test:live | DONE (live smoke PASS) |
 | REQ-ACCEPTANCE | §29-32 | artifacts | ACCEPTANCE.json | final | DONE |
 | REQ-NON-GOALS | §34 | architecture | docs | review | DONE |
 

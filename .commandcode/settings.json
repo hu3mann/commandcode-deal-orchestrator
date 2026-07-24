@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(which dopeTmux 2>/dev/null || which dope-tmux 2>/dev/null || which dopetmux 2>/dev/null; command -v dopeTmux 2>/dev/null || command -v dope-tmux 2>/dev/null || command -v dopetmux 2>/dev/null; echo \"---\"; brew list dopeTmux 2>/dev/null || brew list dope-tmux 2>/dev/null || echo \"not in brew\")"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}

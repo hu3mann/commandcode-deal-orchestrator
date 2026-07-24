@@ -1,6 +1,6 @@
 import { type ChildProcessWithoutNullStreams, spawn } from "node:child_process";
 import { buildCmdArgv } from "../security/command-policy.js";
-import { CHILD_ROLE_INSTRUCTION, childEnv } from "../security/recursion-guard.js";
+import { CHILD_ROLE_INSTRUCTION, childEnv, readDepth } from "../security/recursion-guard.js";
 import { buildChildProcessEnv } from "./environment.js";
 
 export interface SpawnCmdOptions {
@@ -69,8 +69,10 @@ export async function spawnCommandCode(opts: SpawnCmdOptions): Promise<SpawnCmdR
     stdin = `${CHILD_ROLE_INSTRUCTION}\n\n${stdin}`;
   }
 
-  const extraEnv = opts.role && opts.runId ? childEnv(opts.role, opts.runId, 0) : {};
-  const env = buildChildProcessEnv(opts.env ?? process.env, extraEnv);
+  const baseEnv = opts.env ?? process.env;
+  const extraEnv =
+    opts.role && opts.runId ? childEnv(opts.role, opts.runId, readDepth(baseEnv)) : {};
+  const env = buildChildProcessEnv(baseEnv, extraEnv);
 
   const started = Date.now();
 

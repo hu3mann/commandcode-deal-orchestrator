@@ -25,10 +25,6 @@ export function assertNotRecursive(env: NodeJS.ProcessEnv = process.env): void {
       `Recursive ccroute invocation blocked (CCROUTE_DEPTH=${depth}). Child role processes must not launch orchestration.`,
     );
   }
-  if (env[ENV_CHILD] === "1" && depth >= 1) {
-    // Being a child is fine for the role process itself; blocking is for ccroute re-entry at depth>1
-    // Additional check: if CCROUTE_CHILD=1 and we're the ccroute CLI, depth should be 1 max for parent only
-  }
 }
 
 /** Call at start of ccroute CLI when about to orchestrate/run */

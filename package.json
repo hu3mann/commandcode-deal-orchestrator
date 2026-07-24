@@ -34,7 +34,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:live": "CCROUTE_LIVE=1 vitest run tests/live",
+    "test:live": "CCROUTE_LIVE=1 vitest run --config vitest.live.config.ts",
     "prepack": "npm run build"
   },
   "keywords": [

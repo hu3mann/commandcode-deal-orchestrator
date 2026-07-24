@@ -49,10 +49,12 @@ export function probeCommandCode(cmdPath?: string): CmdProbe {
   }
   const ver = runCmdCapture(path, ["--version"]);
   const help = runCmdCapture(path, ["--help"]);
+  const helpText = help.stdout || help.stderr;
   return {
     path,
     version: ver.stdout.trim() || ver.stderr.trim() || null,
-    helpSnippet: (help.stdout || help.stderr).slice(0, 2000),
+    // Keep enough of --help for flag detection (auto-accept etc. appear late)
+    helpSnippet: helpText.slice(0, 20_000),
     error: ver.status === 0 ? undefined : `cmd --version exited ${ver.status}`,
   };
 }

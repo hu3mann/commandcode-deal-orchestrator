@@ -1,45 +1,31 @@
 # Test Report
 
-Date: 2026-07-23
+Date: 2026-07-23 (updated after live smoke)
 
-## Commands
+## Deterministic suite
 
 ```bash
 npm run typecheck   # pass
 npm run lint        # pass
-npm test            # 87 passed
-npm run test:coverage  # lines 93.07% branches 86.02% (gated modules)
+npm test            # 89 passed
+npm run test:coverage  # lines 93.07% branches 86.02%
 npm run build       # pass
 npm pack            # commandcode-deal-orchestrator-0.1.0.tgz
 ```
 
-## Suites
+## Live smoke (`CCROUTE_LIVE=1 npm run test:live`)
 
-| Suite | Result |
+| Test | Result |
 | --- | --- |
-| unit/classifier | pass |
-| unit/config + loader | pass |
-| unit/pricing + snapshot | pass |
-| unit/router + eligibility | pass |
-| unit/security | pass |
-| unit/orchestration | pass |
-| unit/hooks | pass |
-| unit/telemetry | pass |
-| integration/decide-no-spawn | pass |
-| integration/apply-argv | pass |
-| live smoke | skipped (opt-in) |
+| authenticated cmd | pass |
+| decide no model call | pass |
+| read-only free model `inclusionai/ling-3.0-flash-free` | pass (exit 0, ~4.6s, est $0.00015) |
+| bounded Grok 4.5 plan | pass (exit 0, est $0.029445) |
 
-## Install smoke
+Total estimated live spend: **~$0.03** (under $0.25 budget). No `--apply` / write tests.
 
-Isolated `npm install -g --prefix <tmp>` of packed tarball:
+## Fixes in this pass
 
-- `ccroute --help` ok
-- `ccroute doctor` ok (cmd 1.3.1, authenticated)
-- `ccroute decide --no-free` → `deepseek/deepseek-v4-flash`
-- `ccroute explain` produces full breakdown
-
-## Coverage (routing/pricing/config/security/classifier)
-
-- Lines: **93.07%** (threshold 90%)
-- Branches: **86.02%** (threshold 85%)
-- Functions: **100%**
+- Doctor no longer falsely reports `CLI flags` with empty overrides
+- Doctor flag detection reads full help (auto-accept / yolo / skip-onboarding)
+- Real live smoke suite replaces placeholder

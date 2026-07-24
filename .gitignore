@@ -4,5 +4,6 @@ coverage/
 *.tgz
 .DS_Store
 .commandcode/deal-router/runs/
+.commandcode/taste/
 *.log
 .turbo/

@@ -46,9 +46,7 @@ function tieBreak(a: CandidateScore, b: CandidateScore): number {
 }
 
 export function selectRoute(input: SelectInput): RouteDecision {
-  const profile = input.cliModel
-    ? (input.profile ?? input.task.overrides.profile ?? input.config.defaultProfile)
-    : (input.profile ?? input.task.overrides.profile ?? input.config.defaultProfile);
+  const profile = input.profile ?? input.task.overrides.profile ?? input.config.defaultProfile;
 
   const explicitModel = input.cliModel ?? input.task.overrides.model;
   const noFree = Boolean(input.noFree ?? input.task.overrides.noFree ?? input.config.noFree);

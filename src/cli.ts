@@ -48,8 +48,9 @@ function fail(err: unknown, code = 1): never {
   process.exit(code);
 }
 
-function loadRuntime(cli: Record<string, unknown> = {}) {
-  return loadConfig({ cliOverrides: cli });
+function loadRuntime(cli?: Record<string, unknown>) {
+  const overrides = cli && Object.keys(cli).length > 0 ? { cliOverrides: cli } : undefined;
+  return loadConfig(overrides);
 }
 
 program
