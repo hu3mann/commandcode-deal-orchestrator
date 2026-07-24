@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildCmdArgv } from "../../src/security/command-policy.js";
-import {
-  assertNotRecursive,
-  childEnv,
-  readDepth,
-} from "../../src/security/recursion-guard.js";
+import { assertNotRecursive, childEnv, readDepth } from "../../src/security/recursion-guard.js";
 
 describe("security extras", () => {
   it("buildCmdArgv includes plan yolo maxTurns trust outputFormat", () => {
@@ -23,6 +19,15 @@ describe("security extras", () => {
     expect(argv).toContain("--trust");
     expect(argv).toContain("json");
     expect(argv).toContain("--verbose");
+  });
+
+  it("buildCmdArgv rejects write-bypass via extraArgs", () => {
+    expect(() => buildCmdArgv({ model: "xai/grok-4.5", extraArgs: ["--auto-accept"] })).toThrow(
+      /write-bypass/,
+    );
+    expect(() => buildCmdArgv({ model: "xai/grok-4.5", extraArgs: ["--yolo"] })).toThrow(
+      /write-bypass/,
+    );
   });
 
   it("assertNotRecursive allows depth 0-1", () => {

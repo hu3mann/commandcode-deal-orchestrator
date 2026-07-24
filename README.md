@@ -4,15 +4,25 @@ Deterministic, deal-aware model router and bounded role orchestrator for [Comman
 
 ## Install
 
+From GitHub (public):
+
 ```bash
+git clone https://github.com/hu3mann/commandcode-deal-orchestrator.git
+cd commandcode-deal-orchestrator
 npm ci
 npm run build
 npm link
+```
+
+From a local checkout or tarball:
+
+```bash
+npm ci && npm run build && npm link
 # or
 npm pack && npm install -g ./commandcode-deal-orchestrator-0.1.0.tgz
 ```
 
-Requires Node.js 20+ and Command Code CLI (`cmd`) for live runs.
+Requires Node.js 20+ and Command Code CLI (`cmd`) for live runs. Never invent model IDs — use `cmd --list-models` or `ccroute models list`.
 
 ## First-run setup
 

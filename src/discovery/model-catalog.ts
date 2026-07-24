@@ -10,9 +10,11 @@ export function parseListModelsOutput(text: string): string[] {
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed) continue;
-    // Skip headers / docs lines
+    // Skip headers / docs lines (exact section titles only — not provider-prefixed model ids)
     if (/^available models/i.test(trimmed)) continue;
-    if (/^open source|^anthropic|^openai|^google|^sakana|^meta|^xai$/i.test(trimmed)) continue;
+    if (/^(open source|anthropic|openai|google|sakana|meta|xai|x\.ai)$/i.test(trimmed)) {
+      continue;
+    }
     if (/^pass the full id/i.test(trimmed)) continue;
     if (/^docs:/i.test(trimmed)) continue;
     if (/^cmd --model/i.test(trimmed)) continue;

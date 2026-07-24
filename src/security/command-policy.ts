@@ -37,7 +37,20 @@ export function buildCmdArgv(options: {
   if (options.skipOnboarding !== false) argv.push("--skip-onboarding");
   if (options.trust) argv.push("--trust");
   if (options.outputFormat) argv.push("--output-format", options.outputFormat);
-  if (options.extraArgs) argv.push(...options.extraArgs);
+  if (options.extraArgs) {
+    for (const arg of options.extraArgs) {
+      if (typeof arg !== "string" || !arg) {
+        throw new Error("Invalid extra argv entry");
+      }
+      if (/[\n\r\0]/.test(arg)) {
+        throw new Error("extraArgs must not contain control characters");
+      }
+      if (arg === "--auto-accept" || arg === "--yolo" || arg.startsWith("--yolo=")) {
+        throw new Error("extraArgs cannot inject write-bypass flags");
+      }
+      argv.push(arg);
+    }
+  }
   return argv;
 }
 

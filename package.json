@@ -2,6 +2,14 @@
   "name": "commandcode-deal-orchestrator",
   "version": "0.1.0",
   "description": "Deterministic deal-aware CommandCode model router and role orchestrator",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hu3mann/commandcode-deal-orchestrator.git"
+  },
+  "homepage": "https://github.com/hu3mann/commandcode-deal-orchestrator",
+  "bugs": {
+    "url": "https://github.com/hu3mann/commandcode-deal-orchestrator/issues"
+  },
   "type": "module",
   "bin": {
     "ccroute": "./dist/cli.js"
