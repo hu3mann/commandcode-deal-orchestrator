@@ -14,6 +14,7 @@ Observable behavior contracts. Prefer tables and schemas.
 | `ccroute run <task> [--apply]` | Single `cmd --print --model` |
 | `ccroute orchestrate <task> [--apply]` | Multi-role when justified |
 | `ccroute stats` | Telemetry aggregates |
+| `ccroute runs list\|show <id>` | Inspect past run artifacts |
 | `ccroute config show\|validate\|paths` | Config inspection |
 
 ### Flags

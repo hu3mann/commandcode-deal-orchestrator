@@ -1,31 +1,25 @@
 {
+  "schemaVersion": 1,
   "verdict": "PASS",
-  "commandCodeVersion": "1.3.1",
+  "project": "commandcode-deal-orchestrator",
+  "commandCodeVersion": "1.4.1",
   "nodeVersion": "v25.9.0",
-  "testsPassed": 93,
+  "packageVersion": "0.1.0",
+  "testsPassed": 91,
   "testsFailed": 0,
-  "lineCoverage": 93.07,
-  "branchCoverage": 86.02,
-  "liveTestsRun": true,
-  "liveSpendEstimatedUsd": 0.0296,
-  "liveDetails": {
-    "decideNoModelCall": true,
-    "readOnlyFreeModel": {
-      "model": "inclusionai/ling-3.0-flash-free",
-      "estimatedCostUsd": 0.00015,
-      "exitCode": 0
-    },
-    "boundedGrokPlan": {
-      "model": "xai/grok-4.5",
-      "estimatedCostUsd": 0.029445,
-      "exitCode": 0
-    },
-    "budgetUsd": 0.25
-  },
+  "lineCoverage": 92.7,
+  "branchCoverage": 86.31,
+  "packageInstallPassed": true,
+  "liveTestsRun": false,
+  "liveTestsStatus": "NOT_RUN",
+  "liveSpendEstimatedUsd": 0,
+  "liveSpendObservedUsd": null,
+  "securityFindingsOpen": 0,
   "knownLimitations": [
-    "Optional xai-direct adapter deferred (CommandCode backend is primary)",
+    "Optional xAI-direct adapter not implemented (CommandCode backend is primary)",
     "Network deal refresh re-seeds bundled official rates rather than full HTML price extraction",
-    "Live costs are estimates unless provider returns observed usage"
+    "Live costs are estimates unless provider returns observed usage",
+    "Live CommandCode smoke testing not re-run this session"
   ],
   "unsupportedAssumptions": [
     "No setModel()/transformInput session API",
@@ -39,7 +33,10 @@
     "docs/ARCHITECTURE.md",
     "docs/IMPLEMENTATION-SPEC.md",
     "docs/TRACEABILITY-MATRIX.md",
+    "docs/THREAT-MODEL.md",
     "docs/COMMANDCODE-CAPABILITY-BASELINE.md",
+    "FILE-MANIFEST.json",
     "commandcode-deal-orchestrator-0.1.0.tgz"
-  ]
+  ],
+  "gitCommit": ""
 }

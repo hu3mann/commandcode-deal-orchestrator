@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { randomUUID } from "node:crypto";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { Command } from "commander";
 import { classifyTask } from "./classifier/deterministic.js";
@@ -495,6 +495,105 @@ program
       console.log(formatStats(by, { modelId: opts.model, taskClass: opts.taskClass }, events));
     } catch (e) {
       fail(e);
+    }
+  });
+
+const runs = program.command("runs").description("Inspect past run artifacts");
+runs.command("list").action(() => {
+  const base = join(process.cwd(), ".commandcode", "deal-router", "runs");
+  if (!existsSync(base)) {
+    console.log("(no runs)");
+    return;
+  }
+  const dirs = readdirSync(base, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name)
+    .sort()
+    .reverse();
+  if (!dirs.length) {
+    console.log("(no runs)");
+    return;
+  }
+  for (const id of dirs) {
+    const mp = join(base, id, "manifest.json");
+    if (!existsSync(mp)) {
+      console.log(`${id}  (no manifest)`);
+      continue;
+    }
+    try {
+      const m: Record<string, unknown> = JSON.parse(readFileSync(mp, "utf8"));
+      const model = String(m.model ?? "?");
+      const mode = String(m.mode ?? "?");
+      const exitCode = m.exitCode !== undefined ? ` exit=${m.exitCode}` : "";
+      const dp = join(base, id, "decision.json");
+      let cls = "";
+      if (existsSync(dp)) {
+        try {
+          const d: Record<string, unknown> = JSON.parse(readFileSync(dp, "utf8"));
+          if (d.taskClass) cls = ` ${String(d.taskClass)}`;
+        } catch {
+          /* ignore parse errors */
+        }
+      }
+      console.log(`${id.slice(0, 8)}  model=${model}${cls}${exitCode} mode=${mode}`);
+    } catch {
+      console.log(`${id.slice(0, 8)}  (corrupt manifest)`);
+    }
+  }
+});
+runs
+  .command("show")
+  .argument("<id>", "Run id prefix or full id")
+  .option("--json", "JSON output")
+  .action((id: string, opts) => {
+    const base = join(process.cwd(), ".commandcode", "deal-router", "runs");
+    if (!existsSync(base)) {
+      fail(new Error(`Runs directory not found: ${base}`));
+      return;
+    }
+    let runDir: string | undefined;
+    const dirs = readdirSync(base, { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name);
+    runDir = dirs.find((d) => d === id || d.startsWith(id));
+    if (!runDir) {
+      fail(new Error(`Run not found: ${id}`));
+      return;
+    }
+    const dir = join(base, runDir);
+    const files = readdirSync(dir);
+    const mp = join(dir, "manifest.json");
+    if (!existsSync(mp)) {
+      console.log(JSON.stringify({ runId: runDir, files }, null, 2));
+      return;
+    }
+    const m: Record<string, unknown> = JSON.parse(readFileSync(mp, "utf8"));
+    const result: Record<string, unknown> = { ...m, files };
+    const dp = join(dir, "decision.json");
+    if (existsSync(dp)) {
+      try {
+        const d: Record<string, unknown> = JSON.parse(readFileSync(dp, "utf8"));
+        result.taskClass = d.taskClass;
+        result.profile = d.profile;
+        result.overrides = d.overridesApplied;
+        const cands = d.candidates;
+        result.candidates = Array.isArray(cands) ? cands.length : undefined;
+      } catch {
+        /* ignore */
+      }
+    }
+    if (opts.json) {
+      console.log(JSON.stringify(result, null, 2));
+    } else {
+      console.log(`Run: ${runDir}`);
+      console.log(`  Model: ${m.model ?? "?"}`);
+      console.log(`  Mode: ${m.mode ?? "?"}`);
+      console.log(`  Apply: ${Boolean(m.apply)}`);
+      console.log(`  Exit code: ${m.exitCode ?? "?"}`);
+      console.log(`  Timed out: ${Boolean(m.timedOut)}`);
+      console.log(`  Task class: ${result.taskClass ?? "?"}`);
+      console.log(`  Profile: ${result.profile ?? "?"}`);
+      console.log(`  Artifacts: ${files.join(", ")}`);
     }
   });
 

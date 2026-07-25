@@ -21,6 +21,7 @@
 | REQ-ORCH-FLAGS | §7.7 | cli | orchestrate options | cli wiring | DONE |
 | REQ-TELEMETRY-CMD | §7.8 | telemetry | stats | unit aggregate | DONE |
 | REQ-CONFIG-CMD | §7.9 | config | config * | unit loader | DONE |
+| REQ-RUNS-CMD | §10.11 | cli | cli.ts runs list/show | manual verify | DONE |
 | REQ-CONFIG-PREC | §8 | config | loader/merge | unit | DONE |
 | REQ-SEED-PRICING | §9 | pricing | models.seed.json | unit calc | DONE |
 | REQ-LIVE-MODEL-IDS | §9 | discovery | corrected IDs | baseline | DONE |
@@ -44,6 +45,7 @@
 | REQ-TESTS | §27 | tests/ | unit+integration | npm test | DONE |
 | REQ-LIVE-OPTIN | §28 | tests/live | test:live | DONE (live smoke PASS) |
 | REQ-ACCEPTANCE | §29-32 | artifacts | ACCEPTANCE.json | final | DONE |
+| REQ-THREAT-MODEL | §7.4 | security | docs/THREAT-MODEL.md | review | DONE |
 | REQ-NON-GOALS | §34 | architecture | docs | review | DONE |
 
 ## Contradiction check

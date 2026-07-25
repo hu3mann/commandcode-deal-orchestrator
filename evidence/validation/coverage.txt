@@ -1,0 +1,63 @@
+
+> commandcode-deal-orchestrator@0.1.0 test:coverage
+> vitest run --coverage
+
+
+ RUN  v3.2.7 /Users/hue/code/cmdrouter
+      Coverage enabled with v8
+
+ ✓ tests/unit/classifier.test.ts (8 tests) 4ms
+ ✓ tests/unit/config.test.ts (4 tests) 34ms
+ ✓ tests/unit/config-loader.test.ts (6 tests) 39ms
+ ✓ tests/unit/pricing.test.ts (5 tests) 7ms
+ ✓ tests/unit/pricing-snapshot.test.ts (8 tests) 12ms
+ ✓ tests/unit/telemetry.test.ts (1 test) 4ms
+ ✓ tests/unit/eligibility-extra.test.ts (5 tests) 23ms
+ ✓ tests/unit/router.test.ts (7 tests) 36ms
+ ✓ tests/unit/branch-coverage.test.ts (14 tests) 33ms
+ ✓ tests/unit/hooks.test.ts (4 tests) 408ms
+ ✓ tests/unit/orchestration.test.ts (7 tests) 12ms
+ ✓ tests/unit/security-extra.test.ts (5 tests) 2ms
+ ✓ tests/integration/decide-no-spawn.test.ts (1 test) 725ms
+   ✓ decide no model call > never passes --print to cmd  715ms
+ ✓ tests/unit/model-catalog.test.ts (1 test) 3ms
+ ✓ tests/integration/apply-argv.test.ts (3 tests) 3ms
+ ✓ tests/unit/security.test.ts (10 tests) 3ms
+ ✓ tests/unit/doctor-flags.test.ts (2 tests) 7611ms
+   ✓ doctor accuracy > detects auto-accept in full help when cmd present  7602ms
+
+ Test Files  17 passed (17)
+      Tests  91 passed (91)
+   Start at  21:40:50
+   Duration  8.67s (transform 1.06s, setup 0ms, collect 4.19s, tests 8.96s, environment 2ms, prepare 1.37s)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |    92.7 |    86.31 |     100 |    92.7 |                   
+ classifier        |   97.71 |    88.88 |     100 |   97.71 |                   
+  deterministic.ts |   95.95 |    88.52 |     100 |   95.95 | 96,101,105-106    
+  signals.ts       |     100 |      100 |     100 |     100 |                   
+ config            |   91.77 |     82.6 |     100 |   91.77 |                   
+  defaults.ts      |   89.28 |    66.66 |     100 |   89.28 | 18,20-21          
+  loader.ts        |   81.39 |    76.74 |     100 |   81.39 | ...02-106,109-110 
+  merge.ts         |     100 |      100 |     100 |     100 |                   
+  schemas.ts       |     100 |      100 |     100 |     100 |                   
+ pricing           |   93.16 |    91.04 |     100 |   93.16 |                   
+  calculator.ts    |     100 |    97.29 |     100 |     100 | 73                
+  ...ial-source.ts |     100 |      100 |     100 |     100 |                   
+  refresh.ts       |    79.1 |       75 |     100 |    79.1 | 56-61,72-73,91-96 
+  snapshot.ts      |   97.14 |    88.88 |     100 |   97.14 | 43,56             
+ router            |   89.73 |    83.08 |     100 |   89.73 |                   
+  eligibility.ts   |   74.07 |       80 |     100 |   74.07 | ...98,115,117-122 
+  explain.ts       |     100 |    71.42 |     100 |     100 | 12-14             
+  scorer.ts        |   96.77 |     92.3 |     100 |   96.77 | 31-32             
+  select.ts        |   94.07 |    85.24 |     100 |   94.07 | ...29,153,155-156 
+ security          |   95.76 |    91.11 |     100 |   95.76 |                   
+  ...and-policy.ts |   91.48 |       92 |     100 |   91.48 | 43-44,46-47       
+  path-policy.ts   |      96 |       75 |     100 |      96 | 13                
+  ...sion-guard.ts |     100 |      100 |     100 |     100 |                   
+-------------------|---------|----------|---------|---------|-------------------
+exit=0
+linet: 92.7
