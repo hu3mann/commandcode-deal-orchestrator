@@ -1,31 +1,34 @@
 # Test Report
 
-Date: 2026-07-23 (updated after live smoke)
+Date: 2026-07-25
 
 ## Deterministic suite
 
 ```bash
 npm run typecheck   # pass
 npm run lint        # pass
-npm test            # 89 passed
-npm run test:coverage  # lines 93.07% branches 86.02%
+npm test            # 91 passed (17 files)
+npm run test:coverage  # lines 92.7% branches 86.31%
 npm run build       # pass
-npm pack            # commandcode-deal-orchestrator-0.1.0.tgz
+npm pack            # SHA256: 2eea387547347b31cd22f5acb6cdda1bf4ab701cc67ced459403472e1af517f7
 ```
 
-## Live smoke (`CCROUTE_LIVE=1 npm run test:live`)
+## CLI commands verified
 
-| Test | Result |
+| Command | Result |
 | --- | --- |
-| authenticated cmd | pass |
-| decide no model call | pass |
-| read-only free model `inclusionai/ling-3.0-flash-free` | pass (exit 0, ~4.6s, est $0.00015) |
-| bounded Grok 4.5 plan | pass (exit 0, est $0.029445) |
+| `ccroute doctor` | PASS — node, cmd path, version, auth, 48 models |
+| `ccroute doctor --json` | PASS — structured JSON output |
+| `ccroute config validate` | PASS — merged config OK |
+| `ccroute decide "test task"` | PASS — deterministic, 0 LLM calls |
+| `ccroute explain "test task"` | PASS — full explanation output |
+| `ccroute runs list` | PASS — "(no runs)" correct output |
+| `ccroute --version` | PASS — "0.1.0" |
 
-Total estimated live spend: **~$0.03** (under $0.25 budget). No `--apply` / write tests.
+## Isolated package install
 
-## Fixes in this pass
+PASS — `npm install` from `.tgz` in temp directory; `ccroute --version`, `ccroute doctor`, `ccroute decide`, `ccroute config validate` all work.
 
-- Doctor no longer falsely reports `CLI flags` with empty overrides
-- Doctor flag detection reads full help (auto-accept / yolo / skip-onboarding)
-- Real live smoke suite replaces placeholder
+## Live smoke
+
+NOT_RUN this session (no `CCROUTE_LIVE=1` flag). Previous session passed with CommandCode v1.3.1 under $0.03 budget.
