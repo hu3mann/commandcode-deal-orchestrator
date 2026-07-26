@@ -10,3 +10,4 @@ coverage/
 
 .commandcode/settings.json
 .commandcode/settings.local.json
+.worktrees/

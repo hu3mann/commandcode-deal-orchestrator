@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { QualityTierSchema } from "../domain/model.js";
 import { RoutingProfileSchema, TaskClassSchema } from "../domain/task.js";
+import { DEFAULT_VALIDATION_COMMANDS } from "../orchestration/validation-gate.js";
 
 export const ProfileWeightsSchema = z.object({
   costWeight: z.number().nonnegative(),
@@ -88,6 +89,29 @@ export const PricingFreshnessConfigSchema = z.object({
 });
 export type PricingFreshnessConfig = z.infer<typeof PricingFreshnessConfigSchema>;
 
+/**
+ * §24.5 deterministic validation gate configuration (see
+ * src/orchestration/validation-gate.ts, which defines the runtime shape this schema
+ * mirrors and defaults from — `DEFAULT_VALIDATION_COMMANDS` there is the single source of
+ * truth for the four gates named in §24.5: type-check, lint, unit tests, build). Wiring
+ * this block through to `orchestrate()`'s `validationGate` option is cli.ts's
+ * responsibility (see src/cli.ts's `orchestrate` command).
+ */
+export const ValidationCommandSpecSchema = z.object({
+  name: z.string().min(1),
+  argv: z.array(z.string()).min(1),
+  timeoutMs: z.number().int().positive().optional(),
+});
+export type ValidationCommandSpec = z.infer<typeof ValidationCommandSpecSchema>;
+
+export const ValidationConfigSchema = z.object({
+  enabled: z.boolean().default(true),
+  commands: z.array(ValidationCommandSpecSchema).default(DEFAULT_VALIDATION_COMMANDS),
+  timeoutMs: z.number().int().positive().default(300_000),
+  maxOutputBytesPerCommand: z.number().int().positive().default(200_000),
+});
+export type ValidationConfig = z.infer<typeof ValidationConfigSchema>;
+
 export const RoutingConfigSchema = z.object({
   schemaVersion: z.literal(1),
   profiles: z.object({
@@ -133,6 +157,7 @@ export const RoutingConfigSchema = z.object({
   noFree: z.boolean().default(false),
   scoring: ScoringConfigSchema.default({}),
   pricing: PricingFreshnessConfigSchema.default({}),
+  validation: ValidationConfigSchema.default({}),
 });
 export type RoutingConfig = z.infer<typeof RoutingConfigSchema>;
 
