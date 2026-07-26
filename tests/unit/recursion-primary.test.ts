@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import {
   RecursionError,
   assertCcrouteEntryAllowed,
@@ -12,6 +13,22 @@ import {
 const root = process.cwd();
 const cli = join(root, "dist/cli.js");
 
+function ensureBuiltCli(): void {
+  if (existsSync(cli)) return;
+  // CI runs `npm test` before `npm run build`; produce the binary entry for spawn probes.
+  const built = spawnSync("npm", ["run", "build"], {
+    cwd: root,
+    encoding: "utf8",
+    shell: false,
+    env: process.env,
+  });
+  if (built.status !== 0 || !existsSync(cli)) {
+    throw new Error(
+      `failed to build dist/cli.js for recursion CLI probe:\n${built.stdout}\n${built.stderr}`,
+    );
+  }
+}
+
 function runCli(env: NodeJS.ProcessEnv, args: string[]) {
   return spawnSync(process.execPath, [cli, ...args], {
     encoding: "utf8",
@@ -21,6 +38,10 @@ function runCli(env: NodeJS.ProcessEnv, args: string[]) {
 }
 
 describe("primary recursion enforcement", () => {
+  beforeAll(() => {
+    ensureBuiltCli();
+  });
+
   it("treats missing depth as zero", () => {
     expect(readDepth({})).toBe(0);
     expect(() => assertPrimaryRecursionGuard({})).not.toThrow();
@@ -58,15 +79,7 @@ describe("primary recursion enforcement", () => {
   });
 
   it("CLI entry rejects child env for doctor/decide/run (binary-level)", () => {
-    // Requires built dist; skip soft if missing
-    const built = spawnSync(
-      process.execPath,
-      ["-e", `require('fs').accessSync(${JSON.stringify(cli)})`],
-      {
-        encoding: "utf8",
-      },
-    );
-    // use exists via spawn of decide
+    ensureBuiltCli();
     const child = childEnv("planner", "r1", 0);
     for (const args of [
       ["doctor", "--json"],
