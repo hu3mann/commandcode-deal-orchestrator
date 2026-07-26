@@ -1,3 +1,4 @@
+import { isDealExpired, isDealPending } from "../domain/deal.js";
 import type { DealRecord, DealSnapshot } from "../domain/deal.js";
 import type { Deal, ModelPricing, PricingSnapshot } from "../domain/model.js";
 import {
@@ -5,7 +6,7 @@ import {
   type ParsedOfficialPricing,
   buildPageIdResolver,
 } from "./official-html.js";
-import { sha256 } from "./snapshot.js";
+import { computeDealSourceHash, computePricingSourceHash } from "./snapshot.js";
 
 export type MergeOfficialResult = {
   pricing: PricingSnapshot;
@@ -15,26 +16,38 @@ export type MergeOfficialResult = {
   updatedDealModelIds: string[];
 };
 
-function dealFromParsed(p: ParsedOfficialDeal, now: Date): Deal {
+function dealFromParsed(p: ParsedOfficialDeal, _now: Date): Deal {
   if (p.free) {
     return {
       type: "free",
+      kind: "free",
       label: p.label,
       expiresAt: p.expiresAt,
+      startsAt: p.startsAt,
       capacityLimited: Boolean(p.endsWhen && /capacity/i.test(p.endsWhen)),
     };
   }
-  if (p.expiresAt && Date.parse(p.expiresAt) <= now.getTime()) {
-    return {
-      type: "temporary_rate",
-      label: p.label,
-      expiresAt: p.expiresAt,
-    };
-  }
+
+  // §14 fix: the presence of an expiresAt — whether already past or still in the future —
+  // makes a deal temporary by definition; only a deal with NO end date is a genuine
+  // permanent rate. (The previous logic was inverted: a still-active, time-bound deal
+  // was classified "permanent_price_reduction", and only became "temporary_rate" once it
+  // had *already* expired.)
+  const isTemporary = Boolean(p.expiresAt);
+  const kind =
+    p.usageMultiplier !== undefined
+      ? "multiplier"
+      : isTemporary
+        ? "temporary_rate"
+        : "permanent_rate";
+
   return {
-    type: "permanent_price_reduction",
+    type: isTemporary ? "temporary_rate" : "permanent_price_reduction",
+    kind,
     label: p.label,
     expiresAt: p.expiresAt,
+    startsAt: p.startsAt,
+    ...(p.usageMultiplier !== undefined ? { multiplier: p.usageMultiplier } : {}),
   };
 }
 
@@ -76,10 +89,17 @@ function applyRate(
 
   if (deal) {
     next.deal = deal;
-    if (deal.type === "free") {
+    if (isDealPending(deal.startsAt, now)) {
+      // §14 startsAt gate: the deal exists but has not started yet — it must NOT be
+      // applied. Record it (so it's visible ahead of time, e.g. via `ccroute deals
+      // list`), but classify pricing exactly as if no deal were in effect.
+      next.priceBasis =
+        model.priceBasis === "temporary_introductory_rate"
+          ? "temporary_introductory_rate"
+          : "current_rate";
+    } else if (deal.type === "free") {
       next.priceBasis = "post_discount";
-      const expired = deal.expiresAt ? Date.parse(deal.expiresAt) <= now.getTime() : false;
-      next.availability = expired ? "expired_deal" : "available";
+      next.availability = isDealExpired(deal.expiresAt, now) ? "expired_deal" : "available";
     } else if (deal.type === "permanent_price_reduction") {
       next.priceBasis = "post_discount";
       next.availability = "available";
@@ -155,6 +175,11 @@ export function mergeOfficialIntoSnapshots(options: {
     if (!current) continue;
     if (updatedModelIds.includes(modelId)) continue;
     const deal = dealFromParsed(parsedDeal, now);
+    if (isDealPending(deal.startsAt, now)) {
+      // §14: not started yet — must not zero the rate out early. Leave the model as-is;
+      // the deal will be picked up by a future refresh once it becomes active.
+      continue;
+    }
     byId.set(
       modelId,
       applyRate(
@@ -176,7 +201,7 @@ export function mergeOfficialIntoSnapshots(options: {
     schemaVersion: 1,
     retrievedAt,
     source,
-    sourceHash: sha256(JSON.stringify(models)),
+    sourceHash: computePricingSourceHash(models),
     models,
   };
 
@@ -191,8 +216,11 @@ export function mergeOfficialIntoSnapshots(options: {
     dealMap.set(modelId, {
       modelId,
       type: deal.type,
+      kind: deal.kind,
       label: deal.label,
       expiresAt: deal.expiresAt ?? null,
+      startsAt: deal.startsAt ?? null,
+      ...(deal.multiplier !== undefined ? { multiplier: deal.multiplier } : {}),
       capacityLimited: deal.capacityLimited,
     });
     updatedDealModelIds.push(modelId);
@@ -202,7 +230,7 @@ export function mergeOfficialIntoSnapshots(options: {
     schemaVersion: 1,
     retrievedAt,
     source,
-    sourceHash: sha256(JSON.stringify([...dealMap.values()])),
+    sourceHash: computeDealSourceHash([...dealMap.values()]),
     deals: [...dealMap.values()],
   };
 

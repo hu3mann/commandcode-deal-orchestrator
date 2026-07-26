@@ -1,8 +1,14 @@
 # CommandCode Capability Baseline
 
 Captured: 2026-07-23  
-Local CLI: Command Code **v1.3.1**  
-Auth: authenticated (`cmd status --json`)
+Re-probed: 2026-07-26 (audit remediation)  
+Local CLI: Command Code **v1.4.1**  
+Auth: authenticated (`cmd status --json`; account identifier redacted in stored evidence per §6)  
+Live catalog: **48 models** (`cmd --list-models`)
+
+> The original baseline recorded v1.3.1 / 47 models while `ACCEPTANCE.json` asserted
+> v1.4.1. That drift is corrected here from a fresh probe; evidence files under
+> `evidence/` were regenerated at the same time.
 
 ## Classification legend
 
@@ -37,7 +43,7 @@ Auth: authenticated (`cmd status --json`)
 | `cmd --output-format json` | DOCUMENTED | NDJSON events |
 | `cmd --trust` | DOCUMENTED + LOCALLY_OBSERVED | Skip project trust prompt |
 | Skills (`SKILL.md`) | DOCUMENTED | User/project skill dirs |
-| Hooks (SessionStart, PreToolUse, …) | DOCUMENTED | stdin/stdout JSON |
+| Hooks (SessionStart, PreToolUse, …) | DOCUMENTED, **NOT LOCALLY_OBSERVED** | stdin/stdout JSON. `cmd --help` on v1.4.1 contains **zero** mentions of hooks (verified: `grep -ci hook evidence/commandcode-help.txt` → 0). The event names, the `PreToolUse` matcher value, and the deny-JSON contract are all assumed from documentation and are unverified against this binary. Any control that depends on hooks must be treated as **unverified defence-in-depth**, never as a primary control. |
 | Mods | DOCUMENTED | Not used for routing MVP |
 | Per-agent model field | UNSUPPORTED | Custom agents lack documented model field |
 | `setModel()` / transformInput API | UNSUPPORTED | Discarded folklore |

@@ -1,0 +1,22 @@
+=== ccroute --help ===
+exit=0
+
+=== ccroute --version ===
+exit=0
+
+=== ccroute doctor ===
+exit=0
+
+=== ccroute config validate ===
+exit=0
+
+=== ccroute models list ===
+exit=0
+
+=== ccroute deals status ===
+exit=0
+
+=== ccroute decide ===
+exit=0
+=== ccroute explain ===
+exit=0

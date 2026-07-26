@@ -1,7 +1,19 @@
+import type { RoutingConfig } from "../config/schemas.js";
 import type { RouteDecision } from "../domain/route.js";
 import type { ClassifiedTask } from "../domain/task.js";
 
-export function formatExplain(task: ClassifiedTask, decision: RouteDecision): string {
+/**
+ * `config` is optional so existing callers (e.g. src/cli.ts, not owned by this
+ * remediation) keep compiling and behaving identically without it. When supplied, §10.7 /
+ * §20 are satisfied: the active profile weights and every scoring coefficient are printed
+ * rather than left opaque (CCROUTE-001 defect 5). See the final report for the exact
+ * (optional, backward-compatible) `src/cli.ts` call-site change that enables this section.
+ */
+export function formatExplain(
+  task: ClassifiedTask,
+  decision: RouteDecision,
+  config?: RoutingConfig,
+): string {
   const lines: string[] = [];
   lines.push("## ccroute explain");
   lines.push("");
@@ -13,6 +25,44 @@ export function formatExplain(task: ClassifiedTask, decision: RouteDecision): st
   lines.push(`Required capabilities: ${task.requiredCapabilities.join(", ") || "(none)"}`);
   lines.push(`Overrides: ${decision.overridesApplied.join(", ") || "(none)"}`);
   lines.push("");
+  if (config) {
+    const weights = config.profiles[decision.profile];
+    const scoring = config.scoring;
+    lines.push("### Scoring configuration (active coefficients)");
+    lines.push(
+      `Profile weights (${decision.profile}): cost=${weights.costWeight}, ` +
+        `reliability=${weights.reliabilityWeight}, latency=${weights.latencyWeight}, ` +
+        `quality=${weights.qualityWeight}`,
+    );
+    lines.push(
+      `Success-rate smoothing: priorMean=${scoring.successRateSmoothing.priorMean}, ` +
+        `priorWeight=${scoring.successRateSmoothing.priorWeight}`,
+    );
+    lines.push(
+      `Failure-rate: defaultFailureRate=${scoring.defaultFailureRate}, ` +
+        `maxFailureRate=${scoring.maxFailureRate}, ` +
+        `minObservationsForPenalty=${config.telemetry.minObservationsForPenalty}`,
+    );
+    lines.push(
+      `Default average latency prior (no telemetry): ${scoring.defaultAverageLatencyMs}ms`,
+    );
+    lines.push(`Quality tier divisor: ${scoring.qualityTierDivisor}`);
+    lines.push(
+      `Cost floors: reliabilityCostFloorUsd=$${scoring.reliabilityCostFloorUsd}, ` +
+        `qualityCostFloorUsd=$${scoring.qualityCostFloorUsd}`,
+    );
+    lines.push(`Tie-break float epsilon: ${scoring.floatEpsilon}`);
+    lines.push(
+      `Reliability cost factors: retryCostFactor=${config.reliability.retryCostFactor}, ` +
+        `escalationCostFactor=${config.reliability.escalationCostFactor}, ` +
+        `latencyPenaltyPerSecondUsd=${config.reliability.latencyPenaltyPerSecondUsd}`,
+    );
+    lines.push(
+      `Pricing freshness thresholds: freshMaxAgeMs=${config.pricing.freshMaxAgeMs}, ` +
+        `acceptableMaxAgeMs=${config.pricing.acceptableMaxAgeMs}`,
+    );
+    lines.push("");
+  }
   lines.push("### Selected");
   lines.push(`Model: ${decision.selectedModelId}`);
   const sel = decision.candidates.find((c) => c.modelId === decision.selectedModelId);

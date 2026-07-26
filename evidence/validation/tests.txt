@@ -5,30 +5,129 @@
 
  RUN  v3.2.7 /Users/hue/code/cmdrouter
 
- ✓ tests/unit/pricing.test.ts (5 tests) 4ms
- ✓ tests/unit/official-html.test.ts (6 tests) 15ms
- ✓ tests/unit/telemetry.test.ts (1 test) 5ms
- ✓ tests/unit/config.test.ts (4 tests) 20ms
- ✓ tests/unit/pricing-snapshot.test.ts (8 tests) 16ms
- ✓ tests/unit/config-loader.test.ts (6 tests) 26ms
- ✓ tests/unit/eligibility-extra.test.ts (7 tests) 28ms
- ✓ tests/unit/orchestration.test.ts (7 tests) 11ms
- ✓ tests/unit/router.test.ts (7 tests) 28ms
- ✓ tests/unit/branch-coverage.test.ts (33 tests) 37ms
- ✓ tests/unit/hooks.test.ts (4 tests) 327ms
- ✓ tests/unit/security.test.ts (10 tests) 5ms
- ✓ tests/unit/security-extra.test.ts (5 tests) 2ms
- ✓ tests/unit/classifier.test.ts (8 tests) 2ms
+stderr | tests/unit/pricing-snapshot.test.ts > pricing snapshot + refresh > detects a schema-valid but tampered pricing snapshot and fails closed to the seed
+[ccroute] pricing snapshot at /var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/ccroute-price-7pVYP7/.commandcode/deal-router/pricing-snapshot.json failed sourceHash verification (expected 31a61f6cfbc78f222b2ca2752a36437497b82be832d0faea36d8c196797aa8ff, got "08aa133bec28bc47862ae801ebc9712c1dcfeb005f0983ed1a01886f215aafc0"); treating as tampered/corrupted and falling back to seed
+
+ ✓ tests/unit/eligibility-extra.test.ts (16 tests) 51ms
+ ✓ tests/unit/router.test.ts (17 tests) 60ms
+ ✓ tests/unit/official-html.test.ts (15 tests) 135ms
+ ✓ tests/unit/pricing-snapshot.test.ts (18 tests) 151ms
+ ✓ tests/unit/branch-coverage.test.ts (33 tests) 149ms
+ ✓ tests/unit/classifier.test.ts (31 tests) 26ms
+ ✓ tests/unit/domain-schemas.test.ts (9 tests) 32ms
+ ✓ tests/unit/telemetry.test.ts (12 tests) 1259ms
+   ✓ telemetry > survives concurrent appends from independent OS processes with no lost or corrupted records  1239ms
+ ✓ tests/unit/config-loader.test.ts (6 tests) 23ms
+ ✓ tests/unit/orchestration.test.ts (23 tests) 18ms
+ ✓ tests/unit/security-extra.test.ts (16 tests) 25ms
+ ✓ tests/unit/hooks.test.ts (6 tests) 1725ms
+   ✓ hooks > denies child recursion even when tool_display_name does not match /shell/i  583ms
+   ✓ hooks > blocks direct invocation of the bin entry point (node dist/cli.js), not just the ccroute name  443ms
+   ✓ hooks > session start injects context for child  481ms
+ ✓ tests/unit/redaction.test.ts (18 tests) 4ms
+ ✓ tests/unit/exit-codes.test.ts (11 tests) 4ms
+ ✓ tests/unit/security.test.ts (12 tests) 5ms
+ ✓ tests/unit/pricing.test.ts (11 tests) 5ms
+ ✓ tests/unit/git-safety.test.ts (7 tests) 3ms
+ ✓ tests/unit/config.test.ts (4 tests) 15ms
+ ✓ tests/integration/decide-no-spawn.test.ts (1 test) 2554ms
+   ✓ decide no model call > never passes --print to cmd  2552ms
  ✓ tests/unit/model-catalog.test.ts (1 test) 2ms
  ✓ tests/integration/apply-argv.test.ts (3 tests) 2ms
- ✓ tests/unit/git-safety.test.ts (7 tests) 2ms
- ✓ tests/integration/decide-no-spawn.test.ts (1 test) 774ms
-   ✓ decide no model call > never passes --print to cmd  774ms
- ✓ tests/unit/doctor-flags.test.ts (2 tests) 5382ms
-   ✓ doctor accuracy > detects auto-accept in full help when cmd present  5375ms
+ ✓ tests/unit/index-exports.test.ts (1 test) 2ms
+ ✓ tests/unit/orchestration-flow.test.ts (16 tests) 9010ms
+   ✓ orchestrate() end-to-end (§34.7) > 8. reviewer accept — full run succeeds and artifacts use the §31 filenames  1329ms
+   ✓ orchestrate() end-to-end (§34.7) > 9. reviewer repair — REPAIR_REQUIRED runs repair, then the reviewer accepts  2168ms
+   ✓ orchestrate() end-to-end (§34.7) > 10. repair limit — REPAIR_REQUIRED forever exceeds maxRepairs  2289ms
+   ✓ orchestrate() end-to-end (§34.7) > defect 1 proof: deterministic validation gate blocks the run despite a Reviewer ACCEPT  1093ms
+   ✓ orchestrate() end-to-end (§34.7) > defect 1 proof: a passing gate does not block a Reviewer ACCEPT  851ms
+   ✓ orchestrate() end-to-end (§34.7) > defect 6 proof: the Reviewer packet carries a real diffSummary and testResults  828ms
+ ✓ tests/unit/subprocess.test.ts (19 tests) 9726ms
+   ✓ spawnCommandCode > 1. sends the exact, fixed argv to the child (proven by the child itself)  307ms
+   ✓ spawnCommandCode > 2. shell:false -- a task with $(touch pwned) does not create the file, and metacharacters are not glob/shell interpreted  631ms
+   ✓ spawnCommandCode > 3. delivers the packet on stdin, never as an argv token  554ms
+   ✓ spawnCommandCode > 4. reports a clean, successful exit  684ms
+   ✓ spawnCommandCode > 5. preserves a nonzero exit code rather than swallowing it  596ms
+   ✓ spawnCommandCode > 6. kills a child that runs past the timeout, and it actually stops running  1609ms
+   ✓ spawnCommandCode > 8. caps captured stderr at maxStderrBytes instead of buffering unbounded output  327ms
+   ✓ spawnCommandCode > 9. kills the whole process group on timeout -- a grandchild dies too  1806ms
+   ✓ spawnCommandCode > 12. a task containing embedded newlines/CRLF is delivered verbatim over stdin  428ms
+   ✓ spawnCommandCode > wires opts.role/runId into both the stdin prefix and the child's recursion-guard env vars  429ms
+   ✓ spawnCommandCode > on a win32-shaped platform, kills via child.kill() directly rather than a process-group signal  1608ms
+ ✓ tests/unit/doctor-flags.test.ts (2 tests) 9914ms
+   ✓ doctor accuracy > detects auto-accept in full help when cmd present  9901ms
+ ✓ tests/unit/cli.test.ts (41 tests) 27466ms
+   ✓ buildRepoSignals (§16.7) > returns {} for a non-git directory  585ms
+   ✓ buildRepoSignals (§16.7) > reports tracked file count and a clean worktree  3723ms
+   ✓ buildRepoSignals (§16.7) > detects a dirty worktree  2944ms
+   ✓ buildRepoSignals (§16.7) > detects migrations/auth/infra directories from tracked file paths  2790ms
+   ✓ buildRepoSignals (§16.7) > detects a monorepo via pnpm-workspace.yaml  2014ms
+   ✓ buildRepoSignals (§16.7) > detects a monorepo via multiple packages/*/package.json entries  2036ms
+   ✓ gitStatusPaths > returns an empty set for a clean repo  1268ms
+   ✓ gitStatusPaths > returns the set of paths reported by git status --porcelain  1162ms
+   ✓ commitRunChanges (§29) > commits only files newly touched by the run and returns a hash  2115ms
+   ✓ commitRunChanges (§29) > does not commit a file that was already dirty before the run  1925ms
+   ✓ commitRunChanges (§29) > reports no commit when the run caused no file changes  1162ms
+   ✓ commitRunChanges (§29) > reports failure when git add cannot acquire the index lock  1602ms
+   ✓ commitRunChanges (§29) > reports failure when git commit is rejected by a pre-commit hook  1976ms
+   ✓ commitRunChanges (§29) > bounds an oversized task summary to keep the commit message bounded  1924ms
+error: unknown option '--this-flag-does-not-exist'
+0.1.0
+ ✓ tests/integration/cli-contract.test.ts (51 tests) 51218ms
+   ✓ cli contract (in-process, no LLM calls) > decide --json prints a task+decision envelope and never invokes --print  4326ms
+   ✓ cli contract (in-process, no LLM calls) > decide plain output prints the selected model id then the explanation  3468ms
+   ✓ cli contract (in-process, no LLM calls) > §22: rejects conflicting task markers with exit code 2  1483ms
+   ✓ cli contract (in-process, no LLM calls) > A1: an empty live catalog fails CLOSED — decide exits 13 (no eligible route)  2054ms
+   ✓ cli contract (in-process, no LLM calls) > decide skips reading telemetry entirely when telemetry.enabled is false  1941ms
+   ✓ cli contract (in-process, no LLM calls) > explain rejects conflicting task markers with exit code 2  1052ms
+   ✓ cli contract (in-process, no LLM calls) > explain (text) includes the A2 scoring-configuration section (coefficients + profile weights)  1990ms
+   ✓ cli contract (in-process, no LLM calls) > explain --json emits the full §10.7 field set  2113ms
+   ✓ cli contract (in-process, no LLM calls) > doctor --json reports version, pricing snapshot path, warnings, and a health status  1931ms
+   ✓ cli contract (in-process, no LLM calls) > doctor text output includes a Health: line  1907ms
+   ✓ cli contract (in-process, no LLM calls) > doctor is BLOCKED (exit 20) when cmd cannot be found at all  1056ms
+   ✓ cli contract (in-process, no LLM calls) > doctor reports Contradictions when cmd's --help lacks expected flags  1967ms
+   ✓ cli contract (in-process, no LLM calls) > doctor text mode also prints a Contradictions: line  1738ms
+   ✓ cli contract (in-process, no LLM calls) > doctor fails closed (exit 10) with an invalid --config  745ms
+   ✓ cli contract (in-process, no LLM calls) > models list --json prints the live model ids as a JSON array  811ms
+   ✓ cli contract (in-process, no LLM calls) > models list (text) prints one id per line  823ms
+   ✓ cli contract (in-process, no LLM calls) > models list exits 11 (MODEL_UNAVAILABLE) when cmd cannot be found  582ms
+   ✓ cli contract (in-process, no LLM calls) > models status --json reports pricing + live-catalog membership per model  836ms
+   ✓ cli contract (in-process, no LLM calls) > models status (text) reports the live catalog and per-model membership  826ms
+   ✓ cli contract (in-process, no LLM calls) > models status (text) reports live catalog unavailable when cmd is missing  592ms
+   ✓ cli contract (in-process, no LLM calls) > models refresh updates the persisted pricing snapshot from the live catalog  848ms
+   ✓ cli contract (in-process, no LLM calls) > models refresh marks a model unavailable when the live catalog no longer lists it  1059ms
+   ✓ cli contract (in-process, no LLM calls) > models status fails closed (exit 10) with an invalid --config  610ms
+   ✓ cli contract (in-process, no LLM calls) > models refresh fails closed (exit 10) with an invalid --config  582ms
+   ✓ cli contract (in-process, no LLM calls) > deals list --json prints the deal snapshot as JSON  582ms
+   ✓ cli contract (in-process, no LLM calls) > deals list (text) prints tab-separated deal rows  615ms
+   ✓ cli contract (in-process, no LLM calls) > deals status reports retrieval metadata and expiry per deal  603ms
+   ✓ cli contract (in-process, no LLM calls) > deals refresh (no --network) re-seeds from bundled data  617ms
+   ✓ cli contract (in-process, no LLM calls) > config show --json prints the full merged configuration  592ms
+   ✓ cli contract (in-process, no LLM calls) > config show (text) prints a human-readable summary, not raw JSON  586ms
+   ✓ cli contract (in-process, no LLM calls) > --config <path> loads an explicit config file, overriding discovery  608ms
+   ✓ cli contract (in-process, no LLM calls) > --config <path> fails closed (exit 10) when the file does not exist  600ms
+   ✓ cli contract (in-process, no LLM calls) > config paths prints the user/project/state config paths  586ms
+   ✓ cli contract (in-process, no LLM calls) > config validate reports OK when there is no user/project config  604ms
+   ✓ cli contract (in-process, no LLM calls) > config validate fails closed (exit 1) on an invalid project config  605ms
+   ✓ cli contract (in-process, no LLM calls) > stats --since rejects an invalid date with exit code 2  596ms
+   ✓ cli contract (in-process, no LLM calls) > stats --since filters telemetry events before the given date  609ms
+   ✓ cli contract (in-process, no LLM calls) > runs list reports (no runs) in a fresh repo  578ms
+   ✓ cli contract (in-process, no LLM calls) > runs list reports each run's model/taskClass/exit/mode from its artifacts  582ms
+   ✓ cli contract (in-process, no LLM calls) > runs list reports (no manifest) for a run dir missing manifest.json  586ms
+   ✓ cli contract (in-process, no LLM calls) > runs list reports (no runs) when the runs directory exists but is empty  577ms
+   ✓ cli contract (in-process, no LLM calls) > runs list reports (corrupt manifest) for an unparsable manifest.json  577ms
+   ✓ cli contract (in-process, no LLM calls) > runs list ignores an unparsable decision.json but still shows the manifest line  576ms
+   ✓ cli contract (in-process, no LLM calls) > runs show --json prints the manifest merged with decision metadata  574ms
+   ✓ cli contract (in-process, no LLM calls) > runs show (text) prints a human-readable run summary  583ms
+   ✓ cli contract (in-process, no LLM calls) > runs show ignores an unparsable decision.json and still prints the manifest  577ms
+   ✓ cli contract (in-process, no LLM calls) > runs show prints a bare runId+files envelope when manifest.json is missing  575ms
+   ✓ cli contract (in-process, no LLM calls) > runs show exits with an error when the run id does not exist  577ms
+   ✓ cli contract (in-process, no LLM calls) > runs show exits with an error when the runs directory does not exist at all  579ms
+   ✓ cli contract (in-process, no LLM calls) > commander usage error (unknown option) exits 2, not 1  566ms
+   ✓ cli contract (in-process, no LLM calls) > commander --version exits 0 and prints the package version  568ms
 
- Test Files  19 passed (19)
-      Tests  125 passed (125)
-   Start at  02:31:54
-   Duration  5.83s (transform 552ms, setup 0ms, collect 1.72s, tests 6.69s, environment 2ms, prepare 1.26s)
+ Test Files  27 passed (27)
+      Tests  400 passed (400)
+   Start at  06:07:23
+   Duration  51.85s (transform 1.27s, setup 0ms, collect 3.40s, tests 113.58s, environment 3ms, prepare 1.69s)
 

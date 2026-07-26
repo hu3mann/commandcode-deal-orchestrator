@@ -1,15 +1,35 @@
+import type { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { mkdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync } from "node:fs";
 import type { RoutingConfig } from "../config/schemas.js";
 import type { RouteDecision } from "../domain/route.js";
 import type { ClassifiedTask } from "../domain/task.js";
 import { spawnCommandCode } from "../subprocess/commandcode.js";
 import { appendTelemetry } from "../telemetry/store.js";
-import { buildRoleStdin } from "./packet.js";
+import {
+  copyPricingSnapshotBestEffort,
+  writeDecisionAtomic,
+  writeManifestAtomic,
+  writeRoleRawAtomic,
+  writeRoleResultAtomic,
+  writeTaskMetadataAtomic,
+  writeTestsArtifactAtomic,
+} from "./artifacts.js";
+import { computeBoundedGitDiff } from "./diff.js";
+import { RolePacketTooLargeError, buildRoleStdin } from "./packet.js";
 import { type RoleResult, formatRepairPrompt, parseRoleResult } from "./result-parser.js";
 import { type RoleName, roleNeedsPlanMode, roleNeedsWrite } from "./roles.js";
-import { sanitizeRoleResult, validateRoleSemantics } from "./validation.js";
+import {
+  type ValidationGateConfig,
+  type ValidationGateResult,
+  formatValidationSummary,
+  runValidationGate,
+} from "./validation-gate.js";
+import {
+  type RoleSemanticsContext,
+  sanitizeRoleResult,
+  validateRoleSemantics,
+} from "./validation.js";
 
 export interface OrchestrateOptions {
   cmdPath: string;
@@ -34,8 +54,26 @@ export interface OrchestrateOptions {
     noAdvisor?: boolean;
     noReviewer?: boolean;
     maxTurns?: number;
+    /**
+     * §24.5: the deterministic validation gate defaults to ON. This is the ONLY
+     * supported way to turn it off — an explicit, deliberate flag, never an implicit
+     * side effect of some other option.
+     */
+    skipValidation?: boolean;
   };
+  /** Injection seam for tests: never spawn a real CommandCode child from a unit test. */
   spawnImpl?: typeof spawnCommandCode;
+  /**
+   * §24.5 deterministic validation gate configuration. Sensible defaults apply when
+   * omitted (see validation-gate.ts: type-check, lint, unit tests, build via npm
+   * scripts). Once src/config/schemas.ts grows a `validation` block (see the wiring
+   * note in the final report), cli.ts should populate this from
+   * `loaded.config.validation`.
+   */
+  validationGate?: Partial<ValidationGateConfig>;
+  /** Injection seam for tests: never spawn real validation commands (tsc/biome/vitest)
+   * from inside a unit test — always supply a fake here. */
+  validationSpawnImpl?: typeof spawn;
 }
 
 export interface OrchestrateResult {
@@ -52,8 +90,9 @@ async function runRole(
   model: string,
   stdin: string,
   runId: string,
+  semanticsContext?: RoleSemanticsContext,
 ): Promise<{ result?: RoleResult; raw: string; error?: string; exitCode: number }> {
-  const spawn = opts.spawnImpl ?? spawnCommandCode;
+  const spawnImpl = opts.spawnImpl ?? spawnCommandCode;
   const maxTurns =
     opts.flags.maxTurns ??
     (role === "planner"
@@ -83,7 +122,7 @@ async function runRole(
       });
     }
 
-    const res = await spawn({
+    const res = await spawnImpl({
       cmdPath: opts.cmdPath,
       model,
       stdinText: currentStdin,
@@ -100,13 +139,11 @@ async function runRole(
     });
 
     lastRaw = res.stdout;
-    writeFileSync(join(opts.runDir, `${role}-raw-${attempt}.txt`), res.stdout, "utf8");
+    // Redact before persisting (defect §5: raw child stdout was written unredacted).
+    writeRoleRawAtomic(opts.runDir, role, attempt, res.stdout);
 
     if (res.timedOut) {
       return { raw: lastRaw, error: "timeout", exitCode: res.exitCode ?? 1 };
-    }
-    if (res.exitCode && res.exitCode !== 0) {
-      // still try parse
     }
 
     const parsed = parseRoleResult(res.stdout);
@@ -115,14 +152,14 @@ async function runRole(
       currentStdin = `${stdin}\n\n${formatRepairPrompt(parsed.error)}`;
       continue;
     }
-    const sem = validateRoleSemantics(role, parsed.result);
+    const sem = validateRoleSemantics(role, parsed.result, semanticsContext);
     if (!sem.ok) {
       lastError = sem.error;
       currentStdin = `${stdin}\n\n${formatRepairPrompt(sem.error)}`;
       continue;
     }
     const clean = sanitizeRoleResult(parsed.result);
-    writeFileSync(join(opts.runDir, `${role}-result.json`), JSON.stringify(clean, null, 2));
+    writeRoleResultAtomic(opts.runDir, role, clean);
     if (opts.telemetryEnabled && opts.telemetryPath) {
       appendTelemetry(opts.telemetryPath, {
         schemaVersion: 1,
@@ -148,203 +185,252 @@ async function runRole(
 export async function orchestrate(opts: OrchestrateOptions): Promise<OrchestrateResult> {
   const runId = randomUUID();
   mkdirSync(opts.runDir, { recursive: true });
-  writeFileSync(join(opts.runDir, "task.json"), JSON.stringify(opts.task, null, 2));
-  writeFileSync(join(opts.runDir, "decision.json"), JSON.stringify(opts.decision, null, 2));
+  writeTaskMetadataAtomic(opts.runDir, opts.task);
+  writeDecisionAtomic(opts.runDir, opts.decision);
 
   const roles: Partial<Record<RoleName, RoleResult>> = {};
-  const defaultModel = opts.decision.selectedModelId;
-  const plannerModel = opts.models.planner ?? defaultModel;
-  const advisorModel = opts.models.advisor ?? pickDifferent(defaultModel, plannerModel, opts);
-  const executorModel = opts.models.executor ?? defaultModel;
-  const reviewerModel = opts.models.reviewer ?? defaultModel;
+  const maxPromptBytes = opts.config.security.maxPromptBytes;
 
-  let plan: unknown = null;
-
-  if (!opts.flags.noPlanner) {
-    const stdin = buildRoleStdin({
-      role: "planner",
-      task: opts.task.cleanedText,
-      riskSignals: opts.task.signals,
-      acceptance: ["Produce a bounded plan", "Do not modify files"],
+  /** Writes manifest.json + summary.md and returns the terminal result. Called on EVERY
+   * return path (defect §5: previously only 2 of ~9 terminal paths wrote a manifest). */
+  function finalize(
+    status: string,
+    exitCode: number,
+    summary: string,
+    blockedReason?: string,
+  ): OrchestrateResult {
+    writeManifestAtomic(opts.runDir, {
+      runId,
+      status,
+      apply: opts.apply,
+      task: opts.task,
+      decision: opts.decision,
+      roles,
+      blockedReason,
     });
-    const r = await runRole(opts, "planner", plannerModel, stdin, runId);
-    if (r.error || !r.result) {
-      return {
-        runId,
-        roles,
-        exitCode: r.exitCode || 2,
-        summary: r.error ?? "planner failed",
-        blockedReason: r.error,
-      };
-    }
-    roles.planner = r.result;
-    plan = r.result.artifacts[0] ?? r.result.summary;
+    copyPricingSnapshotBestEffort(opts.runDir);
+    return { runId, roles, exitCode, summary, blockedReason };
+  }
 
-    if (!opts.flags.noAdvisor) {
-      let revisions = 0;
-      while (revisions <= opts.config.orchestration.maxPlannerRevisions) {
-        const astdin = buildRoleStdin({
-          role: "advisor",
-          task: opts.task.cleanedText,
-          plan,
-          riskSignals: opts.task.signals,
-        });
-        // Enforce independence: advisor model must differ when both enabled
-        const advModel =
-          advisorModel === plannerModel
-            ? pickDifferent(plannerModel, plannerModel, opts)
-            : advisorModel;
-        const ar = await runRole(opts, "advisor", advModel, astdin, runId);
-        if (ar.error || !ar.result) {
-          return {
-            runId,
-            roles,
-            exitCode: ar.exitCode || 2,
-            summary: ar.error ?? "advisor failed",
-            blockedReason: ar.error,
-          };
+  function stdin(packet: Parameters<typeof buildRoleStdin>[0]): string {
+    return buildRoleStdin(packet, { maxBytes: maxPromptBytes });
+  }
+
+  try {
+    const defaultModel = opts.decision.selectedModelId;
+    const plannerModel = opts.models.planner ?? defaultModel;
+    const advisorModel =
+      opts.models.advisor ?? pickDistinctModel(defaultModel, plannerModel, opts) ?? plannerModel;
+    const executorModel = opts.models.executor ?? defaultModel;
+    const reviewerModel = opts.models.reviewer ?? defaultModel;
+
+    let plan: unknown = null;
+
+    if (!opts.flags.noPlanner) {
+      const pstdin = stdin({
+        role: "planner",
+        task: opts.task.cleanedText,
+        riskSignals: opts.task.signals,
+        acceptance: ["Produce a bounded plan", "Do not modify files"],
+      });
+      const r = await runRole(opts, "planner", plannerModel, pstdin, runId);
+      if (r.error || !r.result) {
+        return finalize("PLANNER_FAILED", r.exitCode || 2, r.error ?? "planner failed", r.error);
+      }
+      roles.planner = r.result;
+      plan = r.result.artifacts[0] ?? r.result.summary;
+
+      if (!opts.flags.noAdvisor) {
+        // §24.3 fail-closed: identical planner/advisor model IDs must be REJECTED, never
+        // silently substituted. This is layer 1; validateRoleSemantics carries layer 2.
+        if (advisorModel === plannerModel) {
+          return finalize(
+            "ADVISOR_INDEPENDENCE_BLOCKED",
+            7,
+            "Advisor independence violated: planner and advisor would use the identical model",
+            `planner and advisor both resolve to model "${plannerModel}"; §24.3 requires distinct models and forbids silently falling back to the same one when no distinct alternate is available`,
+          );
         }
-        roles.advisor = ar.result;
-        if (ar.result.decision === "PLAN_APPROVED" || !ar.result.decision) break;
-        if (ar.result.decision === "PLAN_REQUIRES_REVISION") {
-          revisions += 1;
-          if (revisions > opts.config.orchestration.maxPlannerRevisions) {
-            return {
-              runId,
-              roles,
-              exitCode: 3,
-              summary: "Planner revision limit reached",
-              blockedReason: "PLAN_REQUIRES_REVISION limit",
-            };
-          }
-          const pstdin = buildRoleStdin({
-            role: "planner",
+
+        let revisions = 0;
+        while (revisions <= opts.config.orchestration.maxPlannerRevisions) {
+          const astdin = stdin({
+            role: "advisor",
             task: opts.task.cleanedText,
-            previous: ar.result,
+            plan,
             riskSignals: opts.task.signals,
           });
-          const pr = await runRole(opts, "planner", plannerModel, pstdin, runId);
-          if (pr.error || !pr.result) {
-            return {
-              runId,
-              roles,
-              exitCode: pr.exitCode || 2,
-              summary: pr.error ?? "planner revision failed",
-              blockedReason: pr.error,
-            };
+          const ar = await runRole(opts, "advisor", advisorModel, astdin, runId, {
+            plannerModelId: plannerModel,
+            advisorModelId: advisorModel,
+          });
+          if (ar.error || !ar.result) {
+            return finalize(
+              "ADVISOR_FAILED",
+              ar.exitCode || 2,
+              ar.error ?? "advisor failed",
+              ar.error,
+            );
           }
-          roles.planner = pr.result;
-          plan = pr.result.artifacts[0] ?? pr.result.summary;
-        } else break;
+          roles.advisor = ar.result;
+          if (ar.result.decision === "PLAN_APPROVED" || !ar.result.decision) break;
+          if (ar.result.decision === "PLAN_REQUIRES_REVISION") {
+            revisions += 1;
+            if (revisions > opts.config.orchestration.maxPlannerRevisions) {
+              return finalize(
+                "PLANNER_REVISION_LIMIT",
+                3,
+                "Planner revision limit reached",
+                "PLAN_REQUIRES_REVISION limit",
+              );
+            }
+            const rpstdin = stdin({
+              role: "planner",
+              task: opts.task.cleanedText,
+              previous: ar.result,
+              riskSignals: opts.task.signals,
+            });
+            const pr = await runRole(opts, "planner", plannerModel, rpstdin, runId);
+            if (pr.error || !pr.result) {
+              return finalize(
+                "PLANNER_REVISION_FAILED",
+                pr.exitCode || 2,
+                pr.error ?? "planner revision failed",
+                pr.error,
+              );
+            }
+            roles.planner = pr.result;
+            plan = pr.result.artifacts[0] ?? pr.result.summary;
+          } else break;
+        }
       }
     }
-  }
 
-  const estdin = buildRoleStdin({
-    role: "executor",
-    task: opts.task.cleanedText,
-    plan,
-    constraints: opts.apply
-      ? ["Writes authorized via --apply"]
-      : ["Do not write files; propose changes only"],
-  });
-  const er = await runRole(opts, "executor", executorModel, estdin, runId);
-  if (er.error || !er.result) {
-    return {
-      runId,
-      roles,
-      exitCode: er.exitCode || 2,
-      summary: er.error ?? "executor failed",
-      blockedReason: er.error,
-    };
-  }
-  roles.executor = er.result;
-
-  if (!opts.flags.noReviewer) {
-    const rstdin = buildRoleStdin({
-      role: "reviewer",
+    const estdin = stdin({
+      role: "executor",
       task: opts.task.cleanedText,
       plan,
-      previous: er.result,
+      constraints: opts.apply
+        ? ["Writes authorized via --apply"]
+        : ["Do not write files; propose changes only"],
     });
-    const rr = await runRole(opts, "reviewer", reviewerModel, rstdin, runId);
-    if (rr.error || !rr.result) {
-      return {
-        runId,
-        roles,
-        exitCode: rr.exitCode || 2,
-        summary: rr.error ?? "reviewer failed",
-        blockedReason: rr.error,
-      };
+    const er = await runRole(opts, "executor", executorModel, estdin, runId);
+    if (er.error || !er.result) {
+      return finalize("EXECUTOR_FAILED", er.exitCode || 2, er.error ?? "executor failed", er.error);
     }
-    roles.reviewer = rr.result;
+    roles.executor = er.result;
+    let latestExecutorResult: RoleResult = er.result;
 
-    if (rr.result.decision === "REPAIR_REQUIRED") {
-      const fixStdin = buildRoleStdin({
-        role: "repair",
-        task: opts.task.cleanedText,
-        plan,
-        previous: rr.result,
-      });
-      const fr = await runRole(opts, "repair", executorModel, fixStdin, runId);
-      if (fr.result) roles.repair = fr.result;
-      if (fr.error) {
-        return {
-          runId,
-          roles,
-          exitCode: 4,
-          summary: "Repair failed after review",
-          blockedReason: fr.error,
-        };
+    // §24.5 deterministic validation gate: runs between Executor and Reviewer. Its
+    // result is authoritative — the Reviewer's ACCEPT can never override a failing gate
+    // (enforced by the unconditional check after the reviewer loop below).
+    let gate: ValidationGateResult = await runValidationGate({
+      config: opts.validationGate,
+      skip: opts.flags.skipValidation,
+      cwd: opts.cwd,
+      spawnImpl: opts.validationSpawnImpl,
+    });
+    writeTestsArtifactAtomic(opts.runDir, gate);
+
+    if (!opts.flags.noReviewer) {
+      let repairCount = 0;
+      while (true) {
+        // §24.6: the Reviewer must receive the diff and the (real, populated) test
+        // results — not review a diff/tests it was never given.
+        const diff = computeBoundedGitDiff({
+          cwd: opts.cwd,
+          maxBytes: opts.config.security.maxResultBytes,
+        });
+        const rstdin = stdin({
+          role: "reviewer",
+          task: opts.task.cleanedText,
+          plan,
+          previous: latestExecutorResult,
+          diffSummary: diff.diffSummary,
+          testResults: formatValidationSummary(gate),
+          fileBoundaries: diff.fileBoundaries,
+        });
+        const rr = await runRole(opts, "reviewer", reviewerModel, rstdin, runId);
+        if (rr.error || !rr.result) {
+          return finalize(
+            "REVIEWER_FAILED",
+            rr.exitCode || 2,
+            rr.error ?? "reviewer failed",
+            rr.error,
+          );
+        }
+        roles.reviewer = rr.result;
+
+        if (rr.result.decision === "REPAIR_REQUIRED") {
+          // §3: maxRepairs is now a real loop bound, not an accident of code structure.
+          if (repairCount >= opts.config.orchestration.maxRepairs) {
+            return finalize(
+              "REPAIR_LIMIT",
+              4,
+              "Repair limit reached",
+              `maxRepairs=${opts.config.orchestration.maxRepairs} exhausted; reviewer still requires repair`,
+            );
+          }
+          repairCount += 1;
+          const fixStdin = stdin({
+            role: "repair",
+            task: opts.task.cleanedText,
+            plan,
+            previous: rr.result,
+          });
+          const fr = await runRole(opts, "repair", executorModel, fixStdin, runId);
+          if (fr.error || !fr.result) {
+            return finalize("REPAIR_FAILED", 4, "Repair failed after review", fr.error);
+          }
+          roles.repair = fr.result;
+          latestExecutorResult = fr.result;
+          // Re-run the deterministic gate: the repair may have changed the code, so the
+          // previous gate result is stale and must not be reused.
+          gate = await runValidationGate({
+            config: opts.validationGate,
+            skip: opts.flags.skipValidation,
+            cwd: opts.cwd,
+            spawnImpl: opts.validationSpawnImpl,
+          });
+          writeTestsArtifactAtomic(opts.runDir, gate);
+          continue;
+        }
+        if (rr.result.decision === "BLOCKED") {
+          return finalize("BLOCKED", 5, "Reviewer blocked", rr.result.summary);
+        }
+        break; // ACCEPT, or no decision supplied
       }
-    } else if (rr.result.decision === "BLOCKED") {
-      writeManifest(opts, runId, roles, "BLOCKED");
-      return {
-        runId,
-        roles,
-        exitCode: 5,
-        summary: "Reviewer blocked",
-        blockedReason: rr.result.summary,
-      };
     }
+
+    // Final gate: deterministic validation is authoritative regardless of the Reviewer's
+    // decision. A Reviewer ACCEPT must never be able to override a failing test suite.
+    if (gate.ran && !gate.passed) {
+      return finalize(
+        "VALIDATION_FAILED",
+        6,
+        "Deterministic validation failed; this cannot be overridden by a Reviewer ACCEPT",
+        formatValidationSummary(gate),
+      );
+    }
+
+    return finalize("OK", 0, "Orchestration complete");
+  } catch (e) {
+    if (e instanceof RolePacketTooLargeError) {
+      return finalize("ROLE_PACKET_TOO_LARGE", 8, "Role packet exceeded maxPromptBytes", e.message);
+    }
+    throw e;
   }
-
-  writeManifest(opts, runId, roles, "OK");
-  return {
-    runId,
-    roles,
-    exitCode: 0,
-    summary: "Orchestration complete",
-  };
 }
 
-function pickDifferent(a: string, b: string, opts: OrchestrateOptions): string {
-  // Prefer a capable alternate from candidates
+/**
+ * Picks a candidate model distinct from both `a` and `b` (typically the same value
+ * twice: the default model and the resolved planner model). Returns `null` — never a
+ * silent same-model fallback — when no distinct alternate exists (defect §2/AUD-008:
+ * `alts[0] ?? a` used to fall back to the identical model with no error).
+ */
+function pickDistinctModel(a: string, b: string, opts: OrchestrateOptions): string | null {
   const alts = opts.decision.candidates.map((c) => c.modelId).filter((id) => id !== a && id !== b);
-  return alts[0] ?? a;
-}
-
-function writeManifest(
-  opts: OrchestrateOptions,
-  runId: string,
-  roles: Partial<Record<RoleName, RoleResult>>,
-  status: string,
-): void {
-  const manifest = {
-    schemaVersion: 1,
-    runId,
-    status,
-    apply: opts.apply,
-    taskClass: opts.task.taskClass,
-    selectedModel: opts.decision.selectedModelId,
-    roles: Object.keys(roles),
-    ts: new Date().toISOString(),
-  };
-  writeFileSync(join(opts.runDir, "manifest.json"), JSON.stringify(manifest, null, 2));
-  writeFileSync(
-    join(opts.runDir, "summary.md"),
-    `# Run ${runId}\n\nStatus: ${status}\nApply: ${opts.apply}\nRoles: ${Object.keys(roles).join(", ")}\n`,
-  );
+  return alts[0] ?? null;
 }
 
 export function shouldOrchestrate(task: ClassifiedTask, config: RoutingConfig): boolean {

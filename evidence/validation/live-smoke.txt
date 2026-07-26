@@ -1,0 +1,27 @@
+# Live smoke evidence — CCROUTE-001
+
+Date:        2026-07-26
+Command:     CCROUTE_LIVE=1 CCROUTE_LIVE_BUDGET=0.25 npm run test:live
+CommandCode: 1.4.1
+Node:        v25.9.0
+Result:      4/4 PASS
+
+## Calls made (read-only; --plan, never --apply)
+
+  {"liveModel":"inclusionai/ling-3.0-flash-free","estimatedCostUsd":0.000047,"budgetUsd":0.25,"exitCode":0,"durationMs":3143,"stdoutChars":5}
+  {"liveModel":"xai/grok-4.5","estimatedCostUsd":0.029445,"exitCode":0,"stdoutChars":91}
+
+## Spend
+
+  Estimated total: $0.029492   Budget: $0.25   Headroom: 88%
+  Observed:        unavailable — the provider does not return mechanically
+                   parseable usage, and model prose is never parsed as usage
+                   evidence (§19). Estimates are labelled ESTIMATED, not OBSERVED.
+
+## Preconditions checked before spending (§36)
+
+  cmd authenticated:          yes
+  capability discovery:       resolved; baseline re-probed against v1.4.1
+  write authorization:        none requested — --plan only, no --apply
+  budget gate:                estimate compared to budget before each call
+  grok self-skip rule:        runs only if estimate <= half budget

@@ -23,6 +23,17 @@ describe("security", () => {
     expect(() => assertSafeModelId("x; rm -rf /")).toThrow();
   });
 
+  it("rejects dash-led model ids (argument-injection primitive)", () => {
+    expect(() => assertSafeModelId("--auto-accept")).toThrow();
+    expect(() => assertSafeModelId("--yolo")).toThrow();
+    expect(() => assertSafeModelId("-y")).toThrow();
+  });
+
+  it("rejects empty and whitespace-only model ids", () => {
+    expect(() => assertSafeModelId("")).toThrow();
+    expect(() => assertSafeModelId("   ")).toThrow();
+  });
+
   it("buildCmdArgv never uses shell string — returns array", () => {
     const argv = buildCmdArgv({
       model: "deepseek/deepseek-v4-flash",

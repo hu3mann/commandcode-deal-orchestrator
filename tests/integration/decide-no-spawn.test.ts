@@ -51,10 +51,11 @@ exit 0
       },
     );
 
-    // If not built, skip soft
+    // If not built or spawn failed, fail the test explicitly
     if (r.error || r.status === null) {
-      expect(true).toBe(true);
-      return;
+      throw new Error(
+        `Failed to run 'decide' command: ${r.error?.message || "spawn returned null status"}. Ensure the build exists at ${cli}`,
+      );
     }
 
     const log = spawnSync("cat", [`${dir}/invocations.log`], { encoding: "utf8" });

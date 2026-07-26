@@ -1,4 +1,4 @@
-import { type RoutingConfig, SECURITY_SENSITIVE_KEYS } from "./schemas.js";
+import { PROJECT_FORBIDDEN_KEYS, type RoutingConfig, SECURITY_SENSITIVE_KEYS } from "./schemas.js";
 
 function isPlainObject(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
@@ -20,7 +20,14 @@ export function deepMerge(
   const out: Record<string, unknown> = { ...base };
   for (const [key, value] of Object.entries(overlay)) {
     const p = path ? `${path}.${key}` : key;
-    if (SECURITY_SENSITIVE_KEYS.has(key) && !(key in base) && path.includes("security")) {
+    // NOTE: this check intentionally applies at every nesting level, including the
+    // top level (path === ""). It previously required `path.includes("security")`,
+    // which meant a security-sensitive key smuggled in at the top of a config file
+    // (e.g. `{ apiKey: "..." }` or `{ shell: true }` outside the `security:` block)
+    // was never checked. The key is still only rejected when it is not already a
+    // legitimate field of the object being merged into (`!(key in base)`), so real
+    // schema fields under `security:` are unaffected.
+    if (SECURITY_SENSITIVE_KEYS.has(key) && !(key in base)) {
       throw new ConfigError(`Unknown security-sensitive key rejected: ${p}`);
     }
     if (isPlainObject(value) && isPlainObject(out[key])) {
@@ -32,12 +39,30 @@ export function deepMerge(
   return out;
 }
 
+/**
+ * Reject keys that project-scope config is not allowed to set (see
+ * PROJECT_FORBIDDEN_KEYS in schemas.ts for rationale). Only checks the top-level
+ * project object: these keys are all top-level RoutingConfig fields today, and a
+ * project file is untrusted regardless of nesting, so this fails closed on any
+ * project config that defines them.
+ */
+function assertNoProjectForbiddenKeys(project: Record<string, unknown>): void {
+  for (const key of Object.keys(project)) {
+    if (PROJECT_FORBIDDEN_KEYS.has(key)) {
+      throw new ConfigError(
+        `Key '${key}' is not allowed in project-scope config (.commandcode/deal-router.yaml). Set it in user-scope config (~/.commandcode/deal-router.yaml) instead.`,
+      );
+    }
+  }
+}
+
 export function mergeConfigs(
   defaults: RoutingConfig,
   user?: Partial<RoutingConfig> | Record<string, unknown>,
   project?: Partial<RoutingConfig> | Record<string, unknown>,
   cli?: Partial<RoutingConfig> | Record<string, unknown>,
 ): Record<string, unknown> {
+  if (project) assertNoProjectForbiddenKeys(project as Record<string, unknown>);
   let acc: Record<string, unknown> = structuredClone(defaults) as unknown as Record<
     string,
     unknown

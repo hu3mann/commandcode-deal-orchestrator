@@ -49,6 +49,39 @@ describe("hooks", () => {
     expect(r.status).toBe(0);
   });
 
+  it("denies child recursion even when tool_display_name does not match /shell/i", () => {
+    // Regression test: the deny used to require `/shell/i.test(tool)` in addition to
+    // `blocked`, so any tool named e.g. "Bash", "Execute", "Terminal", "Run" bypassed
+    // the guard entirely even though `blocked` was already true.
+    const r = runHook(
+      "child-recursion-guard.mjs",
+      { CCROUTE_CHILD: "1" },
+      JSON.stringify({
+        hook_event_name: "PreToolUse",
+        tool_display_name: "Bash",
+        tool_input: { command: "ccroute orchestrate stuff" },
+      }),
+    );
+    expect(r.status).toBe(0);
+    const out = JSON.parse(r.stdout);
+    expect(out.hookSpecificOutput.permissionDecision).toBe("deny");
+  });
+
+  it("blocks direct invocation of the bin entry point (node dist/cli.js), not just the ccroute name", () => {
+    const r = runHook(
+      "child-recursion-guard.mjs",
+      { CCROUTE_CHILD: "1" },
+      JSON.stringify({
+        hook_event_name: "PreToolUse",
+        tool_display_name: "Bash",
+        tool_input: { command: "node dist/cli.js run" },
+      }),
+    );
+    expect(r.status).toBe(0);
+    const out = JSON.parse(r.stdout);
+    expect(out.hookSpecificOutput.permissionDecision).toBe("deny");
+  });
+
   it("session start injects context for child", () => {
     const r = runHook(
       "child-session-context.mjs",
