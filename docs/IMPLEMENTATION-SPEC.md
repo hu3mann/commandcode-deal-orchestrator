@@ -27,7 +27,7 @@ Observable behavior contracts. Prefer tables and schemas.
 | `--max-estimated-cost` | Fail if all candidates exceed |
 | `--apply` | Allows `--auto-accept` on executor |
 | `--unsafe-yolo` | Warning + `--yolo`; never from config default |
-| `--allow-dirty` | Permit dirty worktree with orchestrate `--apply` |
+| `--allow-dirty` | Permit dirty worktree with `run --apply` or `orchestrate --apply` |
 | `--no-telemetry` | Skip JSONL append |
 
 ### Markers (stripped before model)

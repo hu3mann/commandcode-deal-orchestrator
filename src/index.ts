@@ -12,3 +12,4 @@ export {
   RecursionError,
 } from "./security/recursion-guard.js";
 export { buildCmdArgv, assertSafeModelId } from "./security/command-policy.js";
+export { ensureGitSafety } from "./security/git-safety.js";

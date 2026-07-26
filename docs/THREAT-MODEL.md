@@ -110,10 +110,10 @@
 ### T-011: Dirty worktree mutation
 
 - **Asset**: Repository state
-- **Actor**: User forgets `--allow-dirty` with `orchestrate --apply`
-- **Control**: `ensureGitSafety()` rejects dirty worktree for orchestrated apply mode; `run --apply` does not gate on dirty (single-model runs are less risky by design — user can always use git diff)
-- **Residual risk**: Low — `run --apply` on dirty worktree is intentional by spec
-- **Verification**: Unit test for dirty worktree rejection in orchestrate
+- **Actor**: User runs `run --apply` or `orchestrate --apply` on an already-dirty tree
+- **Control**: `ensureGitSafety()` rejects dirty worktree for any `--apply` unless `--allow-dirty`; non-git dirs skip the gate
+- **Residual risk**: Low — override is explicit; read-only runs never gated
+- **Verification**: Unit tests for dirty rejection on run and orchestrate contexts
 
 ### T-012: Symlink path escape
 

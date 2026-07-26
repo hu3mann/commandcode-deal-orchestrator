@@ -67,7 +67,7 @@ optional xai-direct (future) isolated from CommandCode backend
 6. **No shell interpolation** of task text or model ids.
 7. **Explicit write authorization** — `--apply` required before `--auto-accept`.
 8. **Telemetry redaction** — no keys/tokens/source bodies by default.
-9. **Fail-closed** — bad config, unknown model, expired deal, recursion, dirty apply orchestrate.
+9. **Fail-closed** — bad config, unknown model, expired deal, recursion, dirty worktree with `--apply` (run or orchestrate).
 10. **Recursion prevention** — `CCROUTE_DEPTH > 1` and child re-entry rejected.
 
 ## Role workflow

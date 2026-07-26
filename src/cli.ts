@@ -27,6 +27,7 @@ import {
 import { formatExplain } from "./router/explain.js";
 import { RouteError, selectRoute } from "./router/select.js";
 import { warnUnsafeYolo } from "./security/command-policy.js";
+import { ensureGitSafety } from "./security/git-safety.js";
 import { RecursionError, assertCcrouteEntryAllowed } from "./security/recursion-guard.js";
 import { spawnCommandCode } from "./subprocess/commandcode.js";
 import { aggregateByModel, formatStats } from "./telemetry/aggregate.js";
@@ -288,19 +289,6 @@ program
     }
   });
 
-async function ensureGitSafety(apply: boolean, allowDirty: boolean, orchestrating: boolean) {
-  if (!apply || !orchestrating) return;
-  const { spawnSync } = await import("node:child_process");
-  const st = spawnSync("git", ["status", "--porcelain"], { encoding: "utf8", shell: false });
-  if (st.status !== 0) return; // not a git repo
-  if (st.stdout.trim() && !allowDirty) {
-    throw new RouteError(
-      "DIRTY_WORKTREE",
-      "Dirty worktree blocked for orchestration --apply (use --allow-dirty to override)",
-    );
-  }
-}
-
 program
   .command("run")
   .argument("<task...>", "Task text")
@@ -314,14 +302,14 @@ program
   .option("--trust-project", "Pass --trust")
   .option("--unsafe-yolo", "Pass --yolo (dangerous)")
   .option("--no-telemetry", "Disable telemetry")
-  .option("--allow-dirty", "Allow dirty worktree")
+  .option("--allow-dirty", "Allow dirty worktree with --apply")
   .action(async (taskParts: string[], opts) => {
     try {
       assertCcrouteEntryAllowed();
       if (opts.unsafeYolo) console.error(warnUnsafeYolo());
       const { task, decision, loaded, cmd } = decideCore(taskParts.join(" "), opts);
       if (!cmd) fail(new Error("cmd not found"));
-      await ensureGitSafety(Boolean(opts.apply), Boolean(opts.allowDirty), false);
+      ensureGitSafety(Boolean(opts.apply), Boolean(opts.allowDirty), { context: "run" });
 
       const runId = randomUUID();
       const runDir = join(process.cwd(), ".commandcode", "deal-router", "runs", runId);
@@ -435,7 +423,7 @@ program
         );
         process.exit(3);
       }
-      await ensureGitSafety(Boolean(opts.apply), Boolean(opts.allowDirty), true);
+      ensureGitSafety(Boolean(opts.apply), Boolean(opts.allowDirty), { context: "orchestrate" });
 
       const runId = randomUUID();
       const runDir = join(process.cwd(), ".commandcode", "deal-router", "runs", runId);

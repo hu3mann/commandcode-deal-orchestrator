@@ -13,7 +13,7 @@
 | Role output untrusted | PASS — envelope parse only |
 | Secret redaction in telemetry | PASS |
 | No credential storage | PASS |
-| Dirty worktree gate on orch apply | PASS |
+| Dirty worktree gate on run/orch `--apply` | PASS |
 | Fail-closed config | PASS |
 | No silent explicit model fallback | PASS |
 | No double promotional discount | PASS |

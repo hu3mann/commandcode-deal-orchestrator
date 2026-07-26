@@ -17,7 +17,7 @@ Initial MVP release.
 - **`ccroute config show/validate/paths`** — configuration inspection
 - **Routing** — deterministic classifier (6 task classes), 3 profiles (cheapest/balanced/frontier), reliability-adjusted scoring
 - **Pricing** — official-source refresh, atomic snapshot persistence, post-discount protection against double promotion
-- **Security** — shell:false subprocess, model-ID validation, recursion guard (CCROUTE_CHILD/CCROUTE_DEPTH), path policy, secret redaction, dirty-worktree gate for orchestrated apply
+- **Security** — shell:false subprocess, model-ID validation, recursion guard (CCROUTE_CHILD/CCROUTE_DEPTH), path policy, secret redaction, dirty-worktree gate for `run --apply` and `orchestrate --apply`
 - **Telemetry** — append-only JSONL, model aggregates, redaction, `--no-telemetry` flag
 - **Hooks** — `child-recursion-guard.mjs`, `child-session-context.mjs`
 - **Skill** — `skills/commandcode-deal-orchestrator/SKILL.md`

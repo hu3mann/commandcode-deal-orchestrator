@@ -63,12 +63,12 @@ SHA256: `21497dbd9d73bd00bafe64b0e608b82c705aeff61f4f390a669e48b961c7e69f`
 
 1. Med — child `cmd` tools wide without operator hooks (mitigated by documented install path)
 2. Low — deal refresh = seeds, not full HTML scrape
-3. Low — kill-tree best-effort; dirty gate orch-only
+3. Low — kill-tree best-effort on POSIX
 
 ### Backlog
 
 1. ~~Hook install docs~~ — done in `docs/OPERATIONS.md`
-2. Optional dirty gate on `run --apply`
+2. ~~Optional dirty gate on `run --apply`~~ — done (`ensureGitSafety` for run + orchestrate)
 3. Better deal refresh
 4. xAI-direct (defer)
 5. More budgeted free live edges

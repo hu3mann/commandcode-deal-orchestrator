@@ -108,7 +108,7 @@ Full steps, verify commands, and threat notes: [docs/OPERATIONS.md](docs/OPERATI
 | --- | --- |
 | `cmd not found` | Install Command Code; `ccroute doctor` |
 | Explicit model unavailable | `ccroute models list` for live IDs |
-| Dirty worktree blocked | `--allow-dirty` or clean tree |
+| Dirty worktree blocked on `--apply` | `--allow-dirty` or clean tree |
 | Nested orchestration blocked | Expected under `CCROUTE_CHILD=1` |
 
 ## Uninstall
