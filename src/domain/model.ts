@@ -84,6 +84,11 @@ export const ModelPricingSchema = z.object({
   tiers: z.array(RateTierSchema).optional(),
   priceBasis: PriceBasisSchema,
   qualityTier: QualityTierSchema,
+  // §13/§17: declared model capabilities, checked as a hard eligibility gate
+  // against ClassifiedTask.requiredCapabilities. Optional and absent-means-unknown:
+  // a model that declares nothing is not rejected, because rejecting on absence
+  // would exclude every model until every catalog entry is annotated.
+  capabilities: z.array(z.string()).optional(),
   availability: AvailabilitySchema.default("available"),
   deal: DealSchema.optional(),
   rateExpiresAt: z.string().optional(),

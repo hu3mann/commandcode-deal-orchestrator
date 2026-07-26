@@ -4,7 +4,7 @@ import type { CandidateScore, RouteDecision } from "../domain/route.js";
 import type { ClassifiedTask, RoutingProfile } from "../domain/task.js";
 import type { ModelTelemetry } from "../domain/telemetry.js";
 import { snapshotAgeMs } from "../pricing/snapshot.js";
-import { filterEligible, resolveQualityFloor } from "./eligibility.js";
+import { type LiveCatalogStatus, filterEligible, resolveQualityFloor } from "./eligibility.js";
 import { scoreCandidates } from "./scorer.js";
 
 export class RouteError extends Error {
@@ -19,6 +19,9 @@ export class RouteError extends Error {
 export interface SelectInput {
   models: ModelPricing[];
   liveModelIds: Set<string> | null;
+  /** See router/eligibility.ts#LiveCatalogStatus. Optional; when omitted, behaves exactly
+   * as before this field existed (CCROUTE-001 defect 2). */
+  liveCatalogStatus?: LiveCatalogStatus;
   config: RoutingConfig;
   task: ClassifiedTask;
   profile?: RoutingProfile;
@@ -30,19 +33,52 @@ export interface SelectInput {
   cliModel?: string;
 }
 
-function tieBreak(a: CandidateScore, b: CandidateScore): number {
-  // 1 lower adjusted expected cost
-  if (a.cost.expectedTotalCost !== b.cost.expectedTotalCost) {
-    return a.cost.expectedTotalCost - b.cost.expectedTotalCost;
-  }
-  // 2 higher success rate
-  if (a.successRate !== b.successRate) return b.successRate - a.successRate;
-  // 3 lower latency
-  if (a.averageLatencyMs !== b.averageLatencyMs) {
-    return a.averageLatencyMs - b.averageLatencyMs;
-  }
-  // 4 lexical model id
-  return a.modelId.localeCompare(b.modelId);
+function nearlyEqual(a: number, b: number, epsilon: number): boolean {
+  return Math.abs(a - b) < epsilon;
+}
+
+/**
+ * §21 tie-break: a genuine 5-step total order, applied throughout candidate sorting (not
+ * bolted on afterward for only the top two candidates, and not skipped for any profile —
+ * CCROUTE-001 defect 4). Steps, in priority order:
+ *   1. lower adjusted expected cost
+ *   2. higher smoothed success rate (router/scorer.ts#smoothedSuccessRate)
+ *   3. lower average latency
+ *   4. configured preference order (task_classes[...].preferred; lower list index wins,
+ *      unlisted models rank after every listed one)
+ *   5. lexical exact model id (guarantees a total order even if every field above ties)
+ *
+ * `preferred` is closed over rather than stored on CandidateScore so the comparator can
+ * rank by *position* in the configured list, not just list membership.
+ */
+export function makeTieBreak(
+  preferred: string[],
+  epsilon: number,
+): (a: CandidateScore, b: CandidateScore) => number {
+  const preferenceRank = (id: string): number => {
+    const idx = preferred.indexOf(id);
+    return idx === -1 ? Number.POSITIVE_INFINITY : idx;
+  };
+  return (a: CandidateScore, b: CandidateScore): number => {
+    // 1: lower adjusted expected cost
+    if (!nearlyEqual(a.cost.expectedTotalCost, b.cost.expectedTotalCost, epsilon)) {
+      return a.cost.expectedTotalCost - b.cost.expectedTotalCost;
+    }
+    // 2: higher smoothed success rate
+    if (!nearlyEqual(a.successRate, b.successRate, epsilon)) {
+      return b.successRate - a.successRate;
+    }
+    // 3: lower average latency
+    if (!nearlyEqual(a.averageLatencyMs, b.averageLatencyMs, epsilon)) {
+      return a.averageLatencyMs - b.averageLatencyMs;
+    }
+    // 4: configured preference order
+    const ra = preferenceRank(a.modelId);
+    const rb = preferenceRank(b.modelId);
+    if (ra !== rb) return ra - rb;
+    // 5: lexical exact model id
+    return a.modelId.localeCompare(b.modelId);
+  };
 }
 
 export function selectRoute(input: SelectInput): RouteDecision {
@@ -68,12 +104,14 @@ export function selectRoute(input: SelectInput): RouteDecision {
   const { eligible, rejected } = filterEligible({
     models: input.models,
     liveModelIds: input.liveModelIds,
+    liveCatalogStatus: input.liveCatalogStatus,
     config: input.config,
     task: input.task,
     qualityFloor,
     noFree,
     now: input.now,
     explicitModel,
+    pricingRetrievedAt: input.pricingRetrievedAt,
   });
 
   if (eligible.length === 0) {
@@ -119,10 +157,14 @@ export function selectRoute(input: SelectInput): RouteDecision {
     }
   }
 
-  // Profile-specific ordering
+  const epsilon = input.config.scoring.floatEpsilon;
+  const tieBreak = makeTieBreak(preferred, epsilon);
+
+  // Profile-specific primary ordering; the full 5-step tieBreak (including preference
+  // order and lexical id) resolves every remaining tie for every profile — no profile is
+  // exempted (CCROUTE-001 defect 4: `frontier` used to skip the preferred-boost entirely).
   if (profile === "frontier") {
     candidates.sort((a, b) => {
-      const tr = b.qualityTier.localeCompare(a.qualityTier); // frontier > capable lexically wrong
       const rank = (t: string) => (t === "frontier" ? 3 : t === "capable" ? 2 : 1);
       if (rank(a.qualityTier) !== rank(b.qualityTier)) {
         return rank(b.qualityTier) - rank(a.qualityTier);
@@ -131,29 +173,16 @@ export function selectRoute(input: SelectInput): RouteDecision {
     });
   } else if (profile === "cheapest") {
     candidates.sort((a, b) => {
-      if (a.cost.expectedTotalCost !== b.cost.expectedTotalCost) {
+      if (!nearlyEqual(a.cost.expectedTotalCost, b.cost.expectedTotalCost, epsilon)) {
         return a.cost.expectedTotalCost - b.cost.expectedTotalCost;
       }
       return tieBreak(a, b);
     });
   } else {
     candidates.sort((a, b) => {
-      if (a.score !== b.score) return a.score - b.score;
+      if (!nearlyEqual(a.score, b.score, epsilon)) return a.score - b.score;
       return tieBreak(a, b);
     });
-  }
-
-  // Mild preferred boost: if top two nearly equal cost, prefer listed preferred
-  if (candidates.length >= 2 && profile !== "frontier") {
-    const top = candidates[0]!;
-    const second = candidates[1]!;
-    if (
-      second.preferred &&
-      !top.preferred &&
-      Math.abs(top.cost.expectedTotalCost - second.cost.expectedTotalCost) < 1e-9
-    ) {
-      candidates = [second, top, ...candidates.slice(2)];
-    }
   }
 
   const selected = candidates[0]!;
@@ -168,7 +197,7 @@ export function selectRoute(input: SelectInput): RouteDecision {
     `expectedTotalCost=${selected.cost.expectedTotalCost.toFixed(6)} (estimate)`,
     `priceBasis=${selected.cost.priceBasis}`,
     `dealApplied=${selected.cost.dealApplied}`,
-    "tieBreak=cost>success>latency>lexical",
+    "tieBreak=cost>smoothedSuccessRate>latency>preferenceOrder>lexical",
   ].join("; ");
 
   return {
@@ -179,7 +208,9 @@ export function selectRoute(input: SelectInput): RouteDecision {
     qualityFloor,
     candidates,
     rejected,
-    tieBreakRule: "lower expectedTotalCost, higher successRate, lower latency, lexical modelId",
+    tieBreakRule:
+      "lower expectedTotalCost, higher smoothed successRate, lower averageLatencyMs, " +
+      "configured preference order, lexical modelId",
     dealAffectedSelection: dealAffected,
     pricingSnapshotAgeMs: snapshotAgeMs(
       input.pricingRetrievedAt,
