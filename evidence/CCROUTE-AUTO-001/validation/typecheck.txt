@@ -1,0 +1,4 @@
+
+> commandcode-deal-orchestrator@0.2.0 typecheck
+> tsc -p tsconfig.json --noEmit
+

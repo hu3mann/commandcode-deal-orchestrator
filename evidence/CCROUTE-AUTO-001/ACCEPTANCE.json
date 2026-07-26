@@ -1,0 +1,38 @@
+{
+  "verdict": "PASS_WITH_LIMITATIONS",
+  "ordinaryTypedPromptRouting": true,
+  "preRequestModelSelectionProven": true,
+  "oneInitialModelRequestProven": true,
+  "exactModelValidationProven": true,
+  "primaryRecursionGuardProven": true,
+  "modRecursionDefenceProven": true,
+  "usageTelemetryProven": true,
+  "unsupportedPromptSurfaces": [
+    "slash_commands_except_route",
+    "image_carrying_prompts",
+    "automated_turns",
+    "meta_messages",
+    "headless_print_typed_routing"
+  ],
+  "commandCodeVersion": "1.4.1",
+  "modApiVersion": "ModApi@command-code-1.4.1",
+  "testsPassed": 491,
+  "testsFailed": 0,
+  "gitCommit": "a5ed987ce67ddea6b304fd41b228fa30390939bc",
+  "limitations": [
+    "Live interactive CommandCode session with --mod not exercised against paid models (no CCROUTE_LIVE budget)",
+    "transformInput / setModel proven via installed ModApi documentation + unit mock harness, not a paid end-to-end TUI session",
+    "Installer lifecycle, launchd, role agents are out of scope for TP-001",
+    "Zero-friction claim limited to ordinary typed text prompts intercepted by transformInput"
+  ],
+  "coverage": {
+    "lines": 92.27,
+    "branches": 85.81,
+    "functions": 98.73,
+    "statements": 92.27
+  },
+  "series": "CCROUTE-AUTO-2026-001",
+  "tp": "TP-CCROUTE-AUTO-001",
+  "implementationCommit": "a5ed987ce67ddea6b304fd41b228fa30390939bc",
+  "note": "gitCommit is the TP-001 implementation commit; worktree may include a docs stamp commit after it"
+}

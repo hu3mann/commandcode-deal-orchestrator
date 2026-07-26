@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "tp": "TP-CCROUTE-AUTO-001",
+  "suite": "telemetry",
+  "status": "PASS",
+  "store": "src/telemetry/store.ts append-only jsonl schemaVersion 1",
+  "modEvents": [
+    "mod.route_decision",
+    "mod.route_failure",
+    "mod.model_usage"
+  ],
+  "labels": [
+    "OBSERVED",
+    "ESTIMATED",
+    "UNKNOWN"
+  ],
+  "promptStorageDefault": false,
+  "cases": [
+    {
+      "id": "observed_usage",
+      "result": "PASS"
+    },
+    {
+      "id": "absent_usage",
+      "result": "PASS"
+    },
+    {
+      "id": "redaction",
+      "result": "PASS",
+      "notes": "via appendTelemetry redactText on string meta"
+    },
+    {
+      "id": "append_only",
+      "result": "PASS"
+    },
+    {
+      "id": "route_decision_correlation",
+      "result": "PASS"
+    }
+  ],
+  "evidenceTests": [
+    "tests/unit/mod-telemetry.test.ts",
+    "tests/unit/telemetry.test.ts"
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "tp": "TP-CCROUTE-AUTO-001",
+  "suite": "recursion",
+  "status": "PASS",
+  "primaryGuard": {
+    "module": "src/security/recursion-guard.ts",
+    "cliHook": "program.hook(preAction) -> assertPrimaryRecursionGuard",
+    "env": [
+      "CCROUTE_CHILD",
+      "CCROUTE_DEPTH",
+      "CCROUTE_ROLE",
+      "CCROUTE_RUN_ID"
+    ],
+    "rules": {
+      "depthMissing": 0,
+      "depth0": "allowed",
+      "depth1AndChild": "reject",
+      "depthGt1": "reject unconditional",
+      "malformedDepth": "fail closed"
+    },
+    "cliSmoke": {
+      "childExitCode": 31,
+      "depth2ExitCode": 31
+    }
+  },
+  "modDefence": {
+    "module": "src/integrations/commandcode-mod/recursion.ts",
+    "hook": "beforeToolCall",
+    "identityParsing": true,
+    "substringOnly": false
+  },
+  "cases": [
+    {
+      "id": "direct_child_invocation",
+      "result": "PASS"
+    },
+    {
+      "id": "depth_greater_than_one",
+      "result": "PASS"
+    },
+    {
+      "id": "shell_alias_ccroute",
+      "result": "PASS"
+    },
+    {
+      "id": "direct_node_entry",
+      "result": "PASS"
+    },
+    {
+      "id": "npm_exec_npx",
+      "result": "PASS"
+    },
+    {
+      "id": "plan_mode_child_env",
+      "result": "PASS",
+      "notes": "env-based; permission mode not consulted"
+    },
+    {
+      "id": "auto_accept_child_env",
+      "result": "PASS",
+      "notes": "env-based; permission mode not consulted"
+    },
+    {
+      "id": "headless_child_env",
+      "result": "PASS",
+      "notes": "same primary guard"
+    }
+  ],
+  "evidenceTests": [
+    "tests/unit/recursion-primary.test.ts",
+    "tests/unit/mod-recursion.test.ts",
+    "tests/unit/mod-recursion-extra.test.ts",
+    "tests/unit/security.test.ts"
+  ]
+}

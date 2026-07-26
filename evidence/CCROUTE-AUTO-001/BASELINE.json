@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "series": "CCROUTE-AUTO-2026-001",
+  "tp": "TP-CCROUTE-AUTO-001",
+  "capturedAt": "2026-07-26T23:22:00Z",
+  "startingCommit": "d966b9af46927051690af77e2da63b9fd706ac28",
+  "branch": "feat/CCROUTE-AUTO-001-native-mod-routing",
+  "commandCodeVersion": "1.4.1",
+  "commandCodePackage": "command-code@1.4.1",
+  "liveModelsListed": 48,
+  "modApiVersion": "ModApi@command-code-1.4.1",
+  "repositoryVersion": "0.2.0",
+  "probes": {
+    "cmdVersion": "1.4.1",
+    "cmdModsHelp": true,
+    "cmdModsList": true,
+    "bundledModBuilderDocs": true,
+    "bundledModBuilderPath": "node_modules/command-code/dist/bundled/mod-builder/"
+  },
+  "hardBoundaries": [
+    "No silent repository writes",
+    "No automatic --apply",
+    "No automatic auto-accept",
+    "No automatic YOLO",
+    "No automatic Git commit",
+    "No automatic Git push",
+    "No invented model IDs",
+    "No stale promotional pricing treated as current",
+    "No routing decision delegated to an LLM"
+  ]
+}

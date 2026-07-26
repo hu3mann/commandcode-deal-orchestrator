@@ -16,7 +16,9 @@
   },
   "main": "./dist/index.js",
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./mod": "./dist/integrations/commandcode-mod/index.js",
+    "./integrations/commandcode-mod": "./dist/integrations/commandcode-mod/index.js"
   },
   "files": [
     "dist",

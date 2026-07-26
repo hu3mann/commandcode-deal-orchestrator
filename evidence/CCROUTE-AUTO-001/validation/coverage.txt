@@ -1,0 +1,229 @@
+
+> commandcode-deal-orchestrator@0.2.0 test:coverage
+> vitest run --coverage
+
+
+ RUN  v3.2.7 /Users/hue/code/cmdrouter/.worktrees/CCROUTE-AUTO-001
+      Coverage enabled with v8
+
+stderr | tests/unit/pricing-snapshot.test.ts > pricing snapshot + refresh > detects a schema-valid but tampered pricing snapshot and fails closed to the seed
+[ccroute] pricing snapshot at /var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/ccroute-price-n7yPJ7/.commandcode/deal-router/pricing-snapshot.json failed sourceHash verification (expected 31a61f6cfbc78f222b2ca2752a36437497b82be832d0faea36d8c196797aa8ff, got "08aa133bec28bc47862ae801ebc9712c1dcfeb005f0983ed1a01886f215aafc0"); treating as tampered/corrupted and falling back to seed
+
+ ✓ tests/unit/pricing-snapshot.test.ts (18 tests) 172ms
+ ✓ tests/unit/official-html.test.ts (15 tests) 176ms
+ ✓ tests/unit/branch-coverage.test.ts (33 tests) 170ms
+ ✓ tests/unit/recursion-primary.test.ts (7 tests) 748ms
+   ✓ primary recursion enforcement > CLI entry rejects child env for doctor/decide/run (binary-level)  744ms
+ ✓ tests/integration/decide-no-spawn.test.ts (1 test) 1335ms
+   ✓ decide no model call > never passes --print to cmd  1334ms
+ ✓ tests/unit/telemetry.test.ts (12 tests) 1572ms
+   ✓ telemetry > survives concurrent appends from independent OS processes with no lost or corrupted records  1556ms
+ ✓ tests/unit/security-extra.test.ts (16 tests) 79ms
+ ✓ tests/unit/hooks.test.ts (6 tests) 1751ms
+   ✓ hooks > handles malformed hook input  576ms
+   ✓ hooks > blocks direct invocation of the bin entry point (node dist/cli.js), not just the ccroute name  502ms
+   ✓ hooks > session start injects context for child  356ms
+ ✓ tests/unit/domain-schemas.test.ts (9 tests) 56ms
+ ✓ tests/unit/mod-decide-spawn.test.ts (6 tests) 1765ms
+   ✓ mod decideRoute spawn > runs real decide --json via built CLI (no model spawn)  1515ms
+ ✓ tests/unit/eligibility-extra.test.ts (16 tests) 154ms
+ ✓ tests/unit/router.test.ts (17 tests) 143ms
+ ✓ tests/unit/classifier.test.ts (31 tests) 23ms
+ ✓ tests/unit/config-loader.test.ts (6 tests) 34ms
+ ✓ tests/unit/eligibility-explicit.test.ts (8 tests) 42ms
+ ✓ tests/unit/mod-route-prompt.test.ts (9 tests) 4ms
+ ✓ tests/unit/git-safety.test.ts (7 tests) 3ms
+ ✓ tests/unit/config.test.ts (4 tests) 19ms
+ ✓ tests/unit/orchestration.test.ts (23 tests) 23ms
+ ✓ tests/unit/mod-factory-commands.test.ts (4 tests) 4ms
+ ✓ tests/unit/mod-route-prompt-extra.test.ts (8 tests) 4ms
+ ✓ tests/unit/pricing.test.ts (11 tests) 5ms
+ ✓ tests/unit/mod-factory.test.ts (6 tests) 5ms
+ ✓ tests/unit/mod-markers.test.ts (5 tests) 2ms
+ ✓ tests/unit/mod-commands.test.ts (6 tests) 3ms
+ ✓ tests/unit/security.test.ts (12 tests) 3ms
+ ✓ tests/unit/redaction.test.ts (18 tests) 4ms
+ ✓ tests/unit/mod-telemetry.test.ts (4 tests) 5ms
+ ✓ tests/unit/mod-recursion.test.ts (5 tests) 2ms
+ ✓ tests/unit/model-catalog.test.ts (1 test) 2ms
+ ✓ tests/unit/mod-compatibility.test.ts (6 tests) 2ms
+ ✓ tests/unit/exit-codes.test.ts (11 tests) 3ms
+ ✓ tests/unit/mod-recursion-extra.test.ts (5 tests) 2ms
+ ✓ tests/unit/coverage-scope.test.ts (3 tests) 1ms
+ ✓ tests/unit/index-exports.test.ts (1 test) 1ms
+ ✓ tests/integration/apply-argv.test.ts (3 tests) 1ms
+ ✓ tests/unit/mod-router-client.test.ts (9 tests) 1731ms
+   ✓ mod router-client validation > classifies inventory / pricing / override / malformed exit messages  1308ms
+ ✓ tests/unit/orchestration-flow.test.ts (16 tests) 8864ms
+   ✓ orchestrate() end-to-end (§34.7) > 8. reviewer accept — full run succeeds and artifacts use the §31 filenames  1176ms
+   ✓ orchestrate() end-to-end (§34.7) > 9. reviewer repair — REPAIR_REQUIRED runs repair, then the reviewer accepts  2215ms
+   ✓ orchestrate() end-to-end (§34.7) > 10. repair limit — REPAIR_REQUIRED forever exceeds maxRepairs  1728ms
+   ✓ orchestrate() end-to-end (§34.7) > defect 1 proof: deterministic validation gate blocks the run despite a Reviewer ACCEPT  1445ms
+   ✓ orchestrate() end-to-end (§34.7) > defect 1 proof: a passing gate does not block a Reviewer ACCEPT  788ms
+   ✓ orchestrate() end-to-end (§34.7) > defect 6 proof: the Reviewer packet carries a real diffSummary and testResults  983ms
+ ✓ tests/unit/subprocess.test.ts (19 tests) 9372ms
+   ✓ spawnCommandCode > 2. shell:false -- a task with $(touch pwned) does not create the file, and metacharacters are not glob/shell interpreted  682ms
+   ✓ spawnCommandCode > 3. delivers the packet on stdin, never as an argv token  569ms
+   ✓ spawnCommandCode > 4. reports a clean, successful exit  303ms
+   ✓ spawnCommandCode > 5. preserves a nonzero exit code rather than swallowing it  383ms
+   ✓ spawnCommandCode > 6. kills a child that runs past the timeout, and it actually stops running  1608ms
+   ✓ spawnCommandCode > 7. caps captured stdout at maxStdoutBytes instead of buffering unbounded output  390ms
+   ✓ spawnCommandCode > 8. caps captured stderr at maxStderrBytes instead of buffering unbounded output  357ms
+   ✓ spawnCommandCode > 9. kills the whole process group on timeout -- a grandchild dies too  1809ms
+   ✓ spawnCommandCode > 11. a task full of shell metacharacters is delivered verbatim over stdin, never interpreted  579ms
+   ✓ spawnCommandCode > 12. a task containing embedded newlines/CRLF is delivered verbatim over stdin  315ms
+   ✓ spawnCommandCode > wires opts.role/runId into both the stdin prefix and the child's recursion-guard env vars  356ms
+   ✓ spawnCommandCode > on a win32-shaped platform, kills via child.kill() directly rather than a process-group signal  1611ms
+ ✓ tests/unit/doctor-flags.test.ts (2 tests) 10664ms
+   ✓ doctor accuracy > detects auto-accept in full help when cmd present  10649ms
+ ✓ tests/unit/cli.test.ts (41 tests) 25460ms
+   ✓ buildRepoSignals (§16.7) > returns {} for a non-git directory  613ms
+   ✓ buildRepoSignals (§16.7) > reports tracked file count and a clean worktree  3075ms
+   ✓ buildRepoSignals (§16.7) > detects a dirty worktree  2964ms
+   ✓ buildRepoSignals (§16.7) > detects migrations/auth/infra directories from tracked file paths  3045ms
+   ✓ buildRepoSignals (§16.7) > detects a monorepo via pnpm-workspace.yaml  1989ms
+   ✓ buildRepoSignals (§16.7) > detects a monorepo via multiple packages/*/package.json entries  2030ms
+   ✓ gitStatusPaths > returns an empty set for a clean repo  961ms
+   ✓ gitStatusPaths > returns the set of paths reported by git status --porcelain  1113ms
+   ✓ commitRunChanges (§29) > commits only files newly touched by the run and returns a hash  1751ms
+   ✓ commitRunChanges (§29) > does not commit a file that was already dirty before the run  1909ms
+   ✓ commitRunChanges (§29) > reports no commit when the run caused no file changes  1086ms
+   ✓ commitRunChanges (§29) > reports failure when git add cannot acquire the index lock  1223ms
+   ✓ commitRunChanges (§29) > reports failure when git commit is rejected by a pre-commit hook  1856ms
+   ✓ commitRunChanges (§29) > bounds an oversized task summary to keep the commit message bounded  1580ms
+error: unknown option '--this-flag-does-not-exist'
+0.2.0
+ ✓ tests/integration/cli-contract.test.ts (51 tests) 41390ms
+   ✓ cli contract (in-process, no LLM calls) > decide --json prints a task+decision envelope and never invokes --print  3947ms
+   ✓ cli contract (in-process, no LLM calls) > decide plain output prints the selected model id then the explanation  3571ms
+   ✓ cli contract (in-process, no LLM calls) > §22: rejects conflicting task markers with exit code 2  1508ms
+   ✓ cli contract (in-process, no LLM calls) > A1: an empty live catalog fails CLOSED — decide exits 13 (no eligible route)  2028ms
+   ✓ cli contract (in-process, no LLM calls) > decide skips reading telemetry entirely when telemetry.enabled is false  2308ms
+   ✓ cli contract (in-process, no LLM calls) > explain rejects conflicting task markers with exit code 2  972ms
+   ✓ cli contract (in-process, no LLM calls) > explain (text) includes the A2 scoring-configuration section (coefficients + profile weights)  1810ms
+   ✓ cli contract (in-process, no LLM calls) > explain --json emits the full §10.7 field set  1630ms
+   ✓ cli contract (in-process, no LLM calls) > doctor --json reports version, pricing snapshot path, warnings, and a health status  1730ms
+   ✓ cli contract (in-process, no LLM calls) > doctor text output includes a Health: line  1754ms
+   ✓ cli contract (in-process, no LLM calls) > doctor is BLOCKED (exit 20) when cmd cannot be found at all  960ms
+   ✓ cli contract (in-process, no LLM calls) > doctor reports Contradictions when cmd's --help lacks expected flags  1620ms
+   ✓ cli contract (in-process, no LLM calls) > doctor text mode also prints a Contradictions: line  1424ms
+   ✓ cli contract (in-process, no LLM calls) > doctor fails closed (exit 10) with an invalid --config  504ms
+   ✓ cli contract (in-process, no LLM calls) > models list --json prints the live model ids as a JSON array  633ms
+   ✓ cli contract (in-process, no LLM calls) > models list (text) prints one id per line  656ms
+   ✓ cli contract (in-process, no LLM calls) > models list exits 11 (MODEL_UNAVAILABLE) when cmd cannot be found  457ms
+   ✓ cli contract (in-process, no LLM calls) > models status --json reports pricing + live-catalog membership per model  692ms
+   ✓ cli contract (in-process, no LLM calls) > models status (text) reports the live catalog and per-model membership  597ms
+   ✓ cli contract (in-process, no LLM calls) > models status (text) reports live catalog unavailable when cmd is missing  418ms
+   ✓ cli contract (in-process, no LLM calls) > models refresh updates the persisted pricing snapshot from the live catalog  626ms
+   ✓ cli contract (in-process, no LLM calls) > models refresh marks a model unavailable when the live catalog no longer lists it  696ms
+   ✓ cli contract (in-process, no LLM calls) > models status fails closed (exit 10) with an invalid --config  376ms
+   ✓ cli contract (in-process, no LLM calls) > models refresh fails closed (exit 10) with an invalid --config  372ms
+   ✓ cli contract (in-process, no LLM calls) > deals list --json prints the deal snapshot as JSON  361ms
+   ✓ cli contract (in-process, no LLM calls) > deals list (text) prints tab-separated deal rows  359ms
+   ✓ cli contract (in-process, no LLM calls) > deals status reports retrieval metadata and expiry per deal  363ms
+   ✓ cli contract (in-process, no LLM calls) > deals refresh (no --network) re-seeds from bundled data  372ms
+   ✓ cli contract (in-process, no LLM calls) > config show --json prints the full merged configuration  378ms
+   ✓ cli contract (in-process, no LLM calls) > config show (text) prints a human-readable summary, not raw JSON  389ms
+   ✓ cli contract (in-process, no LLM calls) > --config <path> loads an explicit config file, overriding discovery  388ms
+   ✓ cli contract (in-process, no LLM calls) > --config <path> fails closed (exit 10) when the file does not exist  367ms
+   ✓ cli contract (in-process, no LLM calls) > config paths prints the user/project/state config paths  379ms
+   ✓ cli contract (in-process, no LLM calls) > config validate reports OK when there is no user/project config  361ms
+   ✓ cli contract (in-process, no LLM calls) > config validate fails closed (exit 1) on an invalid project config  376ms
+   ✓ cli contract (in-process, no LLM calls) > stats --since rejects an invalid date with exit code 2  383ms
+   ✓ cli contract (in-process, no LLM calls) > stats --since filters telemetry events before the given date  367ms
+   ✓ cli contract (in-process, no LLM calls) > runs list reports (no runs) in a fresh repo  372ms
+   ✓ cli contract (in-process, no LLM calls) > runs list reports each run's model/taskClass/exit/mode from its artifacts  368ms
+   ✓ cli contract (in-process, no LLM calls) > runs list reports (no manifest) for a run dir missing manifest.json  368ms
+   ✓ cli contract (in-process, no LLM calls) > runs list reports (no runs) when the runs directory exists but is empty  368ms
+   ✓ cli contract (in-process, no LLM calls) > runs list reports (corrupt manifest) for an unparsable manifest.json  364ms
+   ✓ cli contract (in-process, no LLM calls) > runs list ignores an unparsable decision.json but still shows the manifest line  373ms
+   ✓ cli contract (in-process, no LLM calls) > runs show --json prints the manifest merged with decision metadata  368ms
+   ✓ cli contract (in-process, no LLM calls) > runs show (text) prints a human-readable run summary  371ms
+   ✓ cli contract (in-process, no LLM calls) > runs show ignores an unparsable decision.json and still prints the manifest  374ms
+   ✓ cli contract (in-process, no LLM calls) > runs show prints a bare runId+files envelope when manifest.json is missing  387ms
+   ✓ cli contract (in-process, no LLM calls) > runs show exits with an error when the run id does not exist  381ms
+   ✓ cli contract (in-process, no LLM calls) > runs show exits with an error when the runs directory does not exist at all  385ms
+   ✓ cli contract (in-process, no LLM calls) > commander usage error (unknown option) exits 2, not 1  398ms
+   ✓ cli contract (in-process, no LLM calls) > commander --version exits 0 and prints the package version  380ms
+
+ Test Files  42 passed (42)
+      Tests  491 passed (491)
+   Start at  16:20:35
+   Duration  42.18s (transform 1.26s, setup 0ms, collect 4.00s, tests 105.80s, environment 5ms, prepare 2.94s)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   92.27 |    85.81 |   98.73 |   92.27 |                   
+ src               |   86.73 |    85.21 |     100 |   86.73 |                   
+  cli.ts           |   86.59 |    85.21 |     100 |   86.59 | ...1382,1402-1403 
+  index.ts         |     100 |      100 |     100 |     100 |                   
+ src/classifier    |   96.39 |    94.02 |     100 |   96.39 |                   
+  deterministic.ts |      93 |    93.44 |     100 |      93 | 114,125-130       
+  signals.ts       |     100 |      100 |     100 |     100 |                   
+ src/cli           |     100 |      100 |     100 |     100 |                   
+  exit-codes.ts    |     100 |      100 |     100 |     100 |                   
+ src/config        |   93.77 |    85.26 |     100 |   93.77 |                   
+  defaults.ts      |   89.28 |    66.66 |     100 |   89.28 | 18,20-21          
+  loader.ts        |   85.45 |    80.32 |     100 |   85.45 | ...20-121,149-150 
+  merge.ts         |     100 |      100 |     100 |     100 |                   
+  schemas.ts       |     100 |      100 |     100 |     100 |                   
+ src/discovery     |   91.01 |    72.04 |     100 |   91.01 |                   
+  ...lity-probe.ts |     100 |      100 |     100 |     100 |                   
+  ...ndcode-cli.ts |   89.18 |    58.82 |     100 |   89.18 | ...99-100,160-161 
+  model-catalog.ts |   88.23 |    81.48 |     100 |   88.23 | 35-36,44-45       
+ src/domain        |     100 |       85 |     100 |     100 |                   
+  deal.ts          |     100 |       85 |     100 |     100 | 49,61,67          
+  model.ts         |     100 |      100 |     100 |     100 |                   
+  route.ts         |     100 |      100 |     100 |     100 |                   
+  task.ts          |     100 |      100 |     100 |     100 |                   
+  telemetry.ts     |     100 |      100 |     100 |     100 |                   
+ ...ommandcode-mod |   95.45 |     81.5 |   96.49 |   95.45 |                   
+  commands.ts      |     100 |    74.28 |     100 |     100 | 17-18,39-45,51,74 
+  compatibility.ts |    89.1 |       85 |     100 |    89.1 | 31-32,40-48       
+  errors.ts        |     100 |      100 |     100 |     100 |                   
+  index.ts         |    92.2 |    69.56 |   89.47 |    92.2 | ...90-192,206,314 
+  markers.ts       |     100 |      100 |     100 |     100 |                   
+  recursion.ts     |     100 |    87.32 |     100 |     100 | ...02,112-113,149 
+  route-prompt.ts  |   96.15 |       80 |     100 |   96.15 | 65-66,115         
+  router-client.ts |   95.08 |    82.08 |     100 |   95.08 | ...7-68,81-82,127 
+  session-state.ts |     100 |      100 |     100 |     100 |                   
+  telemetry.ts     |   95.55 |    77.08 |     100 |   95.55 | ...42,146,148,160 
+  types.ts         |     100 |      100 |     100 |     100 |                   
+ src/orchestration |   83.95 |    78.84 |   97.14 |   83.95 |                   
+  artifacts.ts     |    94.8 |    94.11 |     100 |    94.8 | 91-95             
+  diff.ts          |     100 |     62.5 |     100 |     100 | 51,61-68,77       
+  orchestrator.ts  |    82.2 |    71.62 |     100 |    82.2 | ...99-400,418-422 
+  packet.ts        |   96.42 |    95.23 |     100 |   96.42 | 11-12             
+  result-parser.ts |   91.46 |    88.88 |     100 |   91.46 | 101-105,108-109   
+  roles.ts         |     100 |      100 |     100 |     100 |                   
+  ...ation-gate.ts |   68.21 |       75 |      80 |   68.21 | ...44-155,201-202 
+  validation.ts    |   81.81 |    73.33 |     100 |   81.81 | 18-19,22-23,41-42 
+ src/pricing       |   92.33 |    86.31 |     100 |   92.33 |                   
+  calculator.ts    |   97.97 |    95.31 |     100 |   97.97 | 19,37,49          
+  ...e-official.ts |    96.7 |    86.56 |     100 |    96.7 | ...09,114,161-163 
+  official-html.ts |   93.52 |       75 |     100 |   93.52 | ...00-101,107-111 
+  ...ial-source.ts |     100 |      100 |     100 |     100 |                   
+  refresh.ts       |   74.28 |    82.85 |     100 |   74.28 | ...72-181,192-197 
+  snapshot.ts      |   95.53 |     90.9 |     100 |   95.53 | ...,77-80,159-160 
+ src/router        |   98.64 |    95.93 |     100 |   98.64 |                   
+  eligibility.ts   |   98.24 |    97.56 |     100 |   98.24 | 187-189           
+  explain.ts       |     100 |     87.5 |     100 |     100 | 24                
+  scorer.ts        |     100 |      100 |     100 |     100 |                   
+  select.ts        |   97.53 |    93.75 |     100 |   97.53 | 99-100,170-171    
+  ...n-estimate.ts |     100 |      100 |     100 |     100 |                   
+ src/security      |   99.36 |    96.25 |     100 |   99.36 |                   
+  ...and-policy.ts |     100 |      100 |     100 |     100 |                   
+  git-safety.ts    |     100 |    91.66 |     100 |     100 | 32                
+  path-policy.ts   |      96 |    77.77 |     100 |      96 | 13                
+  ...sion-guard.ts |     100 |      100 |     100 |     100 |                   
+ src/subprocess    |   97.97 |    92.68 |     100 |   97.97 |                   
+  commandcode.ts   |   97.27 |       90 |     100 |   97.27 | 41-42,48          
+  environment.ts   |     100 |      100 |     100 |     100 |                   
+  timeout.ts       |     100 |      100 |     100 |     100 |                   
+ src/telemetry     |     100 |      100 |     100 |     100 |                   
+  aggregate.ts     |     100 |      100 |     100 |     100 |                   
+  redact.ts        |     100 |      100 |     100 |     100 |                   
+  store.ts         |     100 |      100 |     100 |     100 |                   
+-------------------|---------|----------|---------|---------|-------------------

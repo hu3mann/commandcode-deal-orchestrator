@@ -1,3 +1,27 @@
+/**
+ * Primary recursion boundary for the ccroute executable.
+ *
+ * Environment contract (TP-CCROUTE-AUTO-001 / ADR-CCROUTE-001):
+ *
+ *   CCROUTE_CHILD  — "1" when process is a bounded child role
+ *   CCROUTE_DEPTH  — nesting depth; missing/empty treated as 0
+ *   CCROUTE_ROLE   — role name for child sessions (informational)
+ *   CCROUTE_RUN_ID — run id for child sessions (informational)
+ *
+ * Rules:
+ *   depth missing → 0
+ *   depth = 0 → ordinary invocation allowed
+ *   depth = 1 and CCROUTE_CHILD = 1 → reject external ccroute
+ *   depth > 1 → reject unconditionally
+ *
+ * Malformed depth fails closed (treated as already nested).
+ *
+ * There is intentionally NO public environment toggle that grants nested
+ * orchestration to an accidental child shell. Internal in-process helpers
+ * (selectRoute, classifyTask, etc.) do not consult these env vars and are
+ * not reachable as a second CLI entry without going through this guard.
+ */
+
 export const ENV_CHILD = "CCROUTE_CHILD";
 export const ENV_DEPTH = "CCROUTE_DEPTH";
 export const ENV_ROLE = "CCROUTE_ROLE";
@@ -12,26 +36,13 @@ export class RecursionError extends Error {
 }
 
 // Sentinel returned by readDepth() when CCROUTE_DEPTH is present but unparsable.
-// Deliberately chosen to be larger than every depth threshold checked below
-// (assertNotRecursive's `> 1` and assertCcrouteEntryAllowed's `>= 2`), so a
-// malformed value is always treated as "blocked", never as "fresh entry".
+// Deliberately larger than every depth threshold so malformed values always block.
 const MALFORMED_DEPTH_SENTINEL = Number.POSITIVE_INFINITY;
 
 /**
  * Security-relevant design choice: a *malformed* CCROUTE_DEPTH (present but not a
  * finite integer, e.g. "nope") is treated as fail-closed — "already nested / already
  * blocked" — rather than fail-open as depth 0 ("fresh top-level entry").
- *
- * Rationale: the recursion guard's job is to stop a child role process from
- * re-invoking ccroute. If a corrupted or adversarially-set CCROUTE_DEPTH value could
- * reset the guard's view of depth back to 0, that would be a bypass primitive — worse
- * than useless, since it would look *more* trustworthy (fresh entry) than an honestly
- * missing value. A genuinely absent CCROUTE_DEPTH (the normal, non-nested case) still
- * returns 0; only a present-but-garbage value fails closed.
- *
- * This does not (and cannot, from inside this process) defend against a child that
- * strips CCROUTE_DEPTH/CCROUTE_CHILD entirely before re-exec'ing — see the hooks'
- * residual-risk notes.
  */
 export function readDepth(env: NodeJS.ProcessEnv = process.env): number {
   const raw = env[ENV_DEPTH];
@@ -40,6 +51,14 @@ export function readDepth(env: NodeJS.ProcessEnv = process.env): number {
   return Number.isFinite(n) ? n : MALFORMED_DEPTH_SENTINEL;
 }
 
+export function isChildProcess(env: NodeJS.ProcessEnv = process.env): boolean {
+  return env[ENV_CHILD] === "1";
+}
+
+/**
+ * Lightweight check used by orchestration internals before spawning nested work.
+ * Blocks only when depth already exceeds 1.
+ */
 export function assertNotRecursive(env: NodeJS.ProcessEnv = process.env): void {
   const depth = readDepth(env);
   if (depth > 1) {
@@ -49,19 +68,30 @@ export function assertNotRecursive(env: NodeJS.ProcessEnv = process.env): void {
   }
 }
 
-/** Call at start of ccroute CLI when about to orchestrate/run */
+/**
+ * Primary entry guard for every external `ccroute` CLI invocation.
+ * Call at the executable entry layer before any command action runs.
+ */
 export function assertCcrouteEntryAllowed(env: NodeJS.ProcessEnv = process.env): void {
   const depth = readDepth(env);
-  if (depth >= 2) {
-    throw new RecursionError(`CCROUTE_DEPTH=${depth} rejected (max allowed entry depth is 1)`);
+
+  // depth > 1 (including malformed → Infinity): reject unconditionally
+  if (depth > 1) {
+    throw new RecursionError(
+      `CCROUTE_DEPTH=${Number.isFinite(depth) ? depth : env[ENV_DEPTH]} rejected (max allowed entry depth is 1)`,
+    );
   }
-  // If already a child role process, refuse to run ccroute commands that launch more work
-  if (env[ENV_CHILD] === "1") {
+
+  // depth = 1 and child, OR child at any depth ≤ 1: reject external re-entry
+  if (isChildProcess(env)) {
     throw new RecursionError(
       "ccroute refused: process is a bounded child role (CCROUTE_CHILD=1). Do not nest orchestration.",
     );
   }
 }
+
+/** Alias documenting the primary (binary-level) recursion boundary. */
+export const assertPrimaryRecursionGuard = assertCcrouteEntryAllowed;
 
 export function childEnv(role: string, runId: string, parentDepth = 0): Record<string, string> {
   return {

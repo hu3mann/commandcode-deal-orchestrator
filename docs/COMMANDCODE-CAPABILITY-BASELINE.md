@@ -44,9 +44,9 @@ Live catalog: **48 models** (`cmd --list-models`)
 | `cmd --trust` | DOCUMENTED + LOCALLY_OBSERVED | Skip project trust prompt |
 | Skills (`SKILL.md`) | DOCUMENTED | User/project skill dirs |
 | Hooks (SessionStart, PreToolUse, …) | DOCUMENTED, **NOT LOCALLY_OBSERVED** | stdin/stdout JSON. `cmd --help` on v1.4.1 contains **zero** mentions of hooks (verified: `grep -ci hook evidence/commandcode-help.txt` → 0). The event names, the `PreToolUse` matcher value, and the deny-JSON contract are all assumed from documentation and are unverified against this binary. Any control that depends on hooks must be treated as **unverified defence-in-depth**, never as a primary control. |
-| Mods | DOCUMENTED | Not used for routing MVP |
+| Mods | DOCUMENTED + LOCALLY_OBSERVED | Primary interactive routing surface as of TP-CCROUTE-AUTO-001; see `docs/COMMANDCODE-MOD-CAPABILITY-BASELINE.md` |
 | Per-agent model field | UNSUPPORTED | Custom agents lack documented model field |
-| `setModel()` / transformInput API | UNSUPPORTED | Discarded folklore |
+| `setModel()` / transformInput API | DOCUMENTED_AND_OBSERVED (v1.4.1 ModApi) | Supersedes prior "UNSUPPORTED folklore" note; verified via bundled mod-builder docs/examples |
 | Internal session file formats | UNSUPPORTED | Do not depend |
 
 ## Model ID corrections (packet → live)

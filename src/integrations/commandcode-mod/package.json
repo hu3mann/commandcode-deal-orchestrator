@@ -1,0 +1,22 @@
+{
+  "name": "ccroute-commandcode-mod",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "CommandCode Mod for deterministic ccroute model routing",
+  "commandcode": {
+    "mods": ["./index.ts"]
+  },
+  "exports": {
+    ".": "./index.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {},
+  "compatibility": {
+    "commandCodeMin": "1.4.0",
+    "commandCodeProbed": "1.4.1",
+    "modApiVersion": "ModApi@command-code-1.4.1"
+  }
+}
