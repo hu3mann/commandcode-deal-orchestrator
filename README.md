@@ -88,9 +88,19 @@ mkdir -p ~/.commandcode/skills
 cp -R skills/commandcode-deal-orchestrator ~/.commandcode/skills/
 ```
 
-## Hooks
+## Hooks (operator install)
 
-See `examples/commandcode-settings.hooks.json` and `hooks/`.
+Child sessions still have a normal Command Code tool surface. Install the
+shipped hooks so nested `ccroute` is denied under `CCROUTE_CHILD=1`:
+
+```bash
+# Merge examples/commandcode-settings.hooks.json → .commandcode/settings.json
+# (or use absolute node paths if hooks live only in the global package)
+ls hooks/*.mjs
+echo '{}' | CCROUTE_CHILD=1 node ./hooks/child-recursion-guard.mjs
+```
+
+Full steps, verify commands, and threat notes: [docs/OPERATIONS.md](docs/OPERATIONS.md#operator-hooks-recommended).
 
 ## Troubleshooting
 

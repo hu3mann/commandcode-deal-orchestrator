@@ -4,7 +4,7 @@
 
 **PASS**
 
-Deterministic suite green; package installs; all 9 CLI commands implemented.
+Deterministic suite green; package installs; all CLI commands implemented.
 
 ## Project path
 
@@ -27,26 +27,55 @@ CLI → config/discovery → classifier → eligibility/scorer → run | orchest
 - typecheck: clean
 - lint (Biome): clean
 - build: clean
-- tests: 91 passed (17 files)
-- coverage: 92.7% lines, 86.31% branches
-- package install: passed (isolated temp prefix)
+- tests: 112 passed (17 files)
+- coverage: 94.46% lines, 89.11% branches
+- package install: passed (isolated temp prefix, prior session)
 - threat model: 17 threats documented with controls
 
 ## Package
 
 `commandcode-deal-orchestrator-0.1.0.tgz`  
-SHA256: `2eea387547347b31cd22f5acb6cdda1bf4ab701cc67ced459403472e1af517f7`
+SHA256: `21497dbd9d73bd00bafe64b0e608b82c705aeff61f4f390a669e48b961c7e69f`
 
-## Key files created/updated this session
+## Key files created/updated this continuation
 
-- `docs/THREAT-MODEL.md` — 17 threats, controls, residual risks
-- `CHANGELOG.md` — v0.1.0 feature list
-- `FILE-MANIFEST.json` — SHA256 inventory of all 105 project files
-- `evidence/` — version, models, status, validation outputs
-- `src/cli.ts` — added `runs list` and `runs show <id>` commands
-- `docs/IMPLEMENTATION-SPEC.md` — updated CLI table
-- `docs/TRACEABILITY-MATRIX.md` — added REQ-RUNS-CMD and REQ-THREAT-MODEL
-- `ACCEPTANCE.json` — updated cmd version 1.4.1, coverage 92.7%/86.31%
+- `tests/unit/branch-coverage.test.ts` — branch/gap coverage for classifier, pricing, scorer, path/command policy, select
+- `tests/unit/eligibility-extra.test.ts` — live catalog rejection + high_risk economical tier
+- `docs/OPERATIONS.md` — operator hook install path (backlog #1)
+- `README.md` — hook install pointer
+- `evidence/` — refreshed validation outputs + `commandcode-help.txt`
+- `ACCEPTANCE.json` / `TEST-REPORT.md` — 112 tests, 94.46%/89.11%
+
+## PAL conclusions (freeze v0.1.0)
+
+### Proven
+
+| Invariant | Status |
+| --- | --- |
+| `decide` never spawns | PASS |
+| `--apply` → `--auto-accept` only | PASS |
+| `shell: false` | PASS |
+| No double `post_discount` | PASS |
+| Live catalog | used when `cmd` present |
+| Recursion | PASS (+ plain `run` sets `role=executor`) |
+
+### Residual (ranked)
+
+1. Med — child `cmd` tools wide without operator hooks (mitigated by documented install path)
+2. Low — deal refresh = seeds, not full HTML scrape
+3. Low — kill-tree best-effort; dirty gate orch-only
+
+### Backlog
+
+1. ~~Hook install docs~~ — done in `docs/OPERATIONS.md`
+2. Optional dirty gate on `run --apply`
+3. Better deal refresh
+4. xAI-direct (defer)
+5. More budgeted free live edges
+
+### Do-not-do
+
+Invent model IDs · double-discount · decide→model · default yolo/auto-accept · commit `.commandcode` taste/runs/settings
 
 ## Remaining limitations
 
@@ -54,3 +83,4 @@ SHA256: `2eea387547347b31cd22f5acb6cdda1bf4ab701cc67ced459403472e1af517f7`
 - Network deal refresh re-seeds bundled rates rather than full HTML price extraction
 - Live costs are estimates unless provider returns observed usage
 - Live CommandCode smoke testing not re-run this session
+- Operator must install hooks for secondary nested-`ccroute` denial

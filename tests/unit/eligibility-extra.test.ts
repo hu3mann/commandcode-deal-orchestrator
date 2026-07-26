@@ -117,6 +117,79 @@ describe("eligibility extras", () => {
     expect(resolveQualityFloor(config, "high_risk_review")).toBe("frontier");
   });
 
+  it("rejects model not in live catalog when liveModelIds available", () => {
+    const config = loadDefaultRoutingConfig();
+    const models: ModelPricing[] = [
+      {
+        id: "m/ghost",
+        contextWindow: 1000,
+        inputPerMillion: 0.1,
+        outputPerMillion: 0.2,
+        cacheReadPerMillion: 0,
+        priceBasis: "current_rate",
+        qualityTier: "economical",
+        availability: "available",
+      },
+      {
+        id: "m/real",
+        contextWindow: 1000,
+        inputPerMillion: 0.1,
+        outputPerMillion: 0.2,
+        cacheReadPerMillion: 0,
+        priceBasis: "current_rate",
+        qualityTier: "economical",
+        availability: "available",
+      },
+    ];
+    const task = classifyTask("list files");
+    const r = filterEligible({
+      models,
+      liveModelIds: new Set(["m/real"]),
+      config,
+      task,
+      qualityFloor: "economical",
+      noFree: false,
+      now,
+    });
+    expect(r.eligible.map((m) => m.id)).toEqual(["m/real"]);
+    expect(r.rejected.some((rr) => rr.modelId === "m/ghost")).toBe(true);
+  });
+
+  it("rejects high_risk_review with economical tier when no explicit override", () => {
+    const config = loadDefaultRoutingConfig();
+    const models: ModelPricing[] = [
+      {
+        id: "m/eco",
+        contextWindow: 1000,
+        inputPerMillion: 0.1,
+        outputPerMillion: 0.2,
+        cacheReadPerMillion: 0,
+        priceBasis: "current_rate",
+        qualityTier: "economical",
+        availability: "available",
+      },
+    ];
+    // Ensure it's listed in the economical quality tier
+    config.quality_tiers.economical.push("m/eco");
+    // qualityFloor must be <= economical so it doesn't get caught by floor check
+    // high_risk has floor=frontier by default, so we need to set floor=economical to trigger line 112-122
+    const task = classifyTask("authentication security review");
+    expect(task.taskClass).toBe("high_risk_review");
+    const r = filterEligible({
+      models,
+      liveModelIds: new Set(["m/eco"]),
+      config,
+      task,
+      qualityFloor: "economical",
+      noFree: false,
+      now,
+    });
+    expect(r.eligible).toHaveLength(0);
+    expect(
+      r.rejected.some((rr) => rr.reason.includes("high_risk_review cannot use economical tier")),
+    ).toBe(true);
+  });
+
   it("scorer uses telemetry failure rates", () => {
     const config = loadDefaultRoutingConfig();
     const models: ModelPricing[] = [

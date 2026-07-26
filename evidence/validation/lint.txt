@@ -2,5 +2,4 @@
 > commandcode-deal-orchestrator@0.1.0 lint
 > biome check src tests scripts
 
-Checked 57 files in 38ms. No fixes applied.
-exit=0
+Checked 57 files in 29ms. No fixes applied.

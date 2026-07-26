@@ -5,10 +5,10 @@
   "commandCodeVersion": "1.4.1",
   "nodeVersion": "v25.9.0",
   "packageVersion": "0.1.0",
-  "testsPassed": 91,
+  "testsPassed": 112,
   "testsFailed": 0,
-  "lineCoverage": 92.7,
-  "branchCoverage": 86.31,
+  "lineCoverage": 94.46,
+  "branchCoverage": 89.11,
   "packageInstallPassed": true,
   "liveTestsRun": false,
   "liveTestsStatus": "NOT_RUN",
@@ -19,7 +19,8 @@
     "Optional xAI-direct adapter not implemented (CommandCode backend is primary)",
     "Network deal refresh re-seeds bundled official rates rather than full HTML price extraction",
     "Live costs are estimates unless provider returns observed usage",
-    "Live CommandCode smoke testing not re-run this session"
+    "Live CommandCode smoke testing not re-run this session",
+    "Operator must install PreToolUse hooks for secondary nested-ccroute denial"
   ],
   "unsupportedAssumptions": [
     "No setModel()/transformInput session API",

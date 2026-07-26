@@ -20,7 +20,7 @@
 
 ## Residual risks
 
-- Child CommandCode sessions still have their normal tool surface; hooks must be installed by the operator for PreToolUse denial.
+- Child CommandCode sessions still have their normal tool surface; hooks must be installed by the operator for PreToolUse denial (see `docs/OPERATIONS.md` § Operator hooks).
 - Network deal refresh trusts HTTPS content only for reachability in MVP; rates come from validated snapshots/seeds.
 - Live subprocess timeout/kill-tree behavior is best-effort on POSIX.
 

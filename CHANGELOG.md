@@ -25,7 +25,8 @@ Initial MVP release.
 ### Quality
 
 - ~2,600 lines TypeScript (ESM)
-- 17 test files, 91 tests
-- 93% line coverage, 86% branch coverage on core modules
+- 17 test files, 112 tests
+- 94.46% line coverage, 89.11% branch coverage on core modules
 - typecheck, lint (Biome), build all clean
 - Live smoke tested against CommandCode v1.4.1 under budget
+- Operator hook install path documented in `docs/OPERATIONS.md`
