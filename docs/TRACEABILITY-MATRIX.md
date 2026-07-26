@@ -74,6 +74,15 @@
 | REQ-ACCEPTANCE | §29-32 | artifacts | ACCEPTANCE.json | final | DONE |
 | REQ-THREAT-MODEL | §7.4 | security | docs/THREAT-MODEL.md | review | DONE |
 | REQ-NON-GOALS | §34 | architecture | docs | review | DONE |
+| REQ-AUTO-001-MOD | CCROUTE-AUTO-001 | Mod primary surface | src/integrations/commandcode-mod/ | unit mod-* | DONE |
+| REQ-AUTO-001-TRANSFORM | CCROUTE-AUTO-001 | transformInput routing | route-prompt.ts + index.ts | unit route + factory | DONE |
+| REQ-AUTO-001-EXACT-MODEL | CCROUTE-AUTO-001 | live catalog validate | router-client.ts | unit validation | DONE |
+| REQ-AUTO-001-COMMANDS | CCROUTE-AUTO-001 | /route* commands | commands.ts + index.ts | unit factory | DONE |
+| REQ-AUTO-001-TELEMETRY | CCROUTE-AUTO-001 | append-only usage | telemetry.ts | unit mod-telemetry | DONE |
+| REQ-AUTO-001-RECURSION-PRIMARY | CCROUTE-AUTO-001 | binary guard | recursion-guard.ts + cli preAction | unit recursion-primary | DONE |
+| REQ-AUTO-001-RECURSION-MOD | CCROUTE-AUTO-001 | beforeToolCall defence | recursion.ts | unit mod-recursion | DONE |
+| REQ-AUTO-001-COMPAT | CCROUTE-AUTO-001 | capability baseline | docs + compatibility.ts | unit + evidence | DONE |
+| REQ-AUTO-001-ONE-REQUEST | CCROUTE-AUTO-001 | no classifier LLM | route-prompt | unit one-decide | DONE |
 
 ## Contradiction check
 

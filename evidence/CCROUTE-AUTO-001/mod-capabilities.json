@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "series": "CCROUTE-AUTO-2026-001",
+  "tp": "TP-CCROUTE-AUTO-001",
+  "capturedAt": "2026-07-26",
+  "commandCodeVersion": "1.4.1",
+  "commandCodePackage": "command-code@1.4.1",
+  "modApiVersion": "ModApi@command-code-1.4.1",
+  "probeCommands": {
+    "cmdVersion": "1.4.1",
+    "modsListBuiltins": [
+      "provider-anthropic",
+      "provider-copilot",
+      "provider-openai",
+      "update-notice"
+    ],
+    "listModelsCount": 48
+  },
+  "surfaces": {
+    "transformInput": {
+      "status": "DOCUMENTED_AND_OBSERVED",
+      "preRequest": true,
+      "notes": "hooks.transformInput; typed text only"
+    },
+    "setModel": {
+      "status": "DOCUMENTED_AND_OBSERVED",
+      "preRequest": true,
+      "notes": "cmd.setModel; buffered pre-bind"
+    },
+    "setEffort": {
+      "status": "DOCUMENTED_AND_OBSERVED",
+      "preRequest": true,
+      "notes": "cmd.setEffort; apply only when decision supplies effort"
+    },
+    "commands": {
+      "status": "DOCUMENTED_AND_OBSERVED",
+      "notes": "cmd.addCommand slash handlers"
+    },
+    "model_request_start": {
+      "status": "DOCUMENTED_AND_OBSERVED",
+      "notes": "AgentEvent with model"
+    },
+    "model_request_end": {
+      "status": "DOCUMENTED_AND_OBSERVED",
+      "notes": "AgentEvent with model, usage, stopReason"
+    },
+    "beforeToolCall": {
+      "status": "DOCUMENTED_AND_OBSERVED",
+      "notes": "mutating tool hook for recursion defence"
+    },
+    "sessionStart": {
+      "status": "DOCUMENTED_AND_OBSERVED",
+      "notes": "hooks.onSessionStart and on('session_start')"
+    },
+    "permissionModeMutation": {
+      "status": "UNSUPPORTED",
+      "notes": "no ModApi for auto-accept/yolo/permission mode"
+    }
+  },
+  "gate": {
+    "canChangeModelBeforeOrdinaryTypedPrompt": true,
+    "blocked": false
+  },
+  "unsupportedPromptSurfaces": [
+    "slash_commands_except_route",
+    "image_carrying_prompts",
+    "automated_turns",
+    "meta_messages",
+    "headless_print_typed_routing"
+  ]
+}

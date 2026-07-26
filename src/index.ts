@@ -8,8 +8,29 @@ export { orchestrate, shouldOrchestrate } from "./orchestration/orchestrator.js"
 export { parseRoleResult } from "./orchestration/result-parser.js";
 export {
   assertCcrouteEntryAllowed,
+  assertPrimaryRecursionGuard,
   assertNotRecursive,
   RecursionError,
+  childEnv,
+  readDepth,
+  isChildProcess,
+  ENV_CHILD,
+  ENV_DEPTH,
+  ENV_ROLE,
+  ENV_RUN_ID,
 } from "./security/recursion-guard.js";
 export { buildCmdArgv, assertSafeModelId } from "./security/command-policy.js";
 export { ensureGitSafety } from "./security/git-safety.js";
+// CommandCode Mod pure helpers (factory is default export of integrations package)
+export {
+  parseRouterMarkers,
+  shouldAutoRoute,
+  inspectModApi,
+  canRouteAutomatically,
+  validateDecidePayload,
+  shouldBlockChildCcroute,
+  parseCommandLine,
+  isCcrouteInvocation,
+  routeTypedPrompt,
+  createSessionState,
+} from "./integrations/commandcode-mod/index.js";

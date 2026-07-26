@@ -1,0 +1,24 @@
+TP-CCROUTE-AUTO-001 VALIDATION
+date: 2026-07-26
+branch: feat/CCROUTE-AUTO-001-native-mod-routing
+startingCommit: d966b9af46927051690af77e2da63b9fd706ac28
+commandCode: 1.4.1
+
+Gates:
+  npm run typecheck  PASS
+  npm run lint       PASS
+  npm test           PASS (491 passed, 0 failed)
+  npm run test:coverage PASS
+    lines:      92.27%
+    branches:   85.81%
+    functions:  98.73%
+    statements: 92.27%
+  npm run build      PASS
+  npm pack           PASS (commandcode-deal-orchestrator-0.2.0.tgz)
+
+Recursion CLI smoke:
+  CCROUTE_CHILD=1 doctor -> exit 31 RECURSION_BLOCKED
+  CCROUTE_DEPTH=2 decide -> exit 31 RECURSION_BLOCKED
+
+Live paid model requests: NOT RUN (no CCROUTE_LIVE budget)
+Mod live interactive harness: DOCUMENTED_AND_OBSERVED API; unit-level ModApi mock qualification PASS

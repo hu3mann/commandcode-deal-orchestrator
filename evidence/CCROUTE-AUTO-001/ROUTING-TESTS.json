@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "tp": "TP-CCROUTE-AUTO-001",
+  "suite": "routing",
+  "status": "PASS",
+  "cases": [
+    {
+      "id": "ordinary_typed_prompt",
+      "result": "PASS",
+      "evidence": "tests/unit/mod-route-prompt.test.ts"
+    },
+    {
+      "id": "explicit_bypass_route_off",
+      "result": "PASS",
+      "evidence": "tests/unit/mod-route-prompt.test.ts"
+    },
+    {
+      "id": "explicit_profile_markers",
+      "result": "PASS",
+      "evidence": "tests/unit/mod-route-prompt.test.ts"
+    },
+    {
+      "id": "exact_model_override",
+      "result": "PASS",
+      "evidence": "tests/unit/mod-route-prompt.test.ts"
+    },
+    {
+      "id": "unavailable_override_fail_closed",
+      "result": "PASS",
+      "evidence": "tests/unit/mod-route-prompt.test.ts"
+    },
+    {
+      "id": "route_timeout_keep_session",
+      "result": "PASS",
+      "evidence": "tests/unit/mod-route-prompt.test.ts"
+    },
+    {
+      "id": "malformed_router_json",
+      "result": "PASS",
+      "evidence": "tests/unit/mod-router-client.test.ts"
+    },
+    {
+      "id": "selected_id_absent",
+      "result": "PASS",
+      "evidence": "tests/unit/mod-router-client.test.ts"
+    },
+    {
+      "id": "original_prompt_preservation",
+      "result": "PASS",
+      "evidence": "tests/unit/mod-route-prompt.test.ts"
+    },
+    {
+      "id": "marker_stripping_transform",
+      "result": "PASS",
+      "evidence": "tests/unit/mod-factory.test.ts"
+    },
+    {
+      "id": "one_decide_zero_classifier_llm",
+      "result": "PASS",
+      "evidence": "tests/unit/mod-route-prompt.test.ts + mod-factory.test.ts"
+    },
+    {
+      "id": "compatibility_missing_callback",
+      "result": "PASS",
+      "evidence": "tests/unit/mod-compatibility.test.ts"
+    },
+    {
+      "id": "unsupported_version",
+      "result": "PASS",
+      "evidence": "tests/unit/mod-compatibility.test.ts"
+    }
+  ],
+  "oneRequestProperty": {
+    "routeDecisionsPerTypedPrompt": 1,
+    "classifierModelRequests": 0,
+    "cheapRouterAgentRequests": 0,
+    "provenBy": "decide mock call count === 1; no LLM spawn in decide path; decide-no-spawn integration"
+  },
+  "unsupportedSurfaces": [
+    "slash_commands_except_route",
+    "image_carrying_prompts",
+    "automated_turns",
+    "meta_messages",
+    "headless_print_typed_routing"
+  ]
+}

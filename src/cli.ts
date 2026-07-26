@@ -40,7 +40,11 @@ import { estimateContextTokens, estimateRequestTokens } from "./router/token-est
 import { warnUnsafeYolo } from "./security/command-policy.js";
 import { defaultGitPorcelainStatus, ensureGitSafety } from "./security/git-safety.js";
 import { assertPathInsideRoot } from "./security/path-policy.js";
-import { RecursionError, assertCcrouteEntryAllowed } from "./security/recursion-guard.js";
+import {
+  RecursionError,
+  assertCcrouteEntryAllowed,
+  assertPrimaryRecursionGuard,
+} from "./security/recursion-guard.js";
 import { spawnCommandCode } from "./subprocess/commandcode.js";
 import { aggregateByModel, formatStats } from "./telemetry/aggregate.js";
 import { redactText } from "./telemetry/redact.js";
@@ -86,6 +90,12 @@ program
   // onto a subcommand only at the moment .command() creates it (see
   // Command.copyInheritedSettings in commander/lib/command.js).
   .exitOverride();
+
+// Primary recursion boundary: reject nested external entry before any command action.
+// assertCcrouteEntryAllowed remains on individual commands as defence-in-depth.
+program.hook("preAction", () => {
+  assertPrimaryRecursionGuard();
+});
 
 /**
  * §11: `fail()` never uses a bare, unmapped exit 1. Every error that reaches here either

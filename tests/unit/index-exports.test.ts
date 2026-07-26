@@ -23,10 +23,23 @@ describe("src/index.ts public API surface", () => {
     expect(typeof pkg.shouldOrchestrate).toBe("function");
     expect(typeof pkg.parseRoleResult).toBe("function");
     expect(typeof pkg.assertCcrouteEntryAllowed).toBe("function");
+    expect(typeof pkg.assertPrimaryRecursionGuard).toBe("function");
     expect(typeof pkg.assertNotRecursive).toBe("function");
     expect(typeof pkg.RecursionError).toBe("function");
+    expect(typeof pkg.childEnv).toBe("function");
+    expect(typeof pkg.readDepth).toBe("function");
+    expect(typeof pkg.isChildProcess).toBe("function");
     expect(typeof pkg.buildCmdArgv).toBe("function");
     expect(typeof pkg.assertSafeModelId).toBe("function");
     expect(typeof pkg.ensureGitSafety).toBe("function");
+    // CommandCode Mod pure helpers (TP-CCROUTE-AUTO-001)
+    expect(typeof pkg.parseRouterMarkers).toBe("function");
+    expect(typeof pkg.shouldAutoRoute).toBe("function");
+    expect(typeof pkg.inspectModApi).toBe("function");
+    expect(typeof pkg.canRouteAutomatically).toBe("function");
+    expect(typeof pkg.validateDecidePayload).toBe("function");
+    expect(typeof pkg.shouldBlockChildCcroute).toBe("function");
+    expect(typeof pkg.routeTypedPrompt).toBe("function");
+    expect(typeof pkg.createSessionState).toBe("function");
   });
 });
