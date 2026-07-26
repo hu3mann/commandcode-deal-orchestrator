@@ -178,20 +178,36 @@ dealsCmd.command("status").action(() => {
 });
 dealsCmd
   .command("refresh")
-  .option("--network", "Attempt official page fetch")
+  .option("--network", "Fetch and parse official pricing-limits page")
   .action(async (opts) => {
-    const r = await refreshDealsFromOfficial({
-      allowNetwork: Boolean(opts.network),
-      fetchImpl: globalThis.fetch,
-    });
-    const p = await refreshPricingFromOfficial({
-      allowNetwork: Boolean(opts.network),
-      fetchImpl: globalThis.fetch,
-    });
+    if (opts.network) {
+      // Single network pass: HTML parse merges pricing + deals together.
+      const p = await refreshPricingFromOfficial({
+        allowNetwork: true,
+        fetchImpl: globalThis.fetch,
+      });
+      if (!p.ok) {
+        console.error(p.error);
+        process.exit(1);
+      }
+      console.log(`Pricing+deals refreshed from official HTML (${p.mode ?? "official-html"}).`);
+      if (p.updatedModelIds?.length) {
+        console.log(
+          `Updated models (${p.updatedModelIds.length}): ${p.updatedModelIds.join(", ")}`,
+        );
+      }
+      if (p.unmappedPageIds?.length) {
+        console.log(`Unmapped page ids ignored: ${p.unmappedPageIds.length}`);
+      }
+      process.exit(0);
+    }
+
+    const r = await refreshDealsFromOfficial({ allowNetwork: false });
+    const p = await refreshPricingFromOfficial({ allowNetwork: false });
     if (!r.ok) console.error(r.error);
     if (!p.ok) console.error(p.error);
-    if (r.ok) console.log("Deals snapshot refreshed.");
-    if (p.ok) console.log("Pricing snapshot refreshed.");
+    if (r.ok) console.log("Deals snapshot re-seeded from bundled data.");
+    if (p.ok) console.log("Pricing snapshot re-seeded from bundled data.");
     process.exit(r.ok && p.ok ? 0 : 1);
   });
 

@@ -17,7 +17,7 @@
   "securityFindingsOpen": 0,
   "knownLimitations": [
     "Optional xAI-direct adapter not implemented (CommandCode backend is primary)",
-    "Network deal refresh re-seeds bundled official rates rather than full HTML price extraction",
+    "Network deal refresh parses official HTML rates/deals for known models only; unmapped page models ignored",
     "Live costs are estimates unless provider returns observed usage",
     "Live CommandCode smoke testing not re-run this session",
     "Operator must install PreToolUse hooks for secondary nested-ccroute denial"

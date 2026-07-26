@@ -61,11 +61,12 @@ Without `--apply`, runs stay non-writing (no `--auto-accept`).
 
 ```bash
 ccroute deals status
-ccroute deals refresh
-ccroute deals refresh --network   # optional official page fetch
+ccroute deals refresh             # re-seed from bundled official rates
+ccroute deals refresh --network   # fetch+parse official pricing-limits page
 ```
 
-Routing uses the last valid snapshot; failed refresh preserves prior data.
+`--network` merges rates/deals into **known** snapshot model IDs only (never
+invents IDs). Failed fetch/parse preserves the last valid snapshot.
 
 ## Config paths
 

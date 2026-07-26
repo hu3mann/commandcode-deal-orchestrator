@@ -62,14 +62,14 @@ SHA256: `21497dbd9d73bd00bafe64b0e608b82c705aeff61f4f390a669e48b961c7e69f`
 ### Residual (ranked)
 
 1. Med — child `cmd` tools wide without operator hooks (mitigated by documented install path)
-2. Low — deal refresh = seeds, not full HTML scrape
+2. Low — official HTML parse covers rate/deal fields present in page; tier-only nuances may lag
 3. Low — kill-tree best-effort on POSIX
 
 ### Backlog
 
 1. ~~Hook install docs~~ — done in `docs/OPERATIONS.md`
 2. ~~Optional dirty gate on `run --apply`~~ — done (`ensureGitSafety` for run + orchestrate)
-3. Better deal refresh
+3. ~~Better deal refresh~~ — official HTML parse + merge (`deals refresh --network`)
 4. xAI-direct (defer)
 5. More budgeted free live edges
 
@@ -80,7 +80,7 @@ Invent model IDs · double-discount · decide→model · default yolo/auto-accep
 ## Remaining limitations
 
 - Optional direct xAI adapter not implemented (CommandCode backend is primary)
-- Network deal refresh re-seeds bundled rates rather than full HTML price extraction
+- Network deal refresh parses official HTML for known models; does not add unknown page-only IDs
 - Live costs are estimates unless provider returns observed usage
 - Live CommandCode smoke testing not re-run this session
 - Operator must install hooks for secondary nested-`ccroute` denial

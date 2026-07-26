@@ -8,3 +8,7 @@
 6. Bundled seed dated 2026-07-23 is replaceable, not permanent truth.
 7. `post_discount` rates must not receive a second promotional multiplier.
 8. Free models may be capacity-limited; `--no-free` excludes them.
+9. `deals refresh --network` fetches the official page, parses embedded rate/deal
+   fields, and **merges into known snapshot model IDs only** (never invents IDs).
+10. Empty parse or zero mapped models → preserve prior snapshot (fail closed).
+11. Offline `deals refresh` (no `--network`) re-validates bundled seed snapshots.

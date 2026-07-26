@@ -1,5 +1,6 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { classifyTask } from "../../src/classifier/deterministic.js";
 import { loadDefaultRoutingConfig } from "../../src/config/defaults.js";
@@ -183,15 +184,21 @@ describe("branch coverage", () => {
   });
 
   it("refresh network success path", async () => {
+    const html = readFileSync(
+      fileURLToPath(new URL("../fixtures/pricing-limits-sample.html", import.meta.url)),
+      "utf8",
+    );
     const r = await refreshPricingFromOfficial({
       allowNetwork: true,
       fetchImpl: async () =>
         ({
           ok: true,
-          text: async () => "<html>ok</html>",
+          status: 200,
+          text: async () => html,
         }) as Response,
     });
     expect(r.ok).toBe(true);
+    expect(r.mode).toBe("official-html");
   });
 
   it("refresh network http fail", async () => {
