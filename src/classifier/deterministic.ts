@@ -42,7 +42,10 @@ export function classifyTask(text: string, repo: RepoSignals = {}): ClassifiedTa
   const { cleaned, overrides } = parseTaskMarkers(text);
   const readHits = matchSignals(cleaned, READ_ONLY_SIGNALS);
   const complexHits = matchSignals(cleaned, COMPLEXITY_SIGNALS);
-  const riskHits = matchSignals(cleaned, HIGH_RISK_SIGNALS);
+  // Word-boundary matching for risk keywords: several mandated keywords (e.g. "token",
+  // "secret") are short substrings of unrelated words ("tokenize", "secretary"). See the
+  // matchSignals doc comment in signals.ts for the exact matching semantics.
+  const riskHits = matchSignals(cleaned, HIGH_RISK_SIGNALS, { wordBoundary: true });
   const trivialHits = matchSignals(cleaned, TRIVIAL_EDIT_SIGNALS);
   const buildHits = matchSignals(cleaned, BUILD_SIGNALS);
 
@@ -61,6 +64,8 @@ export function classifyTask(text: string, repo: RepoSignals = {}): ClassifiedTa
   if ((repo.trackedFiles ?? 0) > 500) signals.push("repo:large");
   if ((repo.packageCount ?? 0) > 3) signals.push("repo:multi-package");
 
+  // Risk level is fully finalized here, BEFORE taskClass is derived from it, so that
+  // taskClass can never be computed from a stale/pre-risk view of the prompt (defect 2).
   let riskLevel: RiskLevel = "low";
   if (riskHits.length > 0 || repo.hasAuthModules || repo.hasMigrations) {
     riskLevel = "high";
@@ -69,13 +74,23 @@ export function classifyTask(text: string, repo: RepoSignals = {}): ClassifiedTa
   }
 
   let taskClass: TaskClass;
-  const reviewIntent = /\b(review|audit|harden|secure)\b/i.test(cleaned);
   const changeIntent =
     buildHits.length > 0 ||
     /\b(fix|implement|add|create|update|migrate|deploy|rewrite|replace)\b/i.test(cleaned);
 
-  // High-risk review: security domain + review/change intent (short prompts still count)
-  if (riskLevel === "high" && riskHits.length > 0 && (reviewIntent || changeIntent)) {
+  // High-risk signals override everything else, including prompt brevity and the
+  // absence of a review/change verb (§16.6: "A five-word security task remains high
+  // risk."). This check is unconditional and comes first so that riskLevel === "high"
+  // can never coexist with a taskClass below the frontier floor (read_only,
+  // trivial_edit, standard_build, complex_build) — see the invariant enforced below.
+  // Note this takes priority even over the "architecture" keyword: both classes carry
+  // the same frontier quality floor, but high_risk_review additionally gets extra
+  // routing protections downstream (see src/router/eligibility.ts, which refuses to
+  // route high_risk_review to the economical tier even under override) that a plain
+  // "architecture" classification would not get. A prompt combining risk and
+  // architecture language (e.g. "redesign the auth architecture") therefore now
+  // classifies as high_risk_review rather than architecture.
+  if (riskLevel === "high") {
     taskClass = "high_risk_review";
   } else if (
     complexHits.some((s) => s.includes("architecture") || s.includes("redesign")) ||
@@ -90,10 +105,8 @@ export function classifyTask(text: string, repo: RepoSignals = {}): ClassifiedTa
   ) {
     taskClass = "complex_build";
   } else if (changeIntent) {
-    if (trivialHits.length > 0 && complexHits.length === 0 && riskLevel === "low") {
+    if (trivialHits.length > 0 && complexHits.length === 0) {
       taskClass = "trivial_edit";
-    } else if (riskLevel === "high" && riskHits.length > 0) {
-      taskClass = "high_risk_review";
     } else {
       taskClass = "standard_build";
     }
@@ -105,9 +118,15 @@ export function classifyTask(text: string, repo: RepoSignals = {}): ClassifiedTa
     taskClass = "standard_build";
   }
 
-  // Keep elevated risk on security topics even for pure read-only explains
-  if (riskHits.length > 0) {
-    riskLevel = "high";
+  // Structural invariant (defect 2): high risk must never coexist with a read-only
+  // classification. Kept as a hard assertion, not just a comment, so a future change to
+  // the branches above that reintroduces the bug fails loudly (tests included).
+  if (riskLevel === "high" && taskClass === "read_only") {
+    throw new Error(
+      `classifier invariant violated: riskLevel=high with taskClass=read_only for cleaned text: ${JSON.stringify(
+        cleaned,
+      )}`,
+    );
   }
 
   const requiredCapabilities: string[] = [];

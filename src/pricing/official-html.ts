@@ -23,8 +23,15 @@ export type ParsedOfficialDeal = {
   discountPercent: number;
   free: boolean;
   expiresAt: string | null;
+  /** §14: instant the deal takes effect. null when the page doesn't publish one (deal is
+   * already in effect). A deal must not be applied before this instant. */
+  startsAt: string | null;
   endsWhen: string | null;
   label: string;
+  /** §14 multiplier deal support: derived from an "-Nx-usage" dealId suffix (e.g. "-4x-
+   * usage" -> 4). undefined for flat percent-off/free deals, which already carry their
+   * final effective rate directly in the page's cost fields. */
+  usageMultiplier?: number;
 };
 
 export type ParsedOfficialPricing = {
@@ -46,6 +53,18 @@ export function dealIdToPageModelId(dealId: string): string {
     id = id.replace(s, "");
   }
   return id;
+}
+
+const USAGE_MULTIPLIER_RE = /-(\d+)x-usage$/i;
+
+/** Extract the usage multiplier from an "-Nx-usage" dealId suffix, e.g. 4 from
+ * "deepseek-v4-pro-4x-usage". Returns undefined for deals that aren't multiplier-shaped
+ * (flat percent-off or free deals). */
+export function usageMultiplierFromDealId(dealId: string): number | undefined {
+  const m = dealId.match(USAGE_MULTIPLIER_RE);
+  if (!m) return undefined;
+  const n = Number(m[1]);
+  return Number.isFinite(n) && n > 0 ? n : undefined;
 }
 
 function dealLabel(parsed: {
@@ -70,7 +89,21 @@ function dealLabel(parsed: {
 
 function normalizeExpires(raw: string | null): string | null {
   if (!raw) return null;
-  // Page uses YYYY-MM-DD; store as end-of-day Pacific-ish ISO when date-only
+  // Page uses YYYY-MM-DD. A date-only expiry means "valid through this whole day", so we
+  // store it as END-of-day Pacific-ish ISO (23:59:59) — a deal expiring "2026-08-02"
+  // remains active for the entirety of August 2nd. (Previously this produced
+  // T00:00:00, i.e. START of day, contradicting this same comment — an off-by-a-day
+  // that made the deal expire a full day earlier than intended.)
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+    return `${raw}T23:59:59-07:00`;
+  }
+  return raw;
+}
+
+function normalizeStarts(raw: string | null): string | null {
+  if (!raw) return null;
+  // A date-only startsAt means "takes effect from the beginning of this day", so unlike
+  // normalizeExpires above, date-only values are START-of-day.
   if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
     return `${raw}T00:00:00-07:00`;
   }
@@ -116,12 +149,15 @@ export function parseOfficialPricingHtml(html: string): ParsedOfficialPricing {
     const rest = m[3] ?? "";
     if (!Number.isFinite(discountPercent)) continue;
     const expM = rest.match(/expires\\?":\\?"([^"\\]+)/);
+    const startsM = rest.match(/startsAt\\?":\\?"([^"\\]+)/);
     const endsM = rest.match(/endsWhen\\?":\\?"([^"\\]+)/);
     const freeM = rest.match(/free\\?":(true|false)/);
     const free = freeM ? freeM[1] === "true" : discountPercent >= 100;
     const expiresAt = normalizeExpires(expM?.[1] ?? null);
+    const startsAt = normalizeStarts(startsM?.[1] ?? null);
     const endsWhen = endsM?.[1] ?? null;
     const pageModelId = dealIdToPageModelId(dealId);
+    const usageMultiplier = usageMultiplierFromDealId(dealId);
     const label = dealLabel({ dealId, discountPercent, free, expiresAt, endsWhen });
     dealsById.set(dealId, {
       dealId,
@@ -129,8 +165,10 @@ export function parseOfficialPricingHtml(html: string): ParsedOfficialPricing {
       discountPercent,
       free,
       expiresAt,
+      startsAt,
       endsWhen,
       label,
+      ...(usageMultiplier !== undefined ? { usageMultiplier } : {}),
     });
   }
 

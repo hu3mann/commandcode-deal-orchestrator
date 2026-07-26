@@ -1,7 +1,8 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { classifyTask } from "../../src/classifier/deterministic.js";
 import { loadDefaultRoutingConfig } from "../../src/config/defaults.js";
 import { ConfigError, deepMerge } from "../../src/config/merge.js";
@@ -23,6 +24,18 @@ import { assertPathInsideRoot } from "../../src/security/path-policy.js";
 const now = new Date("2026-07-23T18:00:00Z");
 
 describe("branch coverage", () => {
+  let dir: string;
+  const prevHome = process.env.HOME;
+
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), "ccroute-branch-"));
+    process.env.HOME = dir;
+  });
+
+  afterEach(() => {
+    process.env.HOME = prevHome;
+    rmSync(dir, { recursive: true, force: true });
+  });
   it("high_risk never routes economical without override", () => {
     const config = loadDefaultRoutingConfig();
     const models: ModelPricing[] = [

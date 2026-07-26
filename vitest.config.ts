@@ -7,13 +7,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json-summary", "html"],
-      include: [
-        "src/router/**/*.ts",
-        "src/pricing/**/*.ts",
-        "src/config/**/*.ts",
-        "src/security/**/*.ts",
-        "src/classifier/**/*.ts",
-      ],
+      include: ["src/**/*.ts"],
       thresholds: {
         lines: 90,
         branches: 85,

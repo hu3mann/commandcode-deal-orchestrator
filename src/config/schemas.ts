@@ -80,3 +80,16 @@ export const SECURITY_SENSITIVE_KEYS = new Set([
   "token",
   "credentials",
 ]);
+
+/**
+ * Keys that may only be supplied from user-scope config (~/.commandcode/deal-router.yaml)
+ * or explicit CLI overrides, and must be rejected when they appear in project-scope config
+ * (<cwd>/.commandcode/deal-router.yaml). A project directory is untrusted input: anyone who
+ * can get a repo checked out (or a file dropped into it) can otherwise steer these values.
+ *
+ * `cmdPath` is the canonical example: it names an executable that ccroute will spawn, so
+ * letting project-scope config set it is equivalent to arbitrary code execution on any
+ * ccroute invocation run from that directory (including read-only, no-LLM commands like
+ * `ccroute decide`). See src/config/merge.ts for the enforcement point.
+ */
+export const PROJECT_FORBIDDEN_KEYS = new Set(["cmdPath"]);

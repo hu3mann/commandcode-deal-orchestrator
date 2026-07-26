@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "retrievedAt": "2026-07-23T00:00:00.000Z",
   "source": "seed+official-pricing-docs+cmd-list-models",
-  "sourceHash": "seed-2026-07-23",
+  "sourceHash": "08aa133bec28bc47862ae801ebc9712c1dcfeb005f0983ed1a01886f215aafc0",
   "models": [
     {
       "id": "deepseek/deepseek-v4-flash",
