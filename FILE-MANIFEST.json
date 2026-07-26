@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "generatedAt": "2026-07-26",
   "note": "Covers every git-tracked file plus the audit artifacts. FILE-MANIFEST.json is excluded by design: a manifest cannot contain its own hash. node_modules, dist, coverage and other ignored paths are out of scope per \u00a738.3.",
-  "fileCount": 133,
+  "fileCount": 136,
   "files": [
     {
       "path": ".gitignore",
@@ -150,8 +150,8 @@
     },
     {
       "path": "docs/TRACEABILITY-MATRIX.md",
-      "size": 3892,
-      "sha256": "b5b045a4f1387d99b9c0594900c988ebbabd968c600cb1c8004d762a7c0d59ee",
+      "size": 6121,
+      "sha256": "fba941ffd4bf18beebf9368b4e299676b712ff510957759c1cd4413947eeb07a",
       "purpose": "Project documentation"
     },
     {
@@ -203,10 +203,22 @@
       "purpose": "Acceptance evidence artifact"
     },
     {
+      "path": "evidence/validation/isolated-install.txt",
+      "size": 270,
+      "sha256": "c94a1dcbd24ea91095ea28fd7352e007edc37d5e89ec3b0d98f3aa428f8eba26",
+      "purpose": "Project file"
+    },
+    {
       "path": "evidence/validation/lint.txt",
       "size": 121,
       "sha256": "0ea03205edd6e37997b469a126027f9c7d93bdbcbae97dfc98580abb0afb2ffb",
       "purpose": "Acceptance evidence artifact"
+    },
+    {
+      "path": "evidence/validation/pack.txt",
+      "size": 10333,
+      "sha256": "a31814bc971714fa7d220004115f8fee0fd1676ba6a8f56ceec809de762d4b99",
+      "purpose": "Project file"
     },
     {
       "path": "evidence/validation/tests.txt",
@@ -675,6 +687,12 @@
       "size": 4511,
       "sha256": "d07b9d08ea6faa3b112a519daff885564da58976ea9078908774d0398b1bdedd",
       "purpose": "Unit test"
+    },
+    {
+      "path": "tests/unit/eligibility-explicit.test.ts",
+      "size": 4185,
+      "sha256": "b4a7ce5270987e7d443119a8f32d70248c18616593a85c95593dc34d15418552",
+      "purpose": "Project file"
     },
     {
       "path": "tests/unit/eligibility-extra.test.ts",
