@@ -18,8 +18,8 @@
     },
     {
       "path": "ACCEPTANCE.json",
-      "size": 3585,
-      "sha256": "26df815f41d7ed25a9088dcf54f4084fddbe8f2ef8256b3e26688af8380a7b40",
+      "size": 4744,
+      "sha256": "199e150ce03293f947b8aa7c299778f555bd9519c45351985e64571cb54923b6",
       "purpose": "Machine-readable acceptance verdict"
     },
     {
@@ -42,14 +42,14 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 4803,
-      "sha256": "e44837516bef674dae546564d331d55eb5874214b2e69cbe74118d6bc8385793",
+      "size": 4974,
+      "sha256": "bfdb9ff3111f493bc00074578204ad298e0fbe19e7ac85b5c440ed292ff27fd8",
       "purpose": "Release history"
     },
     {
       "path": "IMPLEMENTATION-SUMMARY.md",
-      "size": 3763,
-      "sha256": "162a927fb667842e09b44dae12dca24ce854cac10c03731d59aa1b2678e3d594",
+      "size": 4103,
+      "sha256": "9ad1a382694164b81bca5eebd5084828c4049eec736e835f0757e9e817518ddb",
       "purpose": "Implementation summary"
     },
     {
@@ -78,8 +78,8 @@
     },
     {
       "path": "TEST-REPORT.md",
-      "size": 3835,
-      "sha256": "8af33c88c431fc4577390c02a226047fca9416ef8862f76528e8cb88b264c84d",
+      "size": 4720,
+      "sha256": "16e99bdf861ecc2dd3d57349feecb6c7fbb1f067d4317b7dd75596285c12829e",
       "purpose": "Test and coverage report"
     },
     {
@@ -150,8 +150,8 @@
     },
     {
       "path": "docs/TRACEABILITY-MATRIX.md",
-      "size": 6121,
-      "sha256": "fba941ffd4bf18beebf9368b4e299676b712ff510957759c1cd4413947eeb07a",
+      "size": 6168,
+      "sha256": "198c4d6e450b0cc0b883cb56cc3c5c5f0b10a016f47c66b3b09fc8cb102bf83a",
       "purpose": "Project documentation"
     },
     {

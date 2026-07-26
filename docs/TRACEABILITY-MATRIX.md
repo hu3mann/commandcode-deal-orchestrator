@@ -63,7 +63,7 @@
 | REQ-VALIDATION-GATE | §24.5 | orchestration | orchestration/validation-gate.ts | mutation-tested: Reviewer ACCEPT cannot pass a failing run | DONE |
 | REQ-EXIT-CODES | §11 | cli | src/cli/exit-codes.ts | unit + integration per code | DONE |
 | REQ-NO-DOUBLE-DISCOUNT | §14 | pricing | pricing/calculator.ts | mutation-tested: removing the guard turns the test red | DONE |
-| REQ-LIVE-SMOKE | §36 | acceptance | tests/live/smoke.test.ts | not executed this cycle | NOT_RUN |
+| REQ-LIVE-SMOKE | §36 | acceptance | tests/live/smoke.test.ts | 4/4 PASS, $0.0295 est, read-only only; evidence/validation/live-smoke.txt | DONE |
 | REQ-XAI-OPTIONAL | §22 | non-goal MVP | — | ACCEPTANCE limitation | DEFERRED |
 | REQ-SKILL | §23 | skills | SKILL.md | file present | DONE |
 | REQ-HOOKS | §24 | hooks | hooks/*.mjs | unit fixtures | DONE |

@@ -2,11 +2,14 @@
 
 ## Verdict
 
-**PASS_WITH_LIMITATIONS**
+**PASS**
 
-All deterministic gates pass and every audited defect is fixed and regression-tested.
-Live CommandCode invocation was not tested this cycle, so per §36 the verdict cannot be
-`PASS`.
+All deterministic gates pass, every audited defect is fixed and regression-tested, and
+live CommandCode invocation was tested and passed (4/4, estimated spend $0.0295 against
+a $0.25 budget).
+
+This `PASS` asserts the specified gates were met and verified. It does **not** assert
+that the residual risks below are closed — those are documented and accepted.
 
 The prior verdict was `PASS`. It was not supportable: a confirmed arbitrary-code-execution
 path was reachable from `ccroute decide`, coverage was measured over half the codebase,
@@ -49,7 +52,7 @@ authoritative over the Reviewer's opinion.
 | build | clean |
 | package install (isolated prefix) | PASS — 8/8 commands exit 0 |
 | RCE proof-of-concept | blocked, fails closed |
-| live smoke | **NOT RUN** |
+| live smoke | **PASS** — 4/4, read-only, $0.0295 estimated |
 
 All eight §35-named areas clear their individual bar.
 
@@ -71,7 +74,9 @@ Full detail in `CHANGELOG.md`; findings and evidence in `AUDIT-REPORT.md`.
 
 ## Known limitations
 
-- Live CommandCode invocation untested this cycle
+- Live smoke covers read-only invocation only; apply-mode and orchestration against a
+  real model remain untested
+- Live costs are estimates; the provider returns no mechanically parseable usage
 - Capability-based eligibility is implemented and tested but **inert** — no catalog
   supplies capability data, and inventing it would violate §13
 - The recursion guard is environment-variable based and bypassable by a child that

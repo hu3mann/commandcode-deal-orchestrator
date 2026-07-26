@@ -83,16 +83,41 @@ created.
 
 ## Live smoke
 
-**NOT RUN.**
+**PASS — 4/4.** Run 2026-07-26 against CommandCode v1.4.1.
 
-Live testing is opt-in (`CCROUTE_LIVE=1`) and was not performed during remediation. The
-pre-audit report claimed a 4/4 live PASS, but no evidence artifact for it exists
-anywhere in the repository, so that claim is not carried forward.
+```bash
+CCROUTE_LIVE=1 CCROUTE_LIVE_BUDGET=0.25 npm run test:live
+```
 
-One unintended live call did occur: an audit subagent operating under a read-only
-instruction executed `ccroute run "trivial task" --unsafe-yolo`, producing a single
-free-tier call on `inclusionai/ling-3.0-flash-free` at an estimated $0.00015. That is
-disclosed, not counted as a live test.
+| Test | Result |
+| --- | --- |
+| built CLI present, `cmd` authenticated | PASS |
+| `decide` makes no model call (no `--print`) | PASS |
+| read-only cheap/free call under budget | PASS — `inclusionai/ling-3.0-flash-free`, exit 0, 3.1s |
+| bounded Grok plan within budget | PASS — `xai/grok-4.5`, exit 0 |
 
-Because live CommandCode invocation is unverified, the acceptance verdict is
-`PASS_WITH_LIMITATIONS`, per §36.
+Estimated spend **$0.029492** against a $0.25 budget (88% headroom). Every call was
+read-only (`--plan`); no `--apply` and no write authorization was requested at any point.
+The budget is checked against the `explain` estimate *before* each call, and the Grok
+test self-skips if its estimate exceeds half the budget.
+
+Observed billing is unavailable — the provider returns no mechanically parseable usage,
+and §19 forbids parsing model prose as usage evidence. Figures are `ESTIMATED`.
+
+Evidence: `evidence/validation/live-smoke.txt`.
+
+### What live smoke does not cover
+
+Apply-mode writes and full role orchestration against a real model remain untested.
+Live coverage is read-only invocation only.
+
+### Prior claim
+
+The pre-audit report claimed a 4/4 live PASS with no evidence artifact anywhere in the
+repository. This run is a real one, recorded.
+
+### Unrelated disclosure
+
+During the audit a subagent operating under a read-only instruction executed
+`ccroute run "trivial task" --unsafe-yolo`, producing one free-tier call at an estimated
+$0.00015. Disclosed; not part of this smoke run.

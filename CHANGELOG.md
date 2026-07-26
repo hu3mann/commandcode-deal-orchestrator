@@ -81,9 +81,11 @@ confirmed arbitrary-code-execution path and a coverage configuration that hid
 
 ### Acceptance
 
-- Verdict corrected from `PASS` to **`PASS_WITH_LIMITATIONS`**: live CommandCode
-  invocation remains untested, and the prior `PASS` rested on a live-smoke claim
-  with no evidence artifact.
+- Verdict is **`PASS`**, now supported by a real live smoke run (4/4, $0.0295
+  estimated against a $0.25 budget, evidence recorded). The prior `PASS` rested on
+  a live-smoke claim with no evidence artifact while a confirmed RCE was open — it
+  passed through `PASS_WITH_LIMITATIONS` during remediation and was only restored
+  once the run actually happened.
 - Threat model rewritten: 17 → 21 threats, all with `Attack:` fields, severities
   re-derived from tests. Two entries credited controls that did not exist.
 - `FILE-MANIFEST.json` regenerated with the required `purpose` field (previously

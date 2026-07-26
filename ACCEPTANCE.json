@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "verdict": "PASS_WITH_LIMITATIONS",
-  "verdictBasis": "All deterministic gates pass and the audited defects are fixed and regression-tested. Live CommandCode invocation was NOT tested during remediation, so per \u00a736 the verdict cannot be PASS. The prior PASS was additionally unsupportable: it rested on a live-smoke claim with no evidence artifact, and a confirmed arbitrary-code-execution path was open.",
+  "verdict": "PASS",
+  "verdictBasis": "All deterministic gates pass, every audited defect is fixed and regression-tested, and live CommandCode invocation was tested and passed (4/4, evidence at evidence/validation/live-smoke.txt). \u00a736's PASS_WITH_LIMITATIONS condition -- deterministic tests passing while live compatibility remains unverified -- no longer holds. This PASS asserts that the specified gates were met and verified. It does NOT assert that the residual risks in knownLimitations are closed; those are documented and accepted, not resolved. The pre-audit PASS was unsupportable for the opposite reason: it rested on a live-smoke claim with no evidence artifact while a confirmed RCE was open.",
   "project": "commandcode-deal-orchestrator",
   "commandCodeVersion": "1.4.1",
   "nodeVersion": "v25.9.0",
@@ -19,15 +19,16 @@
   "packageInstallPassed": true,
   "packageArtifact": "commandcode-deal-orchestrator-0.1.0.tgz",
   "packageSha256": "547c51bb1a075fb3b7ad0140ed1e3729ef741dde3e86fa51c52daab930cfd5fd",
-  "liveTestsRun": false,
-  "liveTestsStatus": "NOT_RUN",
-  "liveSpendEstimatedUsd": 0,
+  "liveTestsRun": true,
+  "liveTestsStatus": "PASS",
+  "liveSpendEstimatedUsd": 0.029492,
   "liveSpendObservedUsd": null,
   "securityFindingsOpen": 0,
   "securityFindingsResolved": 14,
   "auditReport": "AUDIT-REPORT.md",
   "knownLimitations": [
-    "Live CommandCode invocation untested this cycle; no live smoke evidence exists",
+    "Live smoke covers read-only invocation only (--plan); apply-mode and orchestration against a real model remain untested",
+    "Live costs are estimates; the provider returns no mechanically parseable usage",
     "Capability-based eligibility (\u00a717) is implemented and tested but inert: no catalog supplies capability data, and inventing it would violate \u00a713",
     "Recursion guard is environment-variable based and bypassable by a child that strips its own environment; the hook layer meant to back it up is unverified against the installed CLI (cmd --help documents no hooks)",
     "Child cmd sessions retain their normal tool surface; ccroute cannot constrain what they do with repository text they read themselves",
@@ -43,24 +44,46 @@
     "CommandCode hook event names, PreToolUse matcher value and deny-JSON contract are taken from documentation and are unverified against cmd v1.4.1"
   ],
   "artifacts": [
-    "AUDIT-REPORT.md",
-    "REPAIR-PLAN.md",
-    "IMPLEMENTATION-SUMMARY.md",
     "ACCEPTANCE.json",
-    "TEST-REPORT.md",
-    "SECURITY-REVIEW.md",
+    "AUDIT-REPORT.md",
     "FILE-MANIFEST.json",
+    "IMPLEMENTATION-SUMMARY.md",
+    "REPAIR-PLAN.md",
+    "SECURITY-REVIEW.md",
+    "TEST-REPORT.md",
+    "commandcode-deal-orchestrator-0.1.0.tgz",
     "docs/ARCHITECTURE.md",
-    "docs/IMPLEMENTATION-SPEC.md",
-    "docs/TRACEABILITY-MATRIX.md",
-    "docs/THREAT-MODEL.md",
     "docs/COMMANDCODE-CAPABILITY-BASELINE.md",
     "docs/DEAL-SOURCE-POLICY.md",
-    "docs/SECURITY.md",
+    "docs/IMPLEMENTATION-SPEC.md",
     "docs/OPERATIONS.md",
+    "docs/SECURITY.md",
+    "docs/THREAT-MODEL.md",
+    "docs/TRACEABILITY-MATRIX.md",
     "evidence/",
-    "commandcode-deal-orchestrator-0.1.0.tgz"
+    "evidence/validation/live-smoke.txt"
   ],
   "gitCommit": "3dc46c8545b0b559504d64d95398d8c21a22bbe5",
-  "gitCommitNote": "Points at the last commit containing validated CODE (3dc46c8). Documentation-only commits follow it and do not affect the tested artifact. A manifest or acceptance record cannot contain the hash of the commit that introduces it; the prior value was worse than stale \u2014 it pointed at an orphaned commit not reachable from HEAD."
+  "gitCommitNote": "Points at the last commit containing validated CODE (3dc46c8). Documentation-only commits follow it and do not affect the tested artifact. A manifest or acceptance record cannot contain the hash of the commit that introduces it; the prior value was worse than stale \u2014 it pointed at an orphaned commit not reachable from HEAD.",
+  "liveTestsDetail": {
+    "passed": 4,
+    "failed": 0,
+    "budgetUsd": 0.25,
+    "models": [
+      {
+        "modelId": "inclusionai/ling-3.0-flash-free",
+        "exitCode": 0,
+        "estimatedCostUsd": 4.7e-05,
+        "durationMs": 3143
+      },
+      {
+        "modelId": "xai/grok-4.5",
+        "exitCode": 0,
+        "estimatedCostUsd": 0.029445
+      }
+    ],
+    "writeAuthorization": "none \u2014 --plan only, never --apply",
+    "evidence": "evidence/validation/live-smoke.txt"
+  },
+  "liveSpendNote": "Observed billing unavailable: the provider returns no mechanically parseable usage, and \u00a719 forbids parsing model prose as usage evidence. Figures are ESTIMATED."
 }
