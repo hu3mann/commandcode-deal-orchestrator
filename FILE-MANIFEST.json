@@ -2,8 +2,14 @@
   "schemaVersion": 1,
   "generatedAt": "2026-07-26",
   "note": "Covers every git-tracked file plus the audit artifacts. FILE-MANIFEST.json is excluded by design: a manifest cannot contain its own hash. node_modules, dist, coverage and other ignored paths are out of scope per \u00a738.3.",
-  "fileCount": 136,
+  "fileCount": 139,
   "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "size": 4104,
+      "sha256": "65fe1f03b3965d3fafe8ba44a411c1459ae65c31789254bce796b4c95f90ed42",
+      "purpose": "CI workflow: external verification of acceptance gates"
+    },
     {
       "path": ".gitignore",
       "size": 184,
@@ -212,6 +218,12 @@
       "path": "evidence/validation/lint.txt",
       "size": 121,
       "sha256": "0ea03205edd6e37997b469a126027f9c7d93bdbcbae97dfc98580abb0afb2ffb",
+      "purpose": "Acceptance evidence artifact"
+    },
+    {
+      "path": "evidence/validation/live-smoke.txt",
+      "size": 1161,
+      "sha256": "14ce673714f66f468d1908ea770ff3bd76f2667a3cc78d43b2f474ea2ca8d951",
       "purpose": "Acceptance evidence artifact"
     },
     {
@@ -675,6 +687,12 @@
       "size": 1419,
       "sha256": "2c6bc463b5e003d9892e5895492991f9ae6d79de29b98cf7baf333f6c069d82e",
       "purpose": "Unit test"
+    },
+    {
+      "path": "tests/unit/coverage-scope.test.ts",
+      "size": 3038,
+      "sha256": "ea736645b6ff8a70cfd876304ac43c804d7002e8c1a753d12650512030857357",
+      "purpose": "Tripwire guarding the coverage instrument itself"
     },
     {
       "path": "tests/unit/doctor-flags.test.ts",
