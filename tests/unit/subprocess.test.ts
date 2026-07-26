@@ -60,7 +60,7 @@ describe("spawnCommandCode", () => {
     const exe = writeFakeExe(
       dir,
       "echo-argv.js",
-      `process.stdout.write(JSON.stringify(process.argv.slice(2)));`,
+      "process.stdout.write(JSON.stringify(process.argv.slice(2)));",
     );
     const res = await spawnCommandCode({
       cmdPath: exe,
