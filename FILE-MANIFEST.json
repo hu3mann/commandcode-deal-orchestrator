@@ -25,7 +25,7 @@
     {
       "path": "ACCEPTANCE.json",
       "size": 4744,
-      "sha256": "199e150ce03293f947b8aa7c299778f555bd9519c45351985e64571cb54923b6",
+      "sha256": "1ba14ad2dd20e6d94960b8cc630dd03055854337b4f8d79b2ed1a7261fc91d5c",
       "purpose": "Machine-readable acceptance verdict"
     },
     {
@@ -48,8 +48,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 4974,
-      "sha256": "bfdb9ff3111f493bc00074578204ad298e0fbe19e7ac85b5c440ed292ff27fd8",
+      "size": 5580,
+      "sha256": "53d1c347be3afce6073778501b6619e7a18b4b597dd41f182e341064b2abb762",
       "purpose": "Release history"
     },
     {
@@ -277,13 +277,13 @@
     {
       "path": "package-lock.json",
       "size": 90748,
-      "sha256": "9b615f316db3f113131741dc665807109d0dbdb218e1c715a7d53337db2a69bb",
+      "sha256": "81c9f3d6ff59eeb772e718c8b4f59f72db35c4fd80274c22ea0b368ca31b835e",
       "purpose": "Dependency lockfile"
     },
     {
       "path": "package.json",
       "size": 1651,
-      "sha256": "58b425650be24cb175c671c38c27eef6017de730a63bdd46853633611a95346b",
+      "sha256": "d16691caf6cbc2df5e4b1be44b54a52b5bf6635384169c568024236ed8416336",
       "purpose": "Package manifest"
     },
     {

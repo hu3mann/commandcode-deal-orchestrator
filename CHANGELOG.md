@@ -1,6 +1,15 @@
 # Changelog
 
-## Unreleased — audit remediation (2026-07-26)
+## 0.2.0 — 2026-07-26 — audit remediation (first npm release)
+
+Version 0.1.0 was never published to npm; it existed only as a git state. This is
+released as 0.2.0 rather than 0.1.0 so that the audited-and-fixed code can never be
+confused with the vulnerable 0.1.0 that anyone may have cloned from GitHub.
+
+**Breaking relative to git 0.1.0:** exit codes follow the §11 taxonomy instead of a
+catch-all 1; `doctor` DEGRADED now exits 0; `cmdPath` in project config is rejected
+rather than honoured; high-risk task text overrides prompt brevity, so some tasks route
+to a higher tier than before; `CandidateScore.successRate` is smoothed rather than raw.
 
 An independent audit (`AUDIT-REPORT.md`) found 14 defect classes, including a
 confirmed arbitrary-code-execution path and a coverage configuration that hid
