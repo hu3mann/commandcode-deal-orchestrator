@@ -7,10 +7,9 @@ Date: 2026-07-26
 ```bash
 npm run typecheck   # pass
 npm run lint        # pass
-npm test            # 112 passed (17 files)
-npm run test:coverage  # lines 94.46% branches 89.11%
+npm test            # 125 passed (19 files)
+npm run test:coverage  # lines 94.46%+ branches 89.11%+ (core modules)
 npm run build       # pass
-npm pack            # SHA256: 21497dbd9d73bd00bafe64b0e608b82c705aeff61f4f390a669e48b961c7e69f
 ```
 
 ## CLI commands verified
@@ -23,6 +22,7 @@ npm pack            # SHA256: 21497dbd9d73bd00bafe64b0e608b82c705aeff61f4f390a66
 | `ccroute decide "test task"` | PASS — deterministic, 0 LLM calls |
 | `ccroute explain "test task"` | PASS — full explanation output |
 | `ccroute runs list` | PASS — empty or listed runs |
+| `ccroute deals refresh --network` | PASS — 10 known models updated from official HTML |
 | `ccroute --version` | PASS — "0.1.0" |
 
 ## Isolated package install
@@ -31,4 +31,9 @@ PASS (prior session) — `npm install` from `.tgz` in temp directory; `ccroute -
 
 ## Live smoke
 
-NOT_RUN this session (no `CCROUTE_LIVE=1` flag). Previous session passed under budget against CommandCode.
+```bash
+CCROUTE_LIVE=1 CCROUTE_LIVE_BUDGET=0.25 npm run test:live
+# 4/4 PASS against CommandCode v1.4.1
+# free: inclusionai/ling-3.0-flash-free (~$0.00015 est, exit 0)
+# frontier: xai/grok-4.5 (~$0.029 est, exit 0)
+```

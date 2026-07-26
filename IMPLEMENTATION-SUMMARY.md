@@ -27,9 +27,10 @@ CLI → config/discovery → classifier → eligibility/scorer → run | orchest
 - typecheck: clean
 - lint (Biome): clean
 - build: clean
-- tests: 112 passed (17 files)
-- coverage: 94.46% lines, 89.11% branches
+- tests: 125 passed (19 files)
+- coverage: 94.46%+ lines, 89.11%+ branches (core modules)
 - package install: passed (isolated temp prefix, prior session)
+- live smoke: PASS (4/4, CommandCode 1.4.1, budget ≤ $0.25)
 - threat model: 17 threats documented with controls
 
 ## Package
@@ -71,7 +72,7 @@ SHA256: `21497dbd9d73bd00bafe64b0e608b82c705aeff61f4f390a669e48b961c7e69f`
 2. ~~Optional dirty gate on `run --apply`~~ — done (`ensureGitSafety` for run + orchestrate)
 3. ~~Better deal refresh~~ — official HTML parse + merge (`deals refresh --network`)
 4. xAI-direct (defer)
-5. More budgeted free live edges
+5. ~~More budgeted free live edges~~ — live smoke re-run PASS (free + grok under budget)
 
 ### Do-not-do
 
@@ -82,5 +83,4 @@ Invent model IDs · double-discount · decide→model · default yolo/auto-accep
 - Optional direct xAI adapter not implemented (CommandCode backend is primary)
 - Network deal refresh parses official HTML for known models; does not add unknown page-only IDs
 - Live costs are estimates unless provider returns observed usage
-- Live CommandCode smoke testing not re-run this session
 - Operator must install hooks for secondary nested-`ccroute` denial
