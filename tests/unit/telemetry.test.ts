@@ -1,11 +1,5 @@
 import { type ChildProcess, spawn } from "node:child_process";
-import {
-  appendFileSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { appendFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -130,37 +124,33 @@ describe("telemetry", () => {
     expect(afterSecond).toContain('"runId":"second"');
   });
 
-  it(
-    "survives concurrent appends from independent OS processes with no lost or corrupted records",
-    async () => {
-      const path = join(dir, "concurrent.jsonl");
-      const workers = 6;
-      const perWorker = 20;
-      await Promise.all(
-        Array.from({ length: workers }, (_, w) => spawnConcurrentWriter(dir, path, w, perWorker)),
-      );
+  it("survives concurrent appends from independent OS processes with no lost or corrupted records", async () => {
+    const path = join(dir, "concurrent.jsonl");
+    const workers = 6;
+    const perWorker = 20;
+    await Promise.all(
+      Array.from({ length: workers }, (_, w) => spawnConcurrentWriter(dir, path, w, perWorker)),
+    );
 
-      const raw = readFileSync(path, "utf8");
-      const lines = raw.split("\n").filter(Boolean);
-      expect(lines.length).toBe(workers * perWorker);
+    const raw = readFileSync(path, "utf8");
+    const lines = raw.split("\n").filter(Boolean);
+    expect(lines.length).toBe(workers * perWorker);
 
-      // Every line must be valid, individually parseable JSON -- if two
-      // concurrent writers ever interleaved partial writes, at least one
-      // line would fail to parse or contain garbage from another line.
-      const seenRunIds = new Set<string>();
-      for (const line of lines) {
-        const parsed = JSON.parse(line);
-        seenRunIds.add(parsed.runId);
+    // Every line must be valid, individually parseable JSON -- if two
+    // concurrent writers ever interleaved partial writes, at least one
+    // line would fail to parse or contain garbage from another line.
+    const seenRunIds = new Set<string>();
+    for (const line of lines) {
+      const parsed = JSON.parse(line);
+      seenRunIds.add(parsed.runId);
+    }
+    expect(seenRunIds.size).toBe(workers * perWorker);
+    for (let w = 0; w < workers; w++) {
+      for (let i = 0; i < perWorker; i++) {
+        expect(seenRunIds.has(`w${w}-${i}`)).toBe(true);
       }
-      expect(seenRunIds.size).toBe(workers * perWorker);
-      for (let w = 0; w < workers; w++) {
-        for (let i = 0; i < perWorker; i++) {
-          expect(seenRunIds.has(`w${w}-${i}`)).toBe(true);
-        }
-      }
-    },
-    20_000,
-  );
+    }
+  }, 20_000);
 
   it("skips a truncated final line (simulated crash mid-write) without losing prior history", () => {
     const path = join(dir, "truncated.jsonl");
@@ -315,28 +305,25 @@ describe("telemetry", () => {
     expect(event?.meta?.isRetry).toBe(false);
   });
 
-  it(
-    "store-level telemetry switch: appendTelemetry is only invoked when the caller's " +
-      "enabled flag is true -- store.ts has no independent override, so this is the " +
-      "exact gate cli.ts's --no-telemetry and orchestrator.ts's telemetryEnabled must use",
-    () => {
-      const path = join(dir, "switch.jsonl");
-      const maybeAppend = (enabled: boolean) => {
-        if (enabled) {
-          appendTelemetry(path, {
-            schemaVersion: 1,
-            ts: new Date().toISOString(),
-            runId: "r1",
-            event: "run_start",
-          });
-        }
-      };
+  it("store-level telemetry switch: appendTelemetry is only invoked when the caller's " +
+    "enabled flag is true -- store.ts has no independent override, so this is the " +
+    "exact gate cli.ts's --no-telemetry and orchestrator.ts's telemetryEnabled must use", () => {
+    const path = join(dir, "switch.jsonl");
+    const maybeAppend = (enabled: boolean) => {
+      if (enabled) {
+        appendTelemetry(path, {
+          schemaVersion: 1,
+          ts: new Date().toISOString(),
+          runId: "r1",
+          event: "run_start",
+        });
+      }
+    };
 
-      maybeAppend(false);
-      expect(readTelemetryEvents(path)).toEqual([]);
+    maybeAppend(false);
+    expect(readTelemetryEvents(path)).toEqual([]);
 
-      maybeAppend(true);
-      expect(readTelemetryEvents(path).length).toBe(1);
-    },
-  );
+    maybeAppend(true);
+    expect(readTelemetryEvents(path).length).toBe(1);
+  });
 });

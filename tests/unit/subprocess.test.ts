@@ -174,11 +174,7 @@ describe("spawnCommandCode", () => {
 
   // 5. nonzero exit is preserved, not swallowed -----------------------------
   it("5. preserves a nonzero exit code rather than swallowing it", async () => {
-    const exe = writeFakeExe(
-      dir,
-      "exit-7.js",
-      `process.stderr.write("boom"); process.exit(7);`,
-    );
+    const exe = writeFakeExe(dir, "exit-7.js", `process.stderr.write("boom"); process.exit(7);`);
     const res = await spawnCommandCode({ cmdPath: exe, model: "m1", stdinText: "x", cwd: dir });
     expect(res.exitCode).toBe(7);
     expect(res.timedOut).toBe(false);
@@ -186,40 +182,36 @@ describe("spawnCommandCode", () => {
   });
 
   // 6. timeout kills the child ----------------------------------------------
-  it(
-    "6. kills a child that runs past the timeout, and it actually stops running",
-    async () => {
-      const exe = writeFakeExe(
-        dir,
-        "hang.js",
-        `
+  it("6. kills a child that runs past the timeout, and it actually stops running", async () => {
+    const exe = writeFakeExe(
+      dir,
+      "hang.js",
+      `
         const fs = require("fs");
         setInterval(() => fs.appendFileSync("heartbeat.txt", "x"), 20);
         setInterval(() => {}, 999999); // keep event loop alive indefinitely
         `,
-      );
-      const res = await spawnCommandCode({
-        cmdPath: exe,
-        model: "m1",
-        stdinText: "x",
-        cwd: dir,
-        // Generous relative to a trivial node script's startup time, but the
-        // child never exits on its own (infinite intervals), so this always
-        // exercises the timeout path regardless of the exact value.
-        timeoutMs: 1000,
-      });
-      expect(res.timedOut).toBe(true);
+    );
+    const res = await spawnCommandCode({
+      cmdPath: exe,
+      model: "m1",
+      stdinText: "x",
+      cwd: dir,
+      // Generous relative to a trivial node script's startup time, but the
+      // child never exits on its own (infinite intervals), so this always
+      // exercises the timeout path regardless of the exact value.
+      timeoutMs: 1000,
+    });
+    expect(res.timedOut).toBe(true);
 
-      // Prove the process was actually killed, not merely abandoned: the
-      // heartbeat file must stop growing after the kill.
-      await waitForNonEmptyFile(join(dir, "heartbeat.txt"), 500);
-      const sizeRightAfter = statSync(join(dir, "heartbeat.txt")).size;
-      await sleepMs(600);
-      const sizeLater = statSync(join(dir, "heartbeat.txt")).size;
-      expect(sizeLater).toBe(sizeRightAfter);
-    },
-    8000,
-  );
+    // Prove the process was actually killed, not merely abandoned: the
+    // heartbeat file must stop growing after the kill.
+    await waitForNonEmptyFile(join(dir, "heartbeat.txt"), 500);
+    const sizeRightAfter = statSync(join(dir, "heartbeat.txt")).size;
+    await sleepMs(600);
+    const sizeLater = statSync(join(dir, "heartbeat.txt")).size;
+    expect(sizeLater).toBe(sizeRightAfter);
+  }, 8000);
 
   // 7. stdout is capped -------------------------------------------------------
   it("7. caps captured stdout at maxStdoutBytes instead of buffering unbounded output", async () => {
@@ -266,13 +258,11 @@ describe("spawnCommandCode", () => {
   });
 
   // 9. whole process GROUP is killed, not just the immediate child -----------
-  it(
-    "9. kills the whole process group on timeout -- a grandchild dies too",
-    async () => {
-      const exe = writeFakeExe(
-        dir,
-        "forks-grandchild.js",
-        `
+  it("9. kills the whole process group on timeout -- a grandchild dies too", async () => {
+    const exe = writeFakeExe(
+      dir,
+      "forks-grandchild.js",
+      `
         const { spawn } = require("child_process");
         // Deliberately NOT detached: it must inherit this process's process
         // group, exactly like a real child of the CommandCode CLI would.
@@ -282,29 +272,27 @@ describe("spawnCommandCode", () => {
         ], { cwd: process.cwd(), stdio: "ignore" });
         setInterval(() => {}, 999999); // parent also stays alive
         `,
-      );
-      const res = await spawnCommandCode({
-        cmdPath: exe,
-        model: "m1",
-        stdinText: "x",
-        cwd: dir,
-        // Generous: needs time for the parent node process AND a second,
-        // grandchild node process to both start up before the timeout fires,
-        // but the parent never exits on its own so this always times out.
-        timeoutMs: 1200,
-      });
-      expect(res.timedOut).toBe(true);
+    );
+    const res = await spawnCommandCode({
+      cmdPath: exe,
+      model: "m1",
+      stdinText: "x",
+      cwd: dir,
+      // Generous: needs time for the parent node process AND a second,
+      // grandchild node process to both start up before the timeout fires,
+      // but the parent never exits on its own so this always times out.
+      timeoutMs: 1200,
+    });
+    expect(res.timedOut).toBe(true);
 
-      // Confirm the grandchild actually got going, then confirm it stops
-      // growing (i.e. the grandchild died along with the immediate child).
-      await waitForNonEmptyFile(join(dir, "grandchild-heartbeat.txt"), 500);
-      const sizeAfterKill = statSync(join(dir, "grandchild-heartbeat.txt")).size;
-      await sleepMs(600);
-      const sizeLater = statSync(join(dir, "grandchild-heartbeat.txt")).size;
-      expect(sizeLater).toBe(sizeAfterKill);
-    },
-    8000,
-  );
+    // Confirm the grandchild actually got going, then confirm it stops
+    // growing (i.e. the grandchild died along with the immediate child).
+    await waitForNonEmptyFile(join(dir, "grandchild-heartbeat.txt"), 500);
+    const sizeAfterKill = statSync(join(dir, "grandchild-heartbeat.txt")).size;
+    await sleepMs(600);
+    const sizeLater = statSync(join(dir, "grandchild-heartbeat.txt")).size;
+    expect(sizeLater).toBe(sizeAfterKill);
+  }, 8000);
 
   // 10. malformed executable path ----------------------------------------------
   it("10. resolves (does not throw/hang) with an error result for a malformed/missing executable path", async () => {
@@ -323,7 +311,8 @@ describe("spawnCommandCode", () => {
       "dump-stdin.js",
       `const fs = require("fs"); fs.writeFileSync("stdin-dump.txt", fs.readFileSync(0, "utf8"));`,
     );
-    const nasty = "rm -rf / ; echo hi | cat && (echo grouped) || echo fallback `echo backticked` > out.txt < in.txt & disown";
+    const nasty =
+      "rm -rf / ; echo hi | cat && (echo grouped) || echo fallback `echo backticked` > out.txt < in.txt & disown";
     const res = await spawnCommandCode({ cmdPath: exe, model: "m1", stdinText: nasty, cwd: dir });
     expect(res.exitCode).toBe(0);
     expect(readFileSync(join(dir, "stdin-dump.txt"), "utf8")).toBe(nasty);
