@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-07-26T09:31:52.937237+00:00",
+  "note": "Recorded at acceptance finalization; implementation completed on main after feature work.",
+  "cwd": "/Users/hue/code/cmdrouter",
+  "branch": "main",
+  "commit": "afd7c646e5a450f95dd910ec259bfcfea6fae56f",
+  "dirty": true,
+  "statusPorcelain": "?? evidence/commandcode-models.json\n",
+  "remotes": [
+    "origin\thttps://github.com/hu3mann/commandcode-deal-orchestrator.git (fetch)",
+    "origin\thttps://github.com/hu3mann/commandcode-deal-orchestrator.git (push)"
+  ]
+}

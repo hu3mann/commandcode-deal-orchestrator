@@ -6,36 +6,38 @@
  RUN  v3.2.7 /Users/hue/code/cmdrouter
       Coverage enabled with v8
 
- ✓ tests/unit/classifier.test.ts (8 tests) 4ms
- ✓ tests/unit/pricing.test.ts (5 tests) 7ms
- ✓ tests/unit/config.test.ts (4 tests) 19ms
- ✓ tests/unit/pricing-snapshot.test.ts (8 tests) 15ms
- ✓ tests/unit/config-loader.test.ts (6 tests) 28ms
+ ✓ tests/unit/security.test.ts (10 tests) 3ms
+ ✓ tests/unit/config.test.ts (4 tests) 18ms
+ ✓ tests/unit/config-loader.test.ts (6 tests) 23ms
  ✓ tests/unit/telemetry.test.ts (1 test) 4ms
- ✓ tests/unit/eligibility-extra.test.ts (7 tests) 27ms
- ✓ tests/unit/hooks.test.ts (4 tests) 233ms
- ✓ tests/unit/router.test.ts (7 tests) 32ms
- ✓ tests/unit/branch-coverage.test.ts (33 tests) 35ms
- ✓ tests/unit/orchestration.test.ts (7 tests) 13ms
- ✓ tests/unit/security.test.ts (10 tests) 4ms
- ✓ tests/unit/security-extra.test.ts (5 tests) 3ms
- ✓ tests/unit/model-catalog.test.ts (1 test) 2ms
+ ✓ tests/unit/pricing-snapshot.test.ts (8 tests) 11ms
+ ✓ tests/unit/official-html.test.ts (6 tests) 12ms
+ ✓ tests/unit/eligibility-extra.test.ts (7 tests) 28ms
+ ✓ tests/unit/orchestration.test.ts (7 tests) 12ms
+ ✓ tests/unit/router.test.ts (7 tests) 34ms
+ ✓ tests/unit/branch-coverage.test.ts (33 tests) 38ms
+ ✓ tests/unit/hooks.test.ts (4 tests) 342ms
+ ✓ tests/unit/pricing.test.ts (5 tests) 3ms
+ ✓ tests/integration/decide-no-spawn.test.ts (1 test) 423ms
+   ✓ decide no model call > never passes --print to cmd  422ms
  ✓ tests/integration/apply-argv.test.ts (3 tests) 2ms
- ✓ tests/integration/decide-no-spawn.test.ts (1 test) 513ms
-   ✓ decide no model call > never passes --print to cmd  513ms
- ✓ tests/unit/doctor-flags.test.ts (2 tests) 6475ms
-   ✓ doctor accuracy > detects auto-accept in full help when cmd present  6464ms
+ ✓ tests/unit/model-catalog.test.ts (1 test) 3ms
+ ✓ tests/unit/security-extra.test.ts (5 tests) 6ms
+ ✓ tests/unit/classifier.test.ts (8 tests) 7ms
+ ✓ tests/unit/git-safety.test.ts (7 tests) 2ms
+ ✓ tests/unit/doctor-flags.test.ts (2 tests) 5446ms
+   ✓ doctor accuracy > detects auto-accept in full help when cmd present  5437ms
 
- Test Files  17 passed (17)
-      Tests  112 passed (112)
-   Start at  01:05:01
-   Duration  7.20s (transform 661ms, setup 0ms, collect 3.09s, tests 7.42s, environment 2ms, prepare 1.19s)
+ Test Files  19 passed (19)
+      Tests  125 passed (125)
+   Start at  02:32:01
+   Duration  6.01s (transform 537ms, setup 0ms, collect 1.71s, tests 6.42s, environment 2ms, prepare 1.46s)
 
  % Coverage report from v8
 -------------------|---------|----------|---------|---------|-------------------
 File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
 -------------------|---------|----------|---------|---------|-------------------
-All files          |   94.46 |    89.11 |     100 |   94.46 |                   
+All files          |   90.55 |    85.76 |   98.57 |   90.55 |                   
  classifier        |   98.85 |     92.3 |     100 |   98.85 |                   
   deterministic.ts |   97.97 |    92.06 |     100 |   97.97 | 96,101            
   signals.ts       |     100 |      100 |     100 |     100 |                   
@@ -44,18 +46,21 @@ All files          |   94.46 |    89.11 |     100 |   94.46 |
   loader.ts        |   81.39 |    76.74 |     100 |   81.39 | ...02-106,109-110 
   merge.ts         |     100 |      100 |     100 |     100 |                   
   schemas.ts       |     100 |      100 |     100 |     100 |                   
- pricing           |   94.01 |     94.2 |     100 |   94.01 |                   
+ pricing           |   84.93 |    81.72 |     100 |   84.93 |                   
   calculator.ts    |     100 |      100 |     100 |     100 |                   
+  ...e-official.ts |    75.3 |    72.34 |     100 |    75.3 | ...41-143,157-172 
+  official-html.ts |   96.66 |    76.36 |     100 |   96.66 | 68-69,77-78       
   ...ial-source.ts |     100 |      100 |     100 |     100 |                   
-  refresh.ts       |   80.59 |    76.92 |     100 |   80.59 | 56-61,73,91-96    
-  snapshot.ts      |   98.57 |    94.73 |     100 |   98.57 | 56                
+  refresh.ts       |   67.93 |    74.07 |     100 |   67.93 | ...43-152,163-168 
+  snapshot.ts      |   98.57 |       95 |     100 |   98.57 | 56                
  router            |   92.89 |    86.02 |     100 |   92.89 |                   
   eligibility.ts   |   83.33 |    85.18 |     100 |   83.33 | ...59,61-66,80-82 
   explain.ts       |     100 |    71.42 |     100 |     100 | 12-14             
   scorer.ts        |     100 |      100 |     100 |     100 |                   
   select.ts        |   94.07 |       85 |     100 |   94.07 | ...29,153,155-156 
- security          |   99.15 |    95.74 |     100 |   99.15 |                   
+ security          |   95.13 |    94.73 |    92.3 |   95.13 |                   
   ...and-policy.ts |     100 |      100 |     100 |     100 |                   
+  git-safety.ts    |   76.92 |       90 |      50 |   76.92 | 11-16             
   path-policy.ts   |      96 |    77.77 |     100 |      96 | 13                
   ...sion-guard.ts |     100 |      100 |     100 |     100 |                   
 -------------------|---------|----------|---------|---------|-------------------

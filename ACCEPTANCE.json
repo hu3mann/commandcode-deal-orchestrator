@@ -7,19 +7,22 @@
   "packageVersion": "0.1.0",
   "testsPassed": 125,
   "testsFailed": 0,
-  "lineCoverage": 94.46,
-  "branchCoverage": 89.11,
+  "lineCoverage": 90.55,
+  "branchCoverage": 85.76,
   "packageInstallPassed": true,
+  "packageArtifact": "commandcode-deal-orchestrator-0.1.0.tgz",
+  "packageSha256": "3bbf3366753b561637481fc3d150acd635e80e010b223ece2eeeec6d28ec39be",
   "liveTestsRun": true,
   "liveTestsStatus": "PASS",
   "liveSpendEstimatedUsd": 0.03,
   "liveSpendObservedUsd": null,
   "securityFindingsOpen": 0,
   "knownLimitations": [
-    "Optional xAI-direct adapter not implemented (CommandCode backend is primary)",
+    "Optional direct xAI adapter not implemented (CommandCode backend is primary; Grok available via cmd)",
     "Network deal refresh parses official HTML rates/deals for known models only; unmapped page models ignored",
     "Live costs are estimates unless provider returns observed usage",
-    "Operator must install PreToolUse hooks for secondary nested-ccroute denial"
+    "Operator must install PreToolUse hooks for secondary nested-ccroute denial",
+    "--commit flag for git commits not implemented as a separate CLI flag; apply-gated writes only"
   ],
   "unsupportedAssumptions": [
     "No setModel()/transformInput session API",
@@ -36,7 +39,8 @@
     "docs/THREAT-MODEL.md",
     "docs/COMMANDCODE-CAPABILITY-BASELINE.md",
     "FILE-MANIFEST.json",
+    "evidence/",
     "commandcode-deal-orchestrator-0.1.0.tgz"
   ],
-  "gitCommit": ""
+  "gitCommit": "deb0c256a85e97a691620c35e1a5a8ea3a541eb6"
 }

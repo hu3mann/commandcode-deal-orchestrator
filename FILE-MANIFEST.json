@@ -1,7 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-25T04:40:19.472Z",
+  "generatedAt": "2026-07-26T09:32:09.696034+00:00",
   "project": "commandcode-deal-orchestrator",
+  "fileCount": 119,
   "entries": [
     {
       "path": ".gitignore",
@@ -15,8 +16,8 @@
     },
     {
       "path": "ACCEPTANCE.json",
-      "size": 1305,
-      "sha256": "77e0a6ae10697c05fa8386320c126787dba8adf6ae80f0dfb56f9d40d5388d8f"
+      "size": 1364,
+      "sha256": "51a955f0a553a35907b1aa43f3c7b81414114959207c91e774e194d0fe5f959a"
     },
     {
       "path": "AGENTS.md",
@@ -29,14 +30,44 @@
       "sha256": "d06d53e9432c605d62c615af08e204800a3253eb63869561f9d7f0faddfa20e2"
     },
     {
+      "path": "CHANGELOG.md",
+      "size": 1946,
+      "sha256": "68250454c3f45357d01ccb492d968aab594b67a9805f8aff5049c52a8f07998f"
+    },
+    {
+      "path": "FILE-MANIFEST.json",
+      "size": 16760,
+      "sha256": "a036762aa9fee176ffb58a13b5b59f275260f9df6ab762bb764f294c8dc0742b"
+    },
+    {
+      "path": "IMPLEMENTATION-SUMMARY.md",
+      "size": 2917,
+      "sha256": "e84825089e4a15fcec7920923b13f53740d88592e2e6049b4620eb65ca2985c3"
+    },
+    {
+      "path": "LICENSE",
+      "size": 1099,
+      "sha256": "5d58e7f1e1ca39eae1ab1c04d79007e304118814f8defda5d663baa46a42fb71"
+    },
+    {
+      "path": "README.md",
+      "size": 3480,
+      "sha256": "2ea6bb6e87350c7bae9c662a45dfa497387935b8f2cd9c0e5cbe0f792702e326"
+    },
+    {
+      "path": "SECURITY-REVIEW.md",
+      "size": 1143,
+      "sha256": "ae609b4daf393e668f83e16340827993d2dfeae0e2c2d8771b8d238d99bd5afa"
+    },
+    {
+      "path": "TEST-REPORT.md",
+      "size": 1281,
+      "sha256": "3b0a97829c881e12a2514152b3351a44ebe747c4f44f96f8e0940d6562959a5d"
+    },
+    {
       "path": "biome.json",
       "size": 512,
       "sha256": "76db95a5a24ef6780b724bacc1f0370be55213fe5b3c1e9f6b1137a4665ef60c"
-    },
-    {
-      "path": "CHANGELOG.md",
-      "size": 1804,
-      "sha256": "29060b01bbed96e3bd0b77328505e9666f16f7e11669cdcf761eb8015c6c72fa"
     },
     {
       "path": "config/deals.seed.json",
@@ -55,8 +86,8 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "size": 3320,
-      "sha256": "8cd794a907f894ceaf4dfe7ea9a8ef58a4d33b37aa7a01603c94a782c33a83ec"
+      "size": 3347,
+      "sha256": "69b8beba47ed020213e9a3d1c69e5128114cdf2599ac1be9eabf86d8a1b67d24"
     },
     {
       "path": "docs/COMMANDCODE-CAPABILITY-BASELINE.md",
@@ -65,18 +96,18 @@
     },
     {
       "path": "docs/DEAL-SOURCE-POLICY.md",
-      "size": 572,
-      "sha256": "2872ed486321a04bfaf14cc587b9b9c5048578ea07af74d39eb576cc3d14846a"
+      "size": 899,
+      "sha256": "b47dadbc0cce920446709b77320ce35454a2c0f432d63d9d84ae2b46626ec82e"
     },
     {
       "path": "docs/IMPLEMENTATION-SPEC.md",
-      "size": 3696,
-      "sha256": "61e324ffdb8b3cb2ae1af6ef15314493ec03a60444db3aec927fb5b10ceb94d0"
+      "size": 3777,
+      "sha256": "07ea9625f95ba8c7013c5c42f235cb3b78c566dbdd00b0eda17f6e041cfd8171"
     },
     {
       "path": "docs/OPERATIONS.md",
-      "size": 828,
-      "sha256": "585d878af018e5288bef3b8b1ede62120c28a8290e1969b76d3ea48afbab0889"
+      "size": 4062,
+      "sha256": "f0dfffd6e91a1e67a836ddd5354f574fd04d784094f8d7245c8626364fea7b08"
     },
     {
       "path": "docs/SECURITY.md",
@@ -85,13 +116,28 @@
     },
     {
       "path": "docs/THREAT-MODEL.md",
-      "size": 11771,
-      "sha256": "b4818ba8a691a4d90f9884162656beda9a19e349f19ac7c7d32ac4cbcd4766e1"
+      "size": 11717,
+      "sha256": "4dec7a6302b403e56db5f60b54d0e23c139b9d3a0013c22cc45145cfc7d4a80e"
     },
     {
       "path": "docs/TRACEABILITY-MATRIX.md",
-      "size": 3733,
-      "sha256": "625c7c7a1ac9a1fed44c425c305a17787d4b201e5fff6e59daaf38eb5590e7c7"
+      "size": 3892,
+      "sha256": "b5b045a4f1387d99b9c0594900c988ebbabd968c600cb1c8004d762a7c0d59ee"
+    },
+    {
+      "path": "evidence/INITIAL-GIT-STATE.json",
+      "size": 559,
+      "sha256": "061d2a98e5f401000ca1f6d0fe5fb64f76c141ee59d226acb3bce9b4de1f4deb"
+    },
+    {
+      "path": "evidence/commandcode-help.txt",
+      "size": 10672,
+      "sha256": "e577a9f58760064b2643b61d67771e61b6226884fba82f04f626e1ee6aa98321"
+    },
+    {
+      "path": "evidence/commandcode-models.json",
+      "size": 1147,
+      "sha256": "6616c12f588620e413e370aeaea41a816570a091f89af298059312aac4b4f519"
     },
     {
       "path": "evidence/commandcode-models.txt",
@@ -109,6 +155,31 @@
       "sha256": "7d072b48526b023950e4c48db01e8c273554a6401119f5691e7589ba9bc65d9d"
     },
     {
+      "path": "evidence/validation/build.txt",
+      "size": 105,
+      "sha256": "3bb1af8f11d299799e5a485b7cfc73a634c2e7872788c3eb13d3a759ea5adaec"
+    },
+    {
+      "path": "evidence/validation/coverage.txt",
+      "size": 3926,
+      "sha256": "f15f0868dff610932d358082dafb8daae1f73eb7659ff4def3faf9e5c2140459"
+    },
+    {
+      "path": "evidence/validation/lint.txt",
+      "size": 121,
+      "sha256": "e515d0ba39d9a1eb5e83f0bb44fbc77f48c51c021ba4050eb8afa5d9eb06c5a3"
+    },
+    {
+      "path": "evidence/validation/tests.txt",
+      "size": 1418,
+      "sha256": "f02bcb5013db2705bc122c113a15db8059d9a5ce7f7a65be86567322b72d3e28"
+    },
+    {
+      "path": "evidence/validation/typecheck.txt",
+      "size": 82,
+      "sha256": "85fb5a33dbcbc462f4be99028e717925ada5c0c61888a250f194fff1452a88f1"
+    },
+    {
       "path": "examples/commandcode-settings.hooks.json",
       "size": 484,
       "sha256": "2180805d2fbb9d6d75c7700cd7421b9b6a78b104ef5c3c34c427a75fa436e82f"
@@ -124,11 +195,6 @@
       "sha256": "7c8cac92b4173c75906a3b53fb91186dc072d1dc4bf97caaa33df4d3d4b61860"
     },
     {
-      "path": "FILE-MANIFEST.json",
-      "size": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
       "path": "hooks/child-recursion-guard.mjs",
       "size": 1426,
       "sha256": "99859171f0e65855c459fc361bd365919e7140c43f4de1bdce4e901dc60dd0c9"
@@ -137,16 +203,6 @@
       "path": "hooks/child-session-context.mjs",
       "size": 969,
       "sha256": "fb1e3a04b0b9f30606a85e3df8566baafe8b0190fb76462de36db83b382b705d"
-    },
-    {
-      "path": "IMPLEMENTATION-SUMMARY.md",
-      "size": 3149,
-      "sha256": "8618bc8618cfd92a98d0106fb9d42afc45543d91ffb8f97d4805fcf0fb7d3d39"
-    },
-    {
-      "path": "LICENSE",
-      "size": 1099,
-      "sha256": "5d58e7f1e1ca39eae1ab1c04d79007e304118814f8defda5d663baa46a42fb71"
     },
     {
       "path": "package-lock.json",
@@ -184,11 +240,6 @@
       "sha256": "069d26c184ddb13c60a97f67f38c74b18bc662e5bc0ed7485b2b3f5efe53da88"
     },
     {
-      "path": "README.md",
-      "size": 2870,
-      "sha256": "13c57ba1142987b700543e87e8a4f0331c033643cd740b29dfbdc57f005425c5"
-    },
-    {
       "path": "schemas/plan.schema.json",
       "size": 204,
       "sha256": "c8f8ec2fbeebf0b731dadcdecfd28a76cd73b0087ed54d0669198f09dff11ba2"
@@ -214,11 +265,6 @@
       "sha256": "7f98ca1d403d5f8e3041dd4bef28c75c859ae145931e0946f1d61ac6f50ab00f"
     },
     {
-      "path": "SECURITY-REVIEW.md",
-      "size": 1090,
-      "sha256": "a5fea7d3a112fe4f727f7e864a04d102e1f138f7d799459dec05722f1ce68e78"
-    },
-    {
       "path": "skills/commandcode-deal-orchestrator/SKILL.md",
       "size": 1668,
       "sha256": "30d17347a33d91fa570fcb5fc5af4792ad9542fcd7ff32dd0daced59995a2a95"
@@ -235,8 +281,8 @@
     },
     {
       "path": "src/cli.ts",
-      "size": 22681,
-      "sha256": "8a891cb496d8e990c4fbe9c75a4720120dfda2f289c4fcdd8994922d78284a24"
+      "size": 22905,
+      "sha256": "300336fb301661abdd1e326e3864ae4306d5a513aa250f82e521ad20438deaac"
     },
     {
       "path": "src/config/defaults.ts",
@@ -300,8 +346,8 @@
     },
     {
       "path": "src/index.ts",
-      "size": 763,
-      "sha256": "08dc10c28ce15f587fc37d1ba1d1ce77414fa99f1d7b003c54b74e931510a1e8"
+      "size": 823,
+      "sha256": "6cfee0f3a03a5585c3ba6a65dc5dc82cd1ceef4a5c51c30be8027b473708429f"
     },
     {
       "path": "src/orchestration/orchestrator.ts",
@@ -334,14 +380,24 @@
       "sha256": "8323b37971df55a3f8ed72dc0f18bd970ed53c778129d3327a064aa4035d06c6"
     },
     {
+      "path": "src/pricing/merge-official.ts",
+      "size": 6660,
+      "sha256": "c98cd76b17fe4e51e1fc397e11c15d1638483dd22e8b5fcb39778ac1ab8e09b3"
+    },
+    {
+      "path": "src/pricing/official-html.ts",
+      "size": 5981,
+      "sha256": "05f3c3da658da754700f6f700d77343de1dd3f19408287420b5c9dfe85bd7826"
+    },
+    {
       "path": "src/pricing/official-source.ts",
       "size": 216,
       "sha256": "e09380622e6239989b67b460d618a874a4b3c501ba3af5081771116dab35badf"
     },
     {
       "path": "src/pricing/refresh.ts",
-      "size": 2957,
-      "sha256": "0f995342d8c80a9569b218971f309e77aed0d36c009f8bdf2ada29881352e955"
+      "size": 5224,
+      "sha256": "392a140e1c0a65a8d9bb0d873a66d9cea68565d6975f072263a7a10b72805d31"
     },
     {
       "path": "src/pricing/snapshot.ts",
@@ -372,6 +428,11 @@
       "path": "src/security/command-policy.ts",
       "size": 1944,
       "sha256": "d27d164026564dacdf25dff2e642e43b6f937cd6c73d208dc7a3e2de83e605a9"
+    },
+    {
+      "path": "src/security/git-safety.ts",
+      "size": 1289,
+      "sha256": "4390da92349781df96f15f00ebcfebdeaa3c7fab16e3234257c21fbd4143ca8e"
     },
     {
       "path": "src/security/path-policy.ts",
@@ -414,9 +475,9 @@
       "sha256": "c54802921a0865ee8c783795c7031f6f5d0cb48b7d843527666b1f4e365652f4"
     },
     {
-      "path": "TEST-REPORT.md",
-      "size": 930,
-      "sha256": "c15d470f3d67dcdd9abbd8dad6fc76bb3dcc9ea8d017c9f9a28984bed079de02"
+      "path": "tests/fixtures/pricing-limits-sample.html",
+      "size": 2032,
+      "sha256": "c21df4928faf17a3e5b9e4616d236f096e2c084d3fe2e2bb2119d73373d5b477"
     },
     {
       "path": "tests/integration/apply-argv.test.ts",
@@ -435,8 +496,8 @@
     },
     {
       "path": "tests/unit/branch-coverage.test.ts",
-      "size": 6586,
-      "sha256": "dffc358d9b89771768daaa78852819c08dd9b7a4be68a9b4100260c7b531d8d4"
+      "size": 14663,
+      "sha256": "53c5b7e85945727e7222881481b0add8244fac442ac4265c1847cb240028ab6f"
     },
     {
       "path": "tests/unit/classifier.test.ts",
@@ -460,8 +521,13 @@
     },
     {
       "path": "tests/unit/eligibility-extra.test.ts",
-      "size": 4658,
-      "sha256": "1bfbb6b3f71c4d55c39ec67ea62793e2e28b4e95232590019ae2a7433496d09b"
+      "size": 6955,
+      "sha256": "e3085bc0b1643fd5d76db0f66d63e5481234608eec0bee949520c9c5c18ecb69"
+    },
+    {
+      "path": "tests/unit/git-safety.test.ts",
+      "size": 2489,
+      "sha256": "9f67ed45ed26a363d5886a49cb9d08613140ce131fb691d570da8a69a6bf3ffc"
     },
     {
       "path": "tests/unit/hooks.test.ts",
@@ -472,6 +538,11 @@
       "path": "tests/unit/model-catalog.test.ts",
       "size": 1402,
       "sha256": "e1ad76e01f31de015774006580bbe746a3ace1182fdcf6e168096888591fe5f4"
+    },
+    {
+      "path": "tests/unit/official-html.test.ts",
+      "size": 6026,
+      "sha256": "b7ceba586186655635798e6fa8ba8a97f5696097c11c531a5bdcf6c16dcb622c"
     },
     {
       "path": "tests/unit/orchestration.test.ts",
@@ -528,7 +599,5 @@
       "size": 189,
       "sha256": "6834a13c9c5b2a37d7ace20c876d3f33ef3037fb72a090af9703bb2fecf2beb2"
     }
-  ],
-  "totalSize": 315193,
-  "fileCount": 105
+  ]
 }

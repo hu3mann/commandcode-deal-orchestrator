@@ -5,28 +5,30 @@
 
  RUN  v3.2.7 /Users/hue/code/cmdrouter
 
- ✓ tests/unit/security.test.ts (10 tests) 3ms
- ✓ tests/unit/telemetry.test.ts (1 test) 7ms
- ✓ tests/unit/config.test.ts (4 tests) 19ms
- ✓ tests/unit/pricing.test.ts (5 tests) 6ms
- ✓ tests/unit/config-loader.test.ts (6 tests) 32ms
- ✓ tests/unit/pricing-snapshot.test.ts (8 tests) 11ms
- ✓ tests/unit/eligibility-extra.test.ts (7 tests) 25ms
- ✓ tests/unit/router.test.ts (7 tests) 29ms
- ✓ tests/unit/orchestration.test.ts (7 tests) 10ms
- ✓ tests/unit/branch-coverage.test.ts (33 tests) 35ms
- ✓ tests/unit/classifier.test.ts (8 tests) 2ms
- ✓ tests/unit/hooks.test.ts (4 tests) 360ms
- ✓ tests/unit/model-catalog.test.ts (1 test) 2ms
- ✓ tests/integration/apply-argv.test.ts (3 tests) 1ms
+ ✓ tests/unit/pricing.test.ts (5 tests) 4ms
+ ✓ tests/unit/official-html.test.ts (6 tests) 15ms
+ ✓ tests/unit/telemetry.test.ts (1 test) 5ms
+ ✓ tests/unit/config.test.ts (4 tests) 20ms
+ ✓ tests/unit/pricing-snapshot.test.ts (8 tests) 16ms
+ ✓ tests/unit/config-loader.test.ts (6 tests) 26ms
+ ✓ tests/unit/eligibility-extra.test.ts (7 tests) 28ms
+ ✓ tests/unit/orchestration.test.ts (7 tests) 11ms
+ ✓ tests/unit/router.test.ts (7 tests) 28ms
+ ✓ tests/unit/branch-coverage.test.ts (33 tests) 37ms
+ ✓ tests/unit/hooks.test.ts (4 tests) 327ms
+ ✓ tests/unit/security.test.ts (10 tests) 5ms
  ✓ tests/unit/security-extra.test.ts (5 tests) 2ms
- ✓ tests/integration/decide-no-spawn.test.ts (1 test) 483ms
-   ✓ decide no model call > never passes --print to cmd  483ms
- ✓ tests/unit/doctor-flags.test.ts (2 tests) 5775ms
-   ✓ doctor accuracy > detects auto-accept in full help when cmd present  5767ms
+ ✓ tests/unit/classifier.test.ts (8 tests) 2ms
+ ✓ tests/unit/model-catalog.test.ts (1 test) 2ms
+ ✓ tests/integration/apply-argv.test.ts (3 tests) 2ms
+ ✓ tests/unit/git-safety.test.ts (7 tests) 2ms
+ ✓ tests/integration/decide-no-spawn.test.ts (1 test) 774ms
+   ✓ decide no model call > never passes --print to cmd  774ms
+ ✓ tests/unit/doctor-flags.test.ts (2 tests) 5382ms
+   ✓ doctor accuracy > detects auto-accept in full help when cmd present  5375ms
 
- Test Files  17 passed (17)
-      Tests  112 passed (112)
-   Start at  01:05:09
-   Duration  6.29s (transform 459ms, setup 0ms, collect 1.63s, tests 6.80s, environment 2ms, prepare 1.08s)
+ Test Files  19 passed (19)
+      Tests  125 passed (125)
+   Start at  02:31:54
+   Duration  5.83s (transform 552ms, setup 0ms, collect 1.72s, tests 6.69s, environment 2ms, prepare 1.26s)
 
