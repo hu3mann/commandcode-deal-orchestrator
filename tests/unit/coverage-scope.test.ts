@@ -38,8 +38,7 @@ describe("coverage instrument scope", () => {
     const entries = (coverageInclude ?? "").split(",").filter((e) => e.trim().length > 0);
     expect(
       entries.length,
-      `coverage include lists ${entries.length} patterns; expected exactly one (src/**/*.ts). ` +
-        "A directory list is how the original defect was introduced.",
+      `coverage include lists ${entries.length} patterns; expected exactly one (src/**/*.ts). A directory list is how the original defect was introduced.`,
     ).toBe(1);
   });
 
