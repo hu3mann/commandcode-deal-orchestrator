@@ -2,76 +2,91 @@
 
 ## Verdict
 
-**PASS**
+**PASS_WITH_LIMITATIONS**
 
-Deterministic suite green; package installs; live smoke PASS; acceptance evidence complete.
+All deterministic gates pass and every audited defect is fixed and regression-tested.
+Live CommandCode invocation was not tested this cycle, so per §36 the verdict cannot be
+`PASS`.
+
+The prior verdict was `PASS`. It was not supportable: a confirmed arbitrary-code-execution
+path was reachable from `ccroute decide`, coverage was measured over half the codebase,
+and the live-smoke claim the `PASS` rested on had no evidence artifact. See
+`AUDIT-REPORT.md`.
 
 ## Project path
 
-`/Users/hue/code/cmdrouter`
+`/Users/hue/code/cmdrouter` — branch `fix/CCROUTE-001-audit-remediation`
 
 ## Architecture
 
-Deterministic local control plane:
+Deterministic local control plane. The routing decision never requires an LLM call:
 
 ```text
-CLI → config/discovery → classifier → eligibility/scorer → run | orchestrate → cmd spawn (shell:false)
+CLI → config (defaults < user < project < flags)
+    → deterministic classifier (task + repository signals)
+    → eligibility (live catalog, context, capabilities, quality floor, pricing freshness)
+    → reliability-adjusted scorer (cost + retry + escalation + latency)
+    → run | orchestrate → cmd spawn (shell:false, task on stdin)
 ```
+
+Orchestration: Planner → Advisor → Executor → **deterministic validation** → Reviewer →
+one bounded repair. Deterministic validation runs real local commands and is
+authoritative over the Reviewer's opinion.
 
 ## Commands
 
-`doctor` · `models` · `deals` · `decide` · `explain` · `run` · `orchestrate` · `stats` · `runs` · `config`
+`doctor` · `models` · `deals` · `config` · `decide` · `explain` · `run` · `orchestrate` ·
+`stats` · `runs`
 
 ## Validation
 
-- typecheck: clean
-- lint (Biome): clean
-- build: clean
-- tests: 125 passed (19 files)
-- coverage: 90.55% lines, 85.76% branches (thresholds 90/85)
-- package install: PASS (isolated temp prefix)
-- live smoke: PASS (4/4, CommandCode 1.4.1, budget ≤ $0.25)
-- threat model: 17 threats documented with controls
-
-## Package
-
-`commandcode-deal-orchestrator-0.1.0.tgz`  
-SHA256: `3bbf3366753b561637481fc3d150acd635e80e010b223ece2eeeec6d28ec39be`
-
-## PAL conclusions (freeze v0.1.0)
-
-### Proven
-
-| Invariant | Status |
+| Gate | Result |
 | --- | --- |
-| `decide` never spawns | PASS |
-| `--apply` → `--auto-accept` only | PASS |
-| `shell: false` | PASS |
-| No double `post_discount` | PASS |
-| Live catalog | used when `cmd` present |
-| Recursion | PASS (`role=executor` on run) |
-| Dirty gate on `--apply` | PASS (run + orchestrate) |
-| Official HTML deal refresh | PASS (known IDs only) |
+| typecheck | clean |
+| lint (Biome, 75 files) | clean |
+| tests | **408 passed**, 0 failed, 0 skipped |
+| coverage | **91.55% lines / 86.95% branches** over all of `src/` (thresholds 90/85) |
+| build | clean |
+| package install (isolated prefix) | PASS — 8/8 commands exit 0 |
+| RCE proof-of-concept | blocked, fails closed |
+| live smoke | **NOT RUN** |
 
-### Residual (ranked)
+All eight §35-named areas clear their individual bar.
 
-1. Med — child `cmd` tools wide without operator hooks (install path documented)
-2. Low — official HTML parse ignores unmapped page-only model IDs
-3. Low — kill-tree best-effort on POSIX
+## What changed
 
-### Backlog remaining
+14 defect classes fixed across security, routing, pricing, orchestration, CLI and
+testing. Highlights:
 
-1. Optional direct xAI adapter (Grok already available via `cmd`)
-2. Separate `--commit` CLI flag (apply-gated writes only today)
+- Arbitrary code execution via project-scope `cmdPath` — closed, regression-tested
+  against the original exploit
+- Deterministic validation added; a Reviewer `ACCEPT` can no longer pass a failing run
+- Five missing high-risk keywords added; high risk now overrides prompt brevity
+- Real double-discount guard replacing a comment; mutation-tested
+- `sourceHash` verified on load; freshness thresholds enforced
+- §11 exit-code taxonomy implemented; exit 1 no longer a catch-all
+- Coverage instrument un-narrowed; 125 → 408 tests
 
-### Do-not-do
-
-Invent model IDs · double-discount · decide→model · default yolo/auto-accept · commit `.commandcode` taste/runs/settings
+Full detail in `CHANGELOG.md`; findings and evidence in `AUDIT-REPORT.md`.
 
 ## Known limitations
 
-- Optional direct xAI adapter not implemented (CommandCode backend is primary)
-- Network deal refresh merges known models only; unmapped page models ignored
-- Live costs are estimates unless provider returns observed usage
-- Operator must install hooks for secondary nested-`ccroute` denial
-- `--commit` not a separate CLI flag
+- Live CommandCode invocation untested this cycle
+- Capability-based eligibility is implemented and tested but **inert** — no catalog
+  supplies capability data, and inventing it would violate §13
+- The recursion guard is environment-variable based and bypassable by a child that
+  strips its own environment; the hook layer meant to back it up is unverified against
+  the installed CLI, which documents no hooks
+- Child `cmd` sessions retain their normal tool surface
+- Optional direct xAI adapter not implemented; Grok reachable via `cmd`
+- Costs are estimates unless the provider returns usage mechanically
+- `src/orchestration` (83.95%) and `src/cli.ts` (86.55%) are below 90% lines; neither is
+  a §35-named area
+
+## Process note
+
+The single most valuable change was not a code fix: it was removing the implementer's
+authority to certify its own work. Every defect above was reported as controlled by the
+project's own `SECURITY-REVIEW.md` and `ACCEPTANCE.json` before the audit. External
+adversarial verification, plus mutation-testing the two controls that matter most, is
+what surfaced them.
