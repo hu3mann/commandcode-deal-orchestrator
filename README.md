@@ -48,11 +48,15 @@ Requires Node.js 20+ and Command Code CLI (`cmd`) for live runs. Never invent mo
 ## First-run setup
 
 ```bash
+npm ci
+npm run build
+npm link
+ccroute install --project
 ccroute doctor
-ccroute config validate
-ccroute deals refresh
-ccroute models list
+ccroute install status
 ```
+
+Also useful: `ccroute models list`, `ccroute deals reconcile-live-catalog`, `ccroute agents list`.
 
 ## CommandCode Mod installation (zero-friction routing)
 
@@ -63,6 +67,7 @@ Install the deterministic router Mod through CommandCode’s official manager:
 ccroute install
 ccroute install --skill          # optional skill copy
 ccroute install --hooks          # optional fallback security hooks
+ccroute install --install-memory # optional managed AGENTS.md block (not default)
 
 # User scope (explicit) — loads without project trust
 ccroute install --user
@@ -71,7 +76,27 @@ ccroute install status
 ccroute install update
 ccroute install repair
 ccroute uninstall                # removes only ccroute-owned artifacts
+ccroute uninstall --remove-memory
 ```
+
+### Bounded role agents
+
+Installed by default under `.commandcode/agents/` (`ccroute-planner`, `ccroute-reviewer`,
+`ccroute-explorer`). Project agents use `model: inherit`. They are **not** the routing path.
+
+```bash
+ccroute agents list
+ccroute agents refresh
+ccroute agents refresh --user --pin-model <exact-live-id>
+```
+
+### Prompt surfaces
+
+| Surface | Routing |
+| --- | --- |
+| Ordinary typed interactive | Automatic Mod routing where supported |
+| Slash / image / automated / headless | Explicit `ccroute run` / `/route` / orchestrate |
+| Writes | Always require explicit user authorization |
 
 Dry-run and conflict safety:
 

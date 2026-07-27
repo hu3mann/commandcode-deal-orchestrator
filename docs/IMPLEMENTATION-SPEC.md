@@ -16,6 +16,11 @@ Observable behavior contracts. Prefer tables and schemas.
 | `ccroute stats` | Telemetry aggregates |
 | `ccroute runs list\|show <id>` | Inspect past run artifacts |
 | `ccroute config show\|validate\|paths` | Config inspection |
+| `ccroute install …` | Managed Mod lifecycle (+ optional skill/hooks/memory/agents) |
+| `ccroute agents list\|refresh` | Bounded role agents; project uses `model: inherit` |
+| `ccroute deals reconcile-live-catalog` | Strict pricing↔live ID map; never invent rates |
+| `ccroute refresh status\|run` | Coordinated refresh lease/backoff |
+| `ccroute refresh launchd-install\|status\|uninstall` | macOS daily schedule |
 
 ### Flags
 

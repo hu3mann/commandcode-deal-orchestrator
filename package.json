@@ -28,6 +28,7 @@
     "config",
     "prompts",
     "skills",
+    "agents",
     "hooks",
     "schemas",
     "examples",

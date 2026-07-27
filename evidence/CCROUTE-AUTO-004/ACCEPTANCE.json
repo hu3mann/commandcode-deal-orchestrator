@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "tp": "TP-CCROUTE-AUTO-004",
+  "series": "CCROUTE-AUTO-2026-001",
+  "verdict": "PASS_WITH_LIMITATIONS",
+  "agentsInstalled": true,
+  "skillUpdated": true,
+  "memoryInstall": true,
+  "reconcileLiveCatalog": true,
+  "docsUpdated": true,
+  "testsPassed": 601,
+  "testsFailed": 0,
+  "lineCoverage": 91.02,
+  "branchCoverage": 85.22,
+  "liveTestStatus": "NOT_RUN",
+  "gitCommit": "pending"
+}

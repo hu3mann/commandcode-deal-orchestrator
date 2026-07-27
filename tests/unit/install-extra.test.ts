@@ -186,7 +186,7 @@ describe("install extra coverage", () => {
     expect(un.messages.some((m) => /Nothing to uninstall/i.test(m))).toBe(true);
   });
 
-  it("install dry-run with --install-memory notes skip", () => {
+  it("install dry-run with --install-memory notes managed memory block", () => {
     const c = envBase();
     const r = installLifecycle({ project: true, dryRun: true, installMemory: true, ...c });
     expect(r.ok).toBe(true);

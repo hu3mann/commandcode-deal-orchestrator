@@ -61,6 +61,7 @@ export const InstallManifestSchema = z.object({
       skill: z.boolean().optional(),
       hooks: z.boolean().optional(),
       installMemory: z.boolean().optional(),
+      agents: z.boolean().optional(),
     })
     .optional(),
 });
@@ -74,6 +75,10 @@ export interface InstallCliOptions {
   skill?: boolean;
   hooks?: boolean;
   installMemory?: boolean;
+  /** Uninstall-only: remove managed AGENTS.md memory block */
+  removeMemory?: boolean;
+  /** Install bounded role agents (default true on install) */
+  agents?: boolean;
   json?: boolean;
   /** Absolute project root (default: cwd). Test seam. */
   projectRoot?: string;

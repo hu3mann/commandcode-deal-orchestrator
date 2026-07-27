@@ -5,6 +5,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { Command, CommanderError } from "commander";
+import { MANAGED_AGENT_NAMES, agentDestPath, refreshManagedAgents } from "./agents/index.js";
 import type { RepoSignals } from "./classifier/deterministic.js";
 import { classifyTask } from "./classifier/deterministic.js";
 import { CliUsageError, EXIT, exitCodeForErrorCode, mapOrchestrateExit } from "./cli/exit-codes.js";
@@ -28,12 +29,14 @@ import {
   formatLifecycleResult,
   installLifecycle,
   repairLifecycle,
+  resolveInstallPaths,
   statusLifecycle,
   uninstallLifecycle,
   updateLifecycle,
 } from "./install/index.js";
 import { InstallError } from "./install/types.js";
 import { orchestrate, shouldOrchestrate } from "./orchestration/orchestrator.js";
+import { reconcileLiveCatalog } from "./pricing/reconcile-live-catalog.js";
 import {
   classifySnapshotFreshness,
   dealsSnapshotPath,
@@ -1381,6 +1384,43 @@ dealsCmd
     }
   });
 
+dealsCmd
+  .command("reconcile-live-catalog")
+  .description(
+    "Strictly map pricing snapshot IDs to cmd --list-models (never invent rates; not 'adopt live')",
+  )
+  .option("--apply-availability", "Mark unmapped/ambiguous models unavailable in snapshot", false)
+  .option("--json", "JSON report", false)
+  .action((opts) => {
+    try {
+      const loaded = loadRuntime();
+      const cmd = resolveCmdPath(loaded.config.cmdPath);
+      if (!cmd) fail(new CmdNotFoundError());
+      const live = fetchLiveModelIds(cmd!);
+      if (live.error) fail(new Error(live.error));
+      if (!live.ids.length) fail(new Error("Live catalog empty"));
+      const report = reconcileLiveCatalog({
+        liveIds: live.ids,
+        applyAvailability: Boolean(opts.applyAvailability),
+      });
+      if (opts.json) console.log(JSON.stringify(report, null, 2));
+      else {
+        for (const m of report.messages) console.log(m);
+        console.log(`mapped: ${report.mapped.length}`);
+        console.log(`unmapped: ${report.unmapped.length}`);
+        console.log(`ambiguous: ${report.ambiguous.length}`);
+        console.log(`quarantined: ${report.quarantined.length}`);
+        console.log(`live-only (no rates invented): ${report.liveOnly.length}`);
+        for (const e of report.quarantined.slice(0, 20)) {
+          console.log(`  QUARANTINE ${e.pricingId}: ${e.reason}`);
+        }
+      }
+      process.exit(report.ok ? EXIT.SUCCESS : EXIT.INTERNAL_INVARIANT_FAILURE);
+    } catch (e) {
+      fail(e);
+    }
+  });
+
 // ── Coordinated refresh / launchd ─────────────────────────────────────────
 const refreshCmd = program.command("refresh").description("Coordinated pricing refresh automation");
 
@@ -1567,6 +1607,8 @@ function parseInstallScopeOpts(opts: {
   skill?: boolean;
   hooks?: boolean;
   installMemory?: boolean;
+  removeMemory?: boolean;
+  agents?: boolean;
   json?: boolean;
 }): InstallCliOptions {
   if (opts.project && opts.user) {
@@ -1580,6 +1622,8 @@ function parseInstallScopeOpts(opts: {
     skill: opts.skill,
     hooks: opts.hooks,
     installMemory: opts.installMemory,
+    removeMemory: opts.removeMemory,
+    agents: opts.agents,
     json: opts.json,
   };
 }
@@ -1606,11 +1650,20 @@ const installCmd = program
   .option("--force", "Override conflicts on owned artifacts", false)
   .option("--skill", "Also install the deal-orchestrator skill", false)
   .option("--hooks", "Also install fallback security hooks", false)
-  .option("--install-memory", "Reserved; no-op until TP4 memory artifacts exist", false)
+  .option(
+    "--install-memory",
+    "Install optional managed policy block into project AGENTS.md (not default)",
+    false,
+  )
+  .option("--agents", "Install bounded role agents (default: true)", true)
   .option("--json", "JSON result", false)
   .action((opts) => {
     try {
-      const parsed = parseInstallScopeOpts(opts);
+      // Commander --no-agents sets agents=false when using .option("--agents", ..., true)
+      const parsed = parseInstallScopeOpts({
+        ...opts,
+        agents: opts.agents === false ? false : undefined,
+      });
       // Default scope is project when neither flag is set
       if (!parsed.user) parsed.project = true;
       finishLifecycle(installLifecycle(parsed), opts.json);
@@ -1679,12 +1732,93 @@ program
   .option("--user", "User scope", false)
   .option("--dry-run", "Preview only", false)
   .option("--force", "Continue past non-blocking conflicts", false)
+  .option("--remove-memory", "Remove only the managed AGENTS.md memory block", false)
   .option("--json", "JSON result", false)
   .action((opts) => {
     try {
       const parsed = parseInstallScopeOpts(opts);
       if (!parsed.user) parsed.project = true;
       finishLifecycle(uninstallLifecycle(parsed), opts.json);
+    } catch (e) {
+      fail(e);
+    }
+  });
+
+// ── Agents (TP-004) ───────────────────────────────────────────────────────
+const agentsCmd = program
+  .command("agents")
+  .description("Bounded role agents (planner/reviewer/explorer)");
+
+agentsCmd
+  .command("refresh")
+  .description("Refresh managed agents against live catalog (project stays model:inherit)")
+  .option("--project", "Project scope (default)", false)
+  .option("--user", "User scope (optional live model pins)", false)
+  .option("--pin-model <id>", "User-scope only: pin agents to an exact live model id")
+  .option("--allow-promotional-pins", "Allow free/promo model pins when --pin-model is set", false)
+  .option("--json", "JSON output", false)
+  .action((opts) => {
+    try {
+      if (opts.project && opts.user) {
+        throw new CliUsageError("Reject simultaneous --project and --user");
+      }
+      const scopeOpts: InstallCliOptions = {
+        project: !opts.user,
+        user: Boolean(opts.user),
+      };
+      const paths = resolveInstallPaths(scopeOpts);
+      const loaded = loadRuntime();
+      const cmd = resolveCmdPath(loaded.config.cmdPath);
+      if (!cmd) fail(new CmdNotFoundError());
+      const live = fetchLiveModelIds(cmd!);
+      if (live.error) fail(new Error(live.error));
+      if (opts.pinModel && !opts.user) {
+        throw new CliUsageError(
+          "--pin-model is only valid with --user (project agents stay inherit)",
+        );
+      }
+      const result = refreshManagedAgents({
+        paths,
+        liveIds: live.ids,
+        pinModel: opts.pinModel ?? null,
+        allowPromotionalPins: Boolean(opts.allowPromotionalPins),
+      });
+      if (opts.json) console.log(JSON.stringify(result, null, 2));
+      else {
+        for (const m of result.messages) console.log(m);
+        for (const [name, id] of Object.entries(result.selectedIds)) {
+          console.log(`  ${name}: model=${id}`);
+        }
+        if (!result.ok) console.error(result.error);
+      }
+      process.exit(result.ok ? EXIT.SUCCESS : EXIT.CONFIG_INVALID);
+    } catch (e) {
+      fail(e);
+    }
+  });
+
+agentsCmd
+  .command("list")
+  .description("List managed agent definitions in scope")
+  .option("--project", "Project scope (default)", false)
+  .option("--user", "User scope", false)
+  .option("--json", "JSON output", false)
+  .action((opts) => {
+    try {
+      const paths = resolveInstallPaths({
+        project: !opts.user,
+        user: Boolean(opts.user),
+      });
+      const rows = MANAGED_AGENT_NAMES.map((name) => {
+        const p = agentDestPath(paths, name);
+        return { name, path: p, installed: existsSync(p) };
+      });
+      if (opts.json) console.log(JSON.stringify(rows, null, 2));
+      else {
+        for (const r of rows) {
+          console.log(`${r.installed ? "installed" : "missing"}\t${r.name}\t${r.path}`);
+        }
+      }
     } catch (e) {
       fail(e);
     }

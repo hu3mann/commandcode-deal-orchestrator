@@ -3,8 +3,10 @@
  */
 
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { installAgentsSurface, removeAgentsSurface } from "../agents/definitions.js";
 import { emptyHash, sha256File, sha256Text } from "./hash.js";
 import { readManifest, removeManifest, writeManifestAtomic } from "./manifest.js";
+import { installMemoryBlock, memoryBlockPresent, removeMemoryBlock } from "./memory.js";
 import {
   modAdd,
   modList,
@@ -79,6 +81,11 @@ function wantMemory(opts: InstallCliOptions): boolean {
   return Boolean(opts.installMemory);
 }
 
+function wantAgents(opts: InstallCliOptions): boolean {
+  // Default on for install when not explicitly false
+  return opts.agents !== false;
+}
+
 function planInstall(paths: InstallPaths, opts: InstallCliOptions): PlannedAction[] {
   const actions: PlannedAction[] = [
     {
@@ -106,11 +113,18 @@ function planInstall(paths: InstallPaths, opts: InstallCliOptions): PlannedActio
       detail: "hook script files",
     });
   }
+  if (wantAgents(opts)) {
+    actions.push({
+      kind: "copy-file",
+      target: `${paths.commandcodeDir}/agents`,
+      detail: "bounded role agents (planner/reviewer/explorer)",
+    });
+  }
   if (wantMemory(opts)) {
     actions.push({
-      kind: "skip",
-      target: "memory",
-      detail: "memory install requested but no TP4 memory artifact is present — skipped",
+      kind: "copy-file",
+      target: `${paths.projectRoot}/AGENTS.md`,
+      detail: "optional managed memory block in AGENTS.md",
     });
   }
   actions.push({ kind: "write-manifest", target: paths.manifestPath });
@@ -203,6 +217,7 @@ function buildManifest(
       skill: wantSkill(opts),
       hooks: wantHooks(opts),
       installMemory: wantMemory(opts),
+      agents: wantAgents(opts),
     },
   };
 }
@@ -232,7 +247,7 @@ export function installLifecycle(opts: InstallCliOptions = {}): LifecycleResult 
   try {
     if (wantMemory(opts)) {
       result.messages.push(
-        "Note: --install-memory ignored — role/memory agents are not part of TP-002",
+        "Will install optional managed memory block into project AGENTS.md (explicit --install-memory)",
       );
     }
 
@@ -342,6 +357,22 @@ export function installLifecycle(opts: InstallCliOptions = {}): LifecycleResult 
       const skillFiles = installSkillSurface(paths);
       managedFiles.push(...skillFiles);
       result.messages.push(`Skill installed at ${paths.skillDestDir}`);
+    }
+
+    if (wantAgents(opts)) {
+      const agentFiles = installAgentsSurface(paths);
+      managedFiles.push(...agentFiles);
+      result.messages.push(
+        `Bounded agents installed under ${paths.commandcodeDir}/agents (model: inherit for project)`,
+      );
+    }
+
+    if (wantMemory(opts)) {
+      const mem = installMemoryBlock(paths);
+      managedFiles.push(mem);
+      result.messages.push(
+        `Managed memory block written to ${mem.path} (does not claim deterministic enforcement)`,
+      );
     }
 
     if (wantHooks(opts)) {
@@ -521,7 +552,7 @@ export function updateLifecycle(opts: InstallCliOptions = {}): LifecycleResult {
     const managedFiles = [...existing.managedFiles];
     // refresh settings hash entry
     const settingsHash = sha256File(paths.settingsPath) ?? emptyHash();
-    const withoutSettings = managedFiles.filter((f) => f.method !== "mod-manager");
+    let withoutSettings = managedFiles.filter((f) => f.method !== "mod-manager");
     withoutSettings.unshift({
       path: paths.settingsPath,
       sha256: settingsHash,
@@ -540,9 +571,18 @@ export function updateLifecycle(opts: InstallCliOptions = {}): LifecycleResult {
           (f) =>
             !f.sourceArtifact.startsWith("skill:") &&
             f.method !== "mod-manager" &&
-            !f.sourceArtifact.startsWith("hook:"),
+            !f.sourceArtifact.startsWith("hook:") &&
+            !f.sourceArtifact.startsWith("agent:"),
         ),
       );
+    }
+
+    if (existing.options?.agents !== false || wantAgents(opts)) {
+      removeAgentsSurface(paths, existing.managedFiles);
+      const agentFiles = installAgentsSurface(paths);
+      withoutSettings = withoutSettings.filter((f) => !f.sourceArtifact.startsWith("agent:"));
+      withoutSettings.push(...agentFiles);
+      result.messages.push("Refreshed managed role agents");
     }
 
     let managedSettings = existing.managedSettingsEntries;
@@ -702,6 +742,22 @@ export function repairLifecycle(opts: InstallCliOptions = {}): LifecycleResult {
       result.messages.push("Repaired skill surface");
     }
 
+    const agentNeedsRepair =
+      existing.options?.agents !== false &&
+      (existing.managedFiles.some(
+        (f) =>
+          f.sourceArtifact.startsWith("agent:") &&
+          (sha256File(f.path) === null || (opts.force && sha256File(f.path) !== f.sha256)),
+      ) ||
+        !existsSync(`${paths.commandcodeDir}/agents/ccroute-planner/AGENT.md`));
+    if (agentNeedsRepair) {
+      const agentFiles = installAgentsSurface(paths);
+      const nonAgent = repairedFiles.filter((f) => !f.sourceArtifact.startsWith("agent:"));
+      repairedFiles.length = 0;
+      repairedFiles.push(...nonAgent, ...agentFiles);
+      result.messages.push("Repaired bounded role agents");
+    }
+
     let managedSettings = existing.managedSettingsEntries;
     let settingsBeforeHash = existing.settingsBeforeHash;
     let settingsAfterHash = sha256File(paths.settingsPath) ?? existing.settingsAfterHash;
@@ -846,6 +902,22 @@ export function uninstallLifecycle(opts: InstallCliOptions = {}): LifecycleResul
     if (existing.options?.skill) {
       removeSkillSurface(paths, existing.managedFiles);
       result.messages.push("Removed owned skill files");
+    }
+
+    // Always attempt agent cleanup for managed agent artifacts
+    removeAgentsSurface(paths, existing.managedFiles);
+    if (
+      existing.options?.agents ||
+      existing.managedFiles.some((f) => f.sourceArtifact.startsWith("agent:"))
+    ) {
+      result.messages.push("Removed owned role agents");
+    }
+
+    if (opts.removeMemory || existing.options?.installMemory || memoryBlockPresent(paths)) {
+      if (opts.removeMemory || existing.options?.installMemory) {
+        const mem = removeMemoryBlock(paths);
+        result.messages.push(...mem.messages);
+      }
     }
 
     if (existing.options?.hooks || existing.managedSettingsEntries.length) {
