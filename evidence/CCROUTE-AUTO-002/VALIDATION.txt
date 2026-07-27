@@ -13,3 +13,10 @@ settings custody: PASS (see SETTINGS-CUSTODY.json)
 headless qualification: DOCUMENTED (HEADLESS-QUALIFICATION.json)
 
 verdict: PASS_WITH_LIMITATIONS
+
+---
+003C coverage re-validation (2026-07-27T02:53:30.596430+00:00):
+  lines=91.53% branches=85.34% functions=99.11% statements=91.53%
+  thresholds restored to 90/85/85/90
+  Linux Node 20 docker: branches=85.33%
+  See evidence/CCROUTE-AUTO-003C/

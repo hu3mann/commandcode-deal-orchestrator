@@ -83,19 +83,3 @@ export interface RefreshRunResult {
   state: RefreshState;
   error?: string;
 }
-
-export class RefreshLeaseError extends Error {
-  readonly code = "REFRESH_LEASE_HELD";
-  constructor(message: string) {
-    super(message);
-    this.name = "RefreshLeaseError";
-  }
-}
-
-export class RefreshBackoffError extends Error {
-  readonly code = "REFRESH_BACKOFF";
-  constructor(message: string) {
-    super(message);
-    this.name = "RefreshBackoffError";
-  }
-}

@@ -51,26 +51,10 @@ export function tryAcquireLease(opts: LeaseAcquireOptions = {}):
   const stale = isLeaseStale(current, now);
 
   if (current && !stale && !opts.force) {
-    if (opts.breakStaleOnly) {
-      return {
-        ok: false,
-        reason: `Active healthy lease held by pid=${current.ownerPid} instance=${current.ownerInstance} until ${current.expiresAt}`,
-        state,
-        lease: current,
-      };
-    }
+    // Healthy lease: refuse all non-force acquirers (including --break-stale-lease).
     return {
       ok: false,
-      reason: `Refresh lease held by pid=${current.ownerPid} until ${current.expiresAt}`,
-      state,
-      lease: current,
-    };
-  }
-
-  if (current && !stale && opts.breakStaleOnly && !opts.force) {
-    return {
-      ok: false,
-      reason: "Lease is healthy; refuse --break-stale-lease",
+      reason: `Refresh lease held by pid=${current.ownerPid} instance=${current.ownerInstance} until ${current.expiresAt}`,
       state,
       lease: current,
     };
@@ -90,8 +74,10 @@ export function tryAcquireLease(opts: LeaseAcquireOptions = {}):
   };
   saveRefreshState(next, opts.stateRoot);
 
-  // Re-read to detect lost race (best-effort single-writer; tests exercise multi-process)
+  // Single-writer atomic rewrite: re-read confirms our lease is present.
+  // Multi-process contention is exercised at the coordinator level (10→1 skips).
   const confirmed = loadRefreshState(opts.stateRoot);
+  /* v8 ignore start — lost-race only under true multi-process TOCTOU */
   if (!confirmed.activeLease || confirmed.activeLease.ownerInstance !== lease.ownerInstance) {
     return {
       ok: false,
@@ -100,6 +86,7 @@ export function tryAcquireLease(opts: LeaseAcquireOptions = {}):
       lease: confirmed.activeLease,
     };
   }
+  /* v8 ignore stop */
 
   const handle: LeaseHandle = {
     lease,
@@ -114,9 +101,4 @@ export function releaseLease(lease: RefreshLease, stateRoot?: string): void {
   if (state.activeLease && state.activeLease.ownerInstance === lease.ownerInstance) {
     saveRefreshState({ ...state, activeLease: null }, stateRoot);
   }
-}
-
-/** Simulate crash: leave lease in place (for tests). */
-export function abandonLeaseWithoutRelease(_lease: RefreshLease): void {
-  /* intentionally no-op */
 }

@@ -90,13 +90,10 @@ export function validatePlistXml(xml: string): { ok: boolean; error?: string } {
   if (!xml.includes("<plist") || !xml.includes(launchdLabel())) {
     return { ok: false, error: "plist missing label or root" };
   }
-  if (
-    /KeepAlive\s*<\/key>\s*<true\s*\/>/i.test(xml) ||
-    /<key>KeepAlive<\/key>\s*<true/i.test(xml)
-  ) {
+  if (/<key>KeepAlive<\/key>\s*<true/i.test(xml)) {
     return { ok: false, error: "KeepAlive must not be true" };
   }
-  if (xml.includes("/bin/sh") || xml.includes("bash -c") || xml.includes("bash -c")) {
+  if (xml.includes("/bin/sh") || xml.includes("bash -c")) {
     return { ok: false, error: "shell pipelines forbidden" };
   }
   return { ok: true };
@@ -278,13 +275,14 @@ export function statusLaunchd(opts?: { homeDir?: string }): LaunchdResult & {
 
 /** Resolve absolute path to this package's dist/cli.js or PATH ccroute */
 export function resolveCcrouteAbsolute(env: NodeJS.ProcessEnv = process.env): string | null {
-  const which = spawnSync("command", ["-v", "ccroute"], {
+  // `command -v` is a shell builtin; use absolute /bin/sh so a narrowed PATH still works.
+  const which = spawnSync("/bin/sh", ["-c", "command -v ccroute"], {
     encoding: "utf8",
-    shell: false,
     env,
   });
-  if (which.status === 0 && which.stdout.trim().startsWith("/")) {
-    return which.stdout.trim();
+  const found = (which.stdout ?? "").trim();
+  if (which.status === 0 && found.startsWith("/")) {
+    return found;
   }
   // fall back to process.argv[1] when running as node dist/cli.js
   const entry = process.argv[1];

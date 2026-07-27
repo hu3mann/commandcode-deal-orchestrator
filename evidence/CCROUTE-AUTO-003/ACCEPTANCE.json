@@ -15,5 +15,16 @@
   "partialSnapshotExposurePrevented": true,
   "series": "CCROUTE-AUTO-2026-001",
   "tp": "TP-CCROUTE-AUTO-003",
-  "implementationCommit": "d20a8b3bd734fec275349dd7e6ebb4aa49683229"
+  "implementationCommit": "d20a8b3bd734fec275349dd7e6ebb4aa49683229",
+  "lineCoverage": 91.53,
+  "branchCoverage": 85.34,
+  "functionCoverage": 99.11,
+  "statementCoverage": 91.53,
+  "ciCoverageReproduced": true,
+  "nodeVersionsValidated": [
+    "local-macos-25",
+    "docker-linux-node-20.20.2"
+  ],
+  "originalImplementationCommit": "d20a8b3bd734fec275349dd7e6ebb4aa49683229",
+  "coverageRepairTp": "TP-CCROUTE-AUTO-003C"
 }

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "note": "PR #3 was already MERGED before 003C with incorrect branches threshold 84. Historical failing run preserved; contract restored via PR #5 on main.",
+  "pr": 3,
+  "branch": "feat/CCROUTE-AUTO-002-managed-install-lifecycle",
+  "state": "MERGED",
+  "historicalFailingRun": {
+    "runId": "30227260445",
+    "head": "39b55d22d744d3fae8bf6d0f942b9b9791f29bcd",
+    "coverage": {
+      "node20Branches": 84.79,
+      "node22Branches": 84.8,
+      "threshold": 85,
+      "conclusion": "failure"
+    }
+  },
+  "incorrectThresholdCommit": "db2affa",
+  "contractRestoredBy": {
+    "pr": 5,
+    "runId": "30233249469",
+    "head": "5935ddd391b68092f418c9e8f6375819cc687c4b",
+    "node20Branches": 85.36,
+    "node22Branches": 85.37,
+    "threshold": 85,
+    "conclusion": "success"
+  },
+  "pr3CiGreenAtMerge": false,
+  "contractCompliantOnMainAfterPr5": true
+}
