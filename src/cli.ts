@@ -34,16 +34,25 @@ import {
 } from "./install/index.js";
 import { InstallError } from "./install/types.js";
 import { orchestrate, shouldOrchestrate } from "./orchestration/orchestrator.js";
-import { refreshDealsFromOfficial, refreshPricingFromOfficial } from "./pricing/refresh.js";
 import {
   classifySnapshotFreshness,
   dealsSnapshotPath,
   loadDealSnapshot,
   loadPricingSnapshot,
   pricingSnapshotPath,
-  savePricingSnapshot,
   snapshotAgeMs,
 } from "./pricing/snapshot.js";
+import {
+  bootstrapBoth,
+  bootstrapDealSnapshot,
+  bootstrapPricingSnapshot,
+  getRefreshStatus,
+  installLaunchd,
+  resolveCcrouteAbsolute,
+  runCoordinatedRefresh,
+  statusLaunchd,
+  uninstallLaunchd,
+} from "./refresh/index.js";
 import { formatExplain } from "./router/explain.js";
 import { RouteError, selectRoute } from "./router/select.js";
 import { estimateContextTokens, estimateRequestTokens } from "./router/token-estimate.js";
@@ -1232,33 +1241,62 @@ models
       fail(e);
     }
   });
-models.command("refresh").action(() => {
-  try {
-    const loaded = loadRuntime();
-    const cmd = resolveCmdPath(loaded.config.cmdPath);
-    if (!cmd) fail(new CmdNotFoundError());
-    const live = fetchLiveModelIds(cmd!);
-    if (live.error) fail(new Error(live.error));
-    const snap = loadPricingSnapshot();
-    const liveSet = new Set(live.ids);
-    // Keep pricing for known models; do not invent IDs
-    const next = {
-      ...snap,
-      retrievedAt: new Date().toISOString(),
-      source: "cmd --list-models + prior snapshot",
-      sourceHash: `models-${live.ids.length}-${Date.now()}`,
-      models: snap.models.map((m) =>
-        liveSet.has(m.id) || m.availability === "expired_deal"
-          ? m
-          : { ...m, availability: "unavailable" as const },
-      ),
-    };
-    savePricingSnapshot(next);
-    console.log(`Refreshed model identities from live catalog (${live.ids.length} ids).`);
-  } catch (e) {
-    fail(e);
-  }
-});
+models
+  .command("bootstrap")
+  .description("Install bundled seed pricing only if no valid snapshot exists")
+  .option("--json", "JSON output")
+  .action((opts) => {
+    try {
+      const r = bootstrapPricingSnapshot();
+      if (opts.json) console.log(JSON.stringify(r, null, 2));
+      else {
+        console.log(r.reason);
+        console.log(
+          `claimsFreshness=${r.claimsFreshness} wrote=${r.wrote} retrievedAt=${r.snapshotRetrievedAt ?? "n/a"}`,
+        );
+      }
+      process.exit(r.ok ? 0 : 1);
+    } catch (e) {
+      fail(e);
+    }
+  });
+
+models
+  .command("refresh")
+  .description("Refresh model availability from live catalog (coordinated lease)")
+  .option("--force", "Bypass backoff", false)
+  .option("--break-stale-lease", "Take over only if lease is proven stale", false)
+  .option("--json", "JSON output", false)
+  .action(async (opts) => {
+    try {
+      // models refresh does not require --config for catalog merge, but still honors it
+      // for cmdPath when provided via loadRuntime side effects... keep fail-closed on
+      // explicit invalid --config by probing loadRuntime first.
+      loadRuntime();
+      const result = await runCoordinatedRefresh({
+        allowNetwork: false,
+        // Operator-initiated live catalog refresh bypasses backoff by default;
+        // --force is accepted as an explicit alias.
+        force: true,
+        breakStaleLease: Boolean(opts.breakStaleLease),
+        mode: "models-live",
+        skipModelsLive: false,
+      });
+      if (opts.json) console.log(JSON.stringify(result, null, 2));
+      else {
+        console.log(
+          result.skipped
+            ? `Skipped: ${result.reason}`
+            : result.ok
+              ? "Refreshed model identities from live catalog"
+              : `Refresh failed: ${result.error ?? result.reason}`,
+        );
+      }
+      if (!result.ok) process.exit(EXIT.SUBPROCESS_FAILURE);
+    } catch (e) {
+      fail(e);
+    }
+  });
 
 const dealsCmd = program.command("deals").description("Deal snapshots");
 dealsCmd
@@ -1281,6 +1319,10 @@ dealsCmd.command("status").action(() => {
   const p = loadPricingSnapshot();
   console.log(`Deals retrieved: ${d.retrievedAt} source=${d.source}`);
   console.log(`Pricing retrieved: ${p.retrievedAt} source=${p.source}`);
+  const ageP = snapshotAgeMs(p.retrievedAt);
+  const freshness = classifySnapshotFreshness(ageP);
+  console.log(`Pricing freshness: ${freshness} (ageMs=${ageP})`);
+  console.log("(Bootstrap never claims freshness; seed retrievedAt is historical.)");
   const now = Date.now();
   for (const deal of d.deals) {
     const exp = deal.expiresAt ? Date.parse(deal.expiresAt) <= now : false;
@@ -1288,38 +1330,173 @@ dealsCmd.command("status").action(() => {
   }
 });
 dealsCmd
-  .command("refresh")
-  .option("--network", "Fetch and parse official pricing-limits page")
-  .action(async (opts) => {
-    if (opts.network) {
-      // Single network pass: HTML parse merges pricing + deals together.
-      const p = await refreshPricingFromOfficial({
-        allowNetwork: true,
-        fetchImpl: globalThis.fetch,
-      });
-      if (!p.ok) {
-        console.error(p.error);
-        process.exit(1);
-      }
-      console.log(`Pricing+deals refreshed from official HTML (${p.mode ?? "official-html"}).`);
-      if (p.updatedModelIds?.length) {
+  .command("bootstrap")
+  .description("Install bundled seed deals only if no valid snapshot exists")
+  .option("--json", "JSON output")
+  .action((opts) => {
+    try {
+      const r = bootstrapDealSnapshot();
+      if (opts.json) console.log(JSON.stringify(r, null, 2));
+      else {
+        console.log(r.reason);
         console.log(
-          `Updated models (${p.updatedModelIds.length}): ${p.updatedModelIds.join(", ")}`,
+          `claimsFreshness=${r.claimsFreshness} wrote=${r.wrote} retrievedAt=${r.snapshotRetrievedAt ?? "n/a"}`,
         );
       }
-      if (p.unmappedPageIds?.length) {
-        console.log(`Unmapped page ids ignored: ${p.unmappedPageIds.length}`);
-      }
-      process.exit(0);
+      process.exit(r.ok ? 0 : 1);
+    } catch (e) {
+      fail(e);
     }
+  });
+dealsCmd
+  .command("refresh")
+  .description("Refresh deals+pricing from official source (coordinated lease)")
+  .option("--network", "Fetch official pricing-limits page (default for coordinated path)", true)
+  .option("--force", "Bypass backoff", false)
+  .option("--break-stale-lease", "Take over only if lease is proven stale", false)
+  .option("--json", "JSON output", false)
+  .action(async (opts) => {
+    try {
+      // Offline re-seed is no longer a refresh: point operators at bootstrap
+      if (opts.network === false) {
+        console.error(
+          "Offline re-seed is not a refresh. Use `ccroute deals bootstrap` / `ccroute models bootstrap`.",
+        );
+        process.exit(EXIT.INVALID_CLI_USAGE);
+      }
+      const result = await runCoordinatedRefresh({
+        allowNetwork: true,
+        force: opts.force,
+        breakStaleLease: opts.breakStaleLease,
+        mode: "network",
+        fetchImpl: globalThis.fetch,
+      });
+      if (opts.json) console.log(JSON.stringify(result, null, 2));
+      else if (result.skipped) console.log(`Skipped: ${result.reason}`);
+      else if (result.ok) console.log("Deals+pricing refresh complete (atomic snapshots).");
+      else console.error(result.error ?? result.reason);
+      process.exit(result.ok ? 0 : 1);
+    } catch (e) {
+      fail(e);
+    }
+  });
 
-    const r = await refreshDealsFromOfficial({ allowNetwork: false });
-    const p = await refreshPricingFromOfficial({ allowNetwork: false });
-    if (!r.ok) console.error(r.error);
-    if (!p.ok) console.error(p.error);
-    if (r.ok) console.log("Deals snapshot re-seeded from bundled data.");
-    if (p.ok) console.log("Pricing snapshot re-seeded from bundled data.");
-    process.exit(r.ok && p.ok ? 0 : 1);
+// ── Coordinated refresh / launchd ─────────────────────────────────────────
+const refreshCmd = program.command("refresh").description("Coordinated pricing refresh automation");
+
+refreshCmd
+  .command("status")
+  .option("--json", "JSON output")
+  .action((opts) => {
+    try {
+      const st = getRefreshStatus();
+      const launchd = statusLaunchd();
+      const report = {
+        refresh: st,
+        launchd: {
+          label: launchd.label,
+          plistPath: launchd.plistPath,
+          installed: launchd.installed,
+          loaded: launchd.loaded,
+          messages: launchd.messages,
+        },
+      };
+      if (opts.json) console.log(JSON.stringify(report, null, 2));
+      else {
+        console.log(`lastSuccess=${st.state.lastSuccessAt ?? "never"}`);
+        console.log(`lastError=${st.state.lastError ?? "none"}`);
+        console.log(`failureCount=${st.state.failureCount}`);
+        console.log(
+          `backoff=${st.backoff.active ? `until ${st.backoff.nextEligibleAt}` : "inactive"}`,
+        );
+        console.log(
+          `lease=${st.state.activeLease ? `${st.state.activeLease.ownerInstance} stale=${st.leaseStale}` : "none"}`,
+        );
+        console.log(
+          `launchd: installed=${launchd.installed} loaded=${launchd.loaded} (${launchd.label})`,
+        );
+      }
+    } catch (e) {
+      fail(e);
+    }
+  });
+
+refreshCmd
+  .command("run")
+  .description("Run one coordinated refresh (used by launchd and session-start)")
+  .option("--force", "Bypass backoff", false)
+  .option("--break-stale-lease", "Break only if lease is stale", false)
+  .option("--scheduled", "Mark mode as scheduled", false)
+  .option("--session-start", "Mark mode as session-start", false)
+  .option("--json", "JSON output", false)
+  .action(async (opts) => {
+    try {
+      const mode = opts.sessionStart ? "session-start" : opts.scheduled ? "scheduled" : "network";
+      const result = await runCoordinatedRefresh({
+        allowNetwork: true,
+        force: opts.force,
+        breakStaleLease: opts.breakStaleLease,
+        mode,
+        fetchImpl: globalThis.fetch,
+      });
+      if (opts.json) console.log(JSON.stringify(result, null, 2));
+      else if (result.skipped) console.log(`Skipped: ${result.reason}`);
+      else if (result.ok) console.log("Refresh run complete");
+      else console.error(result.error ?? result.reason);
+      // Skipped lease contention is success (concurrency path)
+      process.exit(result.ok ? 0 : 1);
+    } catch (e) {
+      fail(e);
+    }
+  });
+
+refreshCmd
+  .command("install")
+  .description("Install macOS launchd agent for daily refresh")
+  .option("--hour <n>", "Local hour for calendar schedule", "4")
+  .option("--minute <n>", "Local minute", "0")
+  .option("--json", "JSON output")
+  .action((opts) => {
+    try {
+      const ccroutePath = resolveCcrouteAbsolute();
+      if (!ccroutePath) {
+        fail(
+          new CliUsageError(
+            "Cannot resolve absolute ccroute path; install via npm link or pass a known bin",
+          ),
+        );
+      }
+      // Ensure seeds exist without claiming freshness
+      bootstrapBoth();
+      const r = installLaunchd({
+        ccroutePath: ccroutePath!,
+        hour: Number(opts.hour),
+        minute: Number(opts.minute),
+      });
+      if (opts.json) console.log(JSON.stringify(r, null, 2));
+      else {
+        for (const m of r.messages) console.log(m);
+        if (r.error) console.error(r.error);
+      }
+      process.exit(r.ok ? 0 : 1);
+    } catch (e) {
+      fail(e);
+    }
+  });
+
+refreshCmd
+  .command("uninstall")
+  .description("Unload and remove macOS launchd agent")
+  .option("--json", "JSON output")
+  .action((opts) => {
+    try {
+      const r = uninstallLaunchd();
+      if (opts.json) console.log(JSON.stringify(r, null, 2));
+      else for (const m of r.messages) console.log(m);
+      process.exit(r.ok ? 0 : 1);
+    } catch (e) {
+      fail(e);
+    }
   });
 
 const configCmd = program.command("config").description("Configuration");

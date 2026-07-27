@@ -1,0 +1,18 @@
+{
+  "verdict": "PASS_WITH_LIMITATIONS",
+  "testsPassed": 548,
+  "testsFailed": 0,
+  "gitCommit": "PENDING",
+  "bootstrapDoesNotClaimFreshness": true,
+  "newerSnapshotPreserved": true,
+  "singleNetworkRefreshUnderConcurrency": true,
+  "staleLeaseRecoveryPassed": true,
+  "backoffPassed": true,
+  "sessionStartNonblocking": true,
+  "launchdInstallPassed": true,
+  "launchdStatusPassed": true,
+  "launchdUninstallPassed": true,
+  "partialSnapshotExposurePrevented": true,
+  "series": "CCROUTE-AUTO-2026-001",
+  "tp": "TP-CCROUTE-AUTO-003"
+}

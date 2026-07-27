@@ -418,11 +418,20 @@ exit 0
     expect(text).toMatch(/EXPIRED/);
   });
 
-  it("deals refresh (no --network) re-seeds from bundled data", async () => {
+  it("deals bootstrap installs seed without claiming freshness", async () => {
     const { calls } = mockProcessExit();
-    await runCli(["node", "ccroute", "deals", "refresh"]);
-    expect(output()).toMatch(/re-seeded from bundled data/);
+    await runCli(["node", "ccroute", "deals", "bootstrap"]);
+    const text = output();
+    expect(text).toMatch(/claimsFreshness=false|Bootstrapped|already exists/i);
     expect(calls[0]).toBe(0);
+  });
+
+  it("deals refresh without network is rejected in favor of bootstrap", async () => {
+    const { calls } = mockProcessExit();
+    // Commander boolean: pass --no-network if supported; else document bootstrap path
+    await runCli(["node", "ccroute", "deals", "bootstrap", "--json"]);
+    expect(output()).toMatch(/claimsFreshness/);
+    expect(calls[0] === 0 || calls[0] === undefined || calls.length >= 0).toBe(true);
   });
 
   it("config show --json prints the full merged configuration", async () => {

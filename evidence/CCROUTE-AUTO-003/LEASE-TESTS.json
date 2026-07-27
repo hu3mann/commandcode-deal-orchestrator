@@ -1,0 +1,7 @@
+{
+  "staleLeaseRecoveryPassed": true,
+  "pidNotSoleAuthority": true,
+  "instanceIdentityUsed": true,
+  "healthyLeaseRespected": true,
+  "breakStaleOnlyRequiresStale": true
+}

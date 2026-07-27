@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "wrote": true,
+  "reason": "Bootstrapped pricing from bundled seed (not claimed fresh)",
+  "claimsFreshness": false,
+  "snapshotRetrievedAt": "2026-07-23T00:00:00.000Z",
+  "source": "seed+official-pricing-docs+cmd-list-models",
+  "isSeed": true
+}

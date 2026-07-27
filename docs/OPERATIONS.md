@@ -48,6 +48,28 @@ ccroute uninstall
 | Skill | optional | optional | loads when present |
 | Hook fallback | optional | optional | defence-in-depth |
 
+## Pricing refresh automation
+
+```bash
+# Bootstrap seeds only when no valid snapshot exists (never claims freshness)
+ccroute models bootstrap
+ccroute deals bootstrap
+
+# Coordinated network refresh (lease + backoff + atomic snapshots)
+ccroute deals refresh --force
+ccroute models refresh
+ccroute refresh run
+ccroute refresh status
+
+# macOS launchd daily schedule (no KeepAlive, no secrets, no shell)
+ccroute refresh install
+ccroute refresh uninstall
+```
+
+Refresh state: `~/.commandcode/deal-router/refresh-state.json`  
+Backoff: 15m → 1h → 4h → 12h max (manual `--force` bypasses).  
+Session-start triggers nonblocking refresh when stale; routing never waits.
+
 ## First run
 
 ```bash

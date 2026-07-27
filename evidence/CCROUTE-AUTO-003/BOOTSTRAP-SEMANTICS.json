@@ -1,0 +1,12 @@
+{
+  "bootstrapDoesNotClaimFreshness": true,
+  "newerSnapshotPreserved": true,
+  "seedRetrievedAtPreserved": true,
+  "offlineReseedNoLongerCalledRefresh": true,
+  "commands": [
+    "ccroute models bootstrap",
+    "ccroute deals bootstrap",
+    "ccroute deals refresh (network/coordinated)",
+    "ccroute models refresh (live catalog)"
+  ]
+}
