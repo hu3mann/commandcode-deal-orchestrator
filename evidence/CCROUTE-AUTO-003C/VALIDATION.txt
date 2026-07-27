@@ -1,6 +1,7 @@
 TP-CCROUTE-AUTO-003C VALIDATION
 date: 2026-07-27
 branch: feat/CCROUTE-AUTO-003C-coverage-gate-repair
+head: 5935ddd391b68092f418c9e8f6375819cc687c4b
 base: 70fc488 (main with TP-002+TP-003 already merged)
 
 Local gates:
@@ -11,9 +12,16 @@ Local gates:
   coverage (Linux Node 20 docker): lines=91.53% branches=85.33% functions=99.11% statements=91.53%
   thresholds: lines>=90 branches>=85 functions>=85 statements>=90 (RESTORED from incorrect 84)
   coverage include: src/**/*.ts (unchanged; no src exclusions)
-  coverage-scope tripwire: intact (tests/unit/coverage-scope.test.ts)
+  coverage-scope tripwire: intact
   build: PASS
   pack: PASS (dry-run)
+
+GitHub CI (run 30233249469 @ 5935ddd):
+  verify (node 20): SUCCESS — coverage All files 91.53 / 85.36 / 99.11 / 91.53
+  verify (node 22): SUCCESS — coverage All files 91.53 / 85.37 / 99.11 / 91.53
+  security regression: SUCCESS
+  package install: SUCCESS
+  build: SUCCESS (as part of verify)
 
 Repair content:
   - tests/unit/coverage-branch-repair.test.ts expanded (install/refresh/settings/bootstrap/coordinator)
@@ -23,5 +31,7 @@ Repair content:
 
 Stack note:
   PR #3 and #4 already MERGED; 003C is follow-up PR #5 on main.
+  Merge PR #5 to restore coverage integrity on main.
 
-verdict: local + Linux Node 20 coverage green; GitHub CI verification after push
+verdict: PASS_READY_FOR_MERGE (PR #5)
+tp004Authorized: true (after operator merges PR #5; implementation not started)

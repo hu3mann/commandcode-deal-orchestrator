@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "note": "PR #4 was already MERGED before 003C. Historical failing coverage preserved; contract restored via PR #5 on main.",
+  "pr": 4,
+  "branch": "feat/CCROUTE-AUTO-003-refresh-automation",
+  "state": "MERGED",
+  "historicalFailingRun": {
+    "runId": "30227640186",
+    "head": "810d681a1c88b2921ebf9082770ac9cb3e057db3",
+    "coverage": {
+      "lines": 87.3,
+      "branches": 83.73,
+      "thresholdLines": 90,
+      "thresholdBranches": 85,
+      "conclusion": "failure"
+    }
+  },
+  "contractRestoredBy": {
+    "pr": 5,
+    "runId": "30233249469",
+    "head": "5935ddd391b68092f418c9e8f6375819cc687c4b",
+    "node20": {
+      "lines": 91.53,
+      "branches": 85.36,
+      "functions": 99.11,
+      "statements": 91.53
+    },
+    "node22": {
+      "lines": 91.53,
+      "branches": 85.37,
+      "functions": 99.11,
+      "statements": 91.53
+    },
+    "securityRegression": "success",
+    "packageInstall": "success",
+    "conclusion": "success"
+  },
+  "pr4CiGreenAtMerge": false,
+  "contractCompliantOnMainAfterPr5": true
+}

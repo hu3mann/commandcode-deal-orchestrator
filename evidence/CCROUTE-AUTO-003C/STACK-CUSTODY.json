@@ -19,7 +19,10 @@
     "pr": 5,
     "base": "main",
     "strategy": "Follow-up integrity repair on main; not un-merge of #3/#4",
-    "stackPromotion": "MOOT for #3/#4 (already merged). Merge PR #5 via merge commit or squash after CI green."
+    "stackPromotion": "MOOT for #3/#4 (already merged). Merge PR #5 via merge commit or squash after CI green.",
+    "head": "5935ddd391b68092f418c9e8f6375819cc687c4b",
+    "ciRunId": "30233249469",
+    "ciConclusion": "success"
   },
   "forcePushUsed": false
 }

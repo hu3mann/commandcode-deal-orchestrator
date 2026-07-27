@@ -2,11 +2,14 @@
   "schemaVersion": 1,
   "scope": "refresh automation + shared src after 003C repair",
   "lineCoverage": 91.53,
-  "branchCoverage": 85.34,
+  "branchCoverage": 85.36,
   "functionCoverage": 99.11,
   "statementCoverage": 91.53,
   "ciCoverageReproduced": true,
-  "nodeVersionsValidated": ["local-macos-25", "docker-linux-node-20.20.2"],
+  "nodeVersionsValidated": [
+    "local-macos-25",
+    "docker-linux-node-20.20.2"
+  ],
   "linuxNode20": {
     "lines": 91.53,
     "branches": 85.33,
@@ -14,8 +17,8 @@
     "statements": 91.53
   },
   "originalImplementationCommit": "d20a8b3bd734fec275349dd7e6ebb4aa49683229",
-  "ciRepairCommit": "pending-this-push",
-  "finalAcceptedCommit": "pending-this-push",
+  "ciRepairCommit": "5935ddd391b68092f418c9e8f6375819cc687c4b",
+  "finalAcceptedCommit": "5935ddd391b68092f418c9e8f6375819cc687c4b",
   "thresholdsUnchanged": {
     "lines": 90,
     "branches": 85,
@@ -30,5 +33,21 @@
     "launchd resolveCcrouteAbsolute PATH shim",
     "session-start backoff/lease gates",
     "refresh path helpers"
-  ]
+  ],
+  "githubCi": {
+    "runId": "30233249469",
+    "node20": {
+      "lines": 91.53,
+      "branches": 85.36,
+      "functions": 99.11,
+      "statements": 91.53
+    },
+    "node22": {
+      "lines": 91.53,
+      "branches": 85.37,
+      "functions": 99.11,
+      "statements": 91.53
+    },
+    "conclusion": "success"
+  }
 }
