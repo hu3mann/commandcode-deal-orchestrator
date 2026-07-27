@@ -83,6 +83,14 @@
 | REQ-AUTO-001-RECURSION-MOD | CCROUTE-AUTO-001 | beforeToolCall defence | recursion.ts | unit mod-recursion | DONE |
 | REQ-AUTO-001-COMPAT | CCROUTE-AUTO-001 | capability baseline | docs + compatibility.ts | unit + evidence | DONE |
 | REQ-AUTO-001-ONE-REQUEST | CCROUTE-AUTO-001 | no classifier LLM | route-prompt | unit one-decide | DONE |
+| REQ-AUTO-002-INSTALL | CCROUTE-AUTO-002 | managed install lifecycle | src/install/ + cli install/uninstall | unit install-lifecycle | DONE |
+| REQ-AUTO-002-MOD-MANAGER | CCROUTE-AUTO-002 | official cmd mods add/remove/update | mod-manager.ts | unit + evidence INSTALL-*.json | DONE |
+| REQ-AUTO-002-MANIFEST | CCROUTE-AUTO-002 | install manifest | manifest.ts | unit + schema | DONE |
+| REQ-AUTO-002-SETTINGS | CCROUTE-AUTO-002 | settings custody | settings-custody.ts | unit install-settings | DONE |
+| REQ-AUTO-002-UPDATE | CCROUTE-AUTO-002 | update with conflict detection | lifecycle update | unit + evidence UPDATE.json | DONE |
+| REQ-AUTO-002-REPAIR | CCROUTE-AUTO-002 | repair owned state only | lifecycle repair | unit + evidence REPAIR.json | DONE |
+| REQ-AUTO-002-UNINSTALL | CCROUTE-AUTO-002 | owned-only uninstall | lifecycle uninstall | unit + evidence UNINSTALL.json | DONE |
+| REQ-AUTO-002-HEADLESS | CCROUTE-AUTO-002 | scope truth table | HEADLESS-QUALIFICATION.json | evidence | DONE |
 
 ## Contradiction check
 

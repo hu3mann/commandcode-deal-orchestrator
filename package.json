@@ -20,6 +20,9 @@
     "./mod": "./dist/integrations/commandcode-mod/index.js",
     "./integrations/commandcode-mod": "./dist/integrations/commandcode-mod/index.js"
   },
+  "commandcode": {
+    "mods": ["./src/integrations/commandcode-mod/index.ts"]
+  },
   "files": [
     "dist",
     "config",
@@ -28,6 +31,7 @@
     "hooks",
     "schemas",
     "examples",
+    "src/integrations/commandcode-mod",
     "README.md",
     "LICENSE",
     "ATTRIBUTION.md",

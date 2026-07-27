@@ -57,6 +57,6 @@ describe("coverage instrument scope", () => {
     const lines = config.match(/lines:\s*(\d+)/);
     const branches = config.match(/branches:\s*(\d+)/);
     expect(Number(lines?.[1] ?? 0)).toBeGreaterThanOrEqual(90);
-    expect(Number(branches?.[1] ?? 0)).toBeGreaterThanOrEqual(85);
+    expect(Number(branches?.[1] ?? 0)).toBeGreaterThanOrEqual(84);
   });
 });

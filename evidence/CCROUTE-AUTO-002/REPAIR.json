@@ -1,0 +1,6 @@
+ccroute repair (project)
+  Repair complete
+Actions:
+  - copy-file: /private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/skills/commandcode-deal-orchestrator/SKILL.md (restore missing managed file)
+  - write-manifest: /private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/ccroute-install-manifest.json
+OK

@@ -1,0 +1,6 @@
+ccroute update (project)
+  Update complete
+Actions:
+  - mod-update: /Users/hue/code/cmdrouter/.worktrees/CCROUTE-AUTO-002/src/integrations/commandcode-mod (cmd mods update + re-add pinned source)
+  - write-manifest: /private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/ccroute-install-manifest.json
+OK

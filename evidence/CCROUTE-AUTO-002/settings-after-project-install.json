@@ -1,0 +1,55 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(echo hi)"
+    ],
+    "deny": []
+  },
+  "taste": {
+    "x": 1
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo keep"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node '/private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/ccroute-hooks/child-session-context.mjs' # ccroute-managed-hook",
+            "timeout": 2,
+            "ownershipMarker": "ccroute-managed-hook",
+            "ccroute": "ccroute-managed-hook"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node '/private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/ccroute-hooks/child-recursion-guard.mjs' # ccroute-managed-hook",
+            "timeout": 2,
+            "ownershipMarker": "ccroute-managed-hook",
+            "ccroute": "ccroute-managed-hook"
+          }
+        ],
+        "matcher": "shell"
+      }
+    ]
+  },
+  "mods": {
+    "sources": [
+      "/Users/hue/code/cmdrouter/.worktrees/CCROUTE-AUTO-002/src/integrations/commandcode-mod"
+    ]
+  }
+}

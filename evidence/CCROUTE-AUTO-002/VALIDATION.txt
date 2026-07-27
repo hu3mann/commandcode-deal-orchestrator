@@ -1,0 +1,15 @@
+TP-CCROUTE-AUTO-002 VALIDATION
+date: 2026-07-27T00:16:39Z
+branch: feat/CCROUTE-AUTO-002-managed-install-lifecycle
+base: 740d16d8ef6a5da9c7b8fbb7402ecd8a51b66025
+
+typecheck: PASS
+lint: PASS
+tests: 533 passed / 0 failed
+coverage: lines=91.39% branches=85.03% functions=98.32% statements=91.39%
+build: PASS
+official cmd mods lifecycle (isolated HOME/project): PASS
+settings custody: PASS (see SETTINGS-CUSTODY.json)
+headless qualification: DOCUMENTED (HEADLESS-QUALIFICATION.json)
+
+verdict: PASS_WITH_LIMITATIONS

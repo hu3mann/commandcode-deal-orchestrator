@@ -1,0 +1,56 @@
+{
+  "verdict": "PASS_WITH_LIMITATIONS",
+  "officialModManagerUsed": true,
+  "projectInstallPassed": true,
+  "userInstallPassed": true,
+  "idempotencePassed": true,
+  "settingsPreservationPassed": true,
+  "updatePassed": true,
+  "repairPassed": true,
+  "uninstallPassed": true,
+  "headlessLimitationsDocumented": true,
+  "testsPassed": 533,
+  "testsFailed": 0,
+  "commandCodeVersion": "1.4.1",
+  "series": "CCROUTE-AUTO-2026-001",
+  "tp": "TP-CCROUTE-AUTO-002",
+  "gitCommit": "5bf7ad33dbf6abb8026425834739c6a5b9686259",
+  "limitations": [
+    "Project mods require workspace trust before loading in interactive sessions",
+    "Headless print mode loads user-scope and --mod only; project mods excluded unless --dangerously-skip-permissions",
+    "Fallback security hooks remain defence-in-depth (event contract still partially unverified against CLI help surface)",
+    "launchd scheduling is out of scope for TP-002 (TP-003+)",
+    "Role agents / memory install deferred (TP-004); --install-memory is a documented no-op",
+    "Live paid CommandCode TUI session after install not exercised (no CCROUTE_LIVE budget)"
+  ],
+  "scopeTruthTable": {
+    "modOrdinaryInteractive": {
+      "project": "trust-gated",
+      "user": "always",
+      "headless": "user or --mod only"
+    },
+    "skill": {
+      "project": "optional --skill",
+      "user": "optional --skill",
+      "headless": "loads when present"
+    },
+    "hookFallback": {
+      "project": "optional --hooks",
+      "user": "optional --hooks",
+      "headless": "unverified primary"
+    },
+    "trustRequired": {
+      "project": true,
+      "user": false,
+      "headless": null
+    },
+    "explicitModFallback": {
+      "project": true,
+      "user": true,
+      "headless": true
+    }
+  },
+  "lineCoverage": 91.39,
+  "branchCoverage": 85.03,
+  "implementationCommit": "5bf7ad33dbf6abb8026425834739c6a5b9686259"
+}

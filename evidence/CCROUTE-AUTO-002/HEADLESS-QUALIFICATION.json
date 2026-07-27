@@ -1,0 +1,33 @@
+{
+  "commandCodeVersion": "1.4.1",
+  "source": "cmd mods packaging.md + overview.md (installed package docs)",
+  "table": {
+    "modOrdinaryInteractiveRouting": {
+      "project": "QUALIFIED \u2014 project mods load after workspace trust",
+      "user": "QUALIFIED \u2014 user-scope mods always load",
+      "headless": "LIMITED \u2014 print mode loads user-scope and --mod only; project mods excluded unless --dangerously-skip-permissions"
+    },
+    "skill": {
+      "project": "QUALIFIED \u2014 .commandcode/skills/ install path",
+      "user": "QUALIFIED \u2014 ~/.commandcode/skills/",
+      "headless": "QUALIFIED \u2014 skills load in headless when present"
+    },
+    "hookFallback": {
+      "project": "OPTIONAL \u2014 settings hooks merge with ownership markers",
+      "user": "OPTIONAL \u2014 same",
+      "headless": "UNVERIFIED primary; defence-in-depth only"
+    },
+    "trustRequired": {
+      "project": "yes",
+      "user": "no",
+      "headless": "n/a"
+    },
+    "explicitModFallback": {
+      "project": "yes \u2014 cmd --mod <path>",
+      "user": "yes",
+      "headless": "yes \u2014 preferred safe headless path without YOLO"
+    }
+  },
+  "neverRequireYoloToLoadRouter": true,
+  "safeHeadlessFallback": "ccroute run | cmd -p --mod <mod-path>"
+}
