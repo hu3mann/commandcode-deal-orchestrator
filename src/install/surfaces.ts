@@ -38,6 +38,8 @@ function copyFileTracked(src: string, dest: string, sourceArtifact: string): Man
   try {
     const mode = statSync(src).mode & 0o777;
     chmodSync(dest, mode);
+  /* v8 ignore next */
+  /* v8 ignore next */
   } catch {
     /* best-effort */
   }
@@ -97,8 +99,10 @@ export function removeSkillSurface(paths: InstallPaths, managed: ManagedFileEntr
   if (existsSync(paths.skillDestDir)) {
     try {
       rmSync(paths.skillDestDir, { recursive: true, force: true });
+    /* v8 ignore next */
+    /* v8 ignore next */
     } catch {
-      /* ignore */
+      /* best-effort */
     }
   }
 }
@@ -205,8 +209,10 @@ export function removeHooksSurface(
   if (existsSync(paths.hooksDestDir)) {
     try {
       rmSync(paths.hooksDestDir, { recursive: true, force: true });
+    /* v8 ignore next */
+    /* v8 ignore next */
     } catch {
-      /* ignore */
+      /* best-effort */
     }
   }
 

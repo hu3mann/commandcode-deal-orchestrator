@@ -135,9 +135,21 @@ export async function runCoordinatedRefresh(
     };
     saveRefreshState(state, opts.stateDir);
 
-    const net = opts.networkRefresh
-      ? await opts.networkRefresh()
-      : await defaultNetworkRefresh(opts);
+    let net: {
+      ok: boolean;
+      error?: string;
+      preservedPrior: boolean;
+      snapshotHash?: string;
+    };
+    try {
+      net = opts.networkRefresh ? await opts.networkRefresh() : await defaultNetworkRefresh(opts);
+    } catch (e) {
+      net = {
+        ok: false,
+        error: e instanceof Error ? e.message : String(e),
+        preservedPrior: true,
+      };
+    }
 
     if (net.ok) {
       const successAt = new Date().toISOString();

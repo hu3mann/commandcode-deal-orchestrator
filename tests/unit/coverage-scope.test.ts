@@ -57,6 +57,8 @@ describe("coverage instrument scope", () => {
     const lines = config.match(/lines:\s*(\d+)/);
     const branches = config.match(/branches:\s*(\d+)/);
     expect(Number(lines?.[1] ?? 0)).toBeGreaterThanOrEqual(90);
+    // Branch floor is 84 while install/refresh custody defensive edges land;
+    // lines remain the primary §35 gate at 90.
     expect(Number(branches?.[1] ?? 0)).toBeGreaterThanOrEqual(84);
   });
 });

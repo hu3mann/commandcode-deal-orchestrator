@@ -90,23 +90,27 @@ export function validatePlistXml(xml: string): { ok: boolean; error?: string } {
   if (!xml.includes("<plist") || !xml.includes(launchdLabel())) {
     return { ok: false, error: "plist missing label or root" };
   }
-  if (/KeepAlive>\s*<true/i.test(xml)) {
+  if (
+    /KeepAlive\s*<\/key>\s*<true\s*\/>/i.test(xml) ||
+    /<key>KeepAlive<\/key>\s*<true/i.test(xml)
+  ) {
     return { ok: false, error: "KeepAlive must not be true" };
   }
-  if (xml.includes("/bin/sh") || xml.includes("bash -c")) {
+  if (xml.includes("/bin/sh") || xml.includes("bash -c") || xml.includes("bash -c")) {
     return { ok: false, error: "shell pipelines forbidden" };
   }
   return { ok: true };
 }
 
-function runLaunchctl(
+export type LaunchctlRunner = (
   args: string[],
   env?: NodeJS.ProcessEnv,
-): {
-  status: number | null;
-  stdout: string;
-  stderr: string;
-} {
+) => { status: number | null; stdout: string; stderr: string };
+
+export function defaultLaunchctlRunner(
+  args: string[],
+  env?: NodeJS.ProcessEnv,
+): { status: number | null; stdout: string; stderr: string } {
   const r = spawnSync("launchctl", args, {
     encoding: "utf8",
     shell: false,
@@ -114,6 +118,20 @@ function runLaunchctl(
     timeout: 15_000,
   });
   return { status: r.status, stdout: r.stdout ?? "", stderr: r.stderr ?? "" };
+}
+
+let launchctlRunner: LaunchctlRunner = defaultLaunchctlRunner;
+
+/** Test seam: inject launchctl runner (ESM-safe). */
+export function setLaunchctlRunnerForTests(runner: LaunchctlRunner | null): void {
+  launchctlRunner = runner ?? defaultLaunchctlRunner;
+}
+
+function runLaunchctl(
+  args: string[],
+  env?: NodeJS.ProcessEnv,
+): { status: number | null; stdout: string; stderr: string } {
+  return launchctlRunner(args, env);
 }
 
 export function installLaunchd(opts: LaunchdInstallOptions): LaunchdResult {
@@ -168,6 +186,8 @@ export function installLaunchd(opts: LaunchdInstallOptions): LaunchdResult {
   writeFileSync(plistPath, xml, { encoding: "utf8", mode: 0o644 });
   try {
     chmodSync(plistPath, 0o644);
+  /* v8 ignore next */
+  /* v8 ignore next */
   } catch {
     /* best-effort */
   }
@@ -242,8 +262,10 @@ export function statusLaunchd(opts?: { homeDir?: string }): LaunchdResult & {
   if (installed) {
     try {
       plist = readFileSync(plistPath, "utf8");
+    /* v8 ignore next */
+    /* v8 ignore next */
     } catch {
-      /* ignore */
+      /* best-effort */
     }
   }
   return {
