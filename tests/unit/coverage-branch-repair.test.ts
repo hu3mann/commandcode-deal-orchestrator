@@ -844,7 +844,12 @@ describe("003C bootstrap and coordinator branch contracts", () => {
     });
     expect(userInstall.scope).toBe("user");
     expect(userInstall.messages.some((m) => /memory/i.test(m))).toBe(true);
-    expect(userInstall.actions.some((a) => a.kind === "skip" && a.target === "memory")).toBe(true);
+    // TP-004: --install-memory plans a real AGENTS.md managed block (copy-file), not a skip
+    expect(
+      userInstall.actions.some(
+        (a) => a.target.includes("AGENTS.md") || (a.detail ?? "").toLowerCase().includes("memory"),
+      ),
+    ).toBe(true);
 
     const realUser = installLifecycle({ user: true, skill: true, ...c });
     expect(realUser.ok, realUser.error).toBe(true);

@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased — CCROUTE-AUTO-2026-001 TP-004
+
+### Integration acceptance
+
+- Bounded role agents: `ccroute-planner`, `ccroute-reviewer`, `ccroute-explorer` shipped under `agents/` and installed by default into `.commandcode/agents/`.
+- `ccroute agents list|refresh` — project stays `model: inherit`; user may pin only exact live catalog IDs.
+- Optional project memory: `ccroute install --install-memory` / `uninstall --remove-memory` with `BEGIN/END CCROUTE MANAGED POLICY` markers in `AGENTS.md`.
+- `ccroute deals reconcile-live-catalog` — strict live mapping; never invents rates; quarantines ambiguous/unmapped.
+- Skill and README updated for Mod surfaces, install lifecycle, agents, and explicit write boundaries.
+
 ## 0.2.0 — 2026-07-26 — audit remediation (first npm release)
 
 Version 0.1.0 was never published to npm; it existed only as a git state. This is
