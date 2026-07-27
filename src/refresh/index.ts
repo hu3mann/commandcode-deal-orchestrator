@@ -12,7 +12,6 @@ export {
   tryAcquireLease,
   releaseLease,
   isLeaseStale,
-  abandonLeaseWithoutRelease,
 } from "./lease.js";
 export {
   loadRefreshState,

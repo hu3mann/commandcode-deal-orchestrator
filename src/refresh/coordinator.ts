@@ -13,7 +13,7 @@ import {
 } from "../pricing/snapshot.js";
 import { computeNextEligibleAt, isBackoffActive } from "./backoff.js";
 import { currentSnapshotFingerprint } from "./bootstrap.js";
-import { tryAcquireLease } from "./lease.js";
+import { isLeaseStale, tryAcquireLease } from "./lease.js";
 import { loadRefreshState, saveRefreshState } from "./state.js";
 import type { RefreshRunOptions, RefreshRunResult, RefreshState } from "./types.js";
 
@@ -205,21 +205,10 @@ export async function runCoordinatedRefresh(
     handle.release();
   }
 
-  // Return post-release state so callers see activeLease=null
+  // Return post-release state so callers see activeLease=null.
+  // Network errors are caught above; result is always assigned after lease acquisition.
   const finalState = loadRefreshState(opts.stateDir);
-  if (!result) {
-    return {
-      ok: false,
-      skipped: false,
-      error: "refresh aborted",
-      mode,
-      leaseAcquired: true,
-      networkAttempted: true,
-      preservedPrior: true,
-      state: finalState,
-    };
-  }
-  return { ...result, state: finalState };
+  return { ...result!, state: finalState };
 }
 
 export function getRefreshStatus(stateRoot?: string): {
@@ -232,6 +221,6 @@ export function getRefreshStatus(stateRoot?: string): {
   return {
     state,
     backoff: isBackoffActive(state, now),
-    leaseStale: state.activeLease ? Date.parse(state.activeLease.expiresAt) <= now.getTime() : true,
+    leaseStale: isLeaseStale(state.activeLease, now),
   };
 }

@@ -1,0 +1,26 @@
+{
+  "pr3": {
+    "runId": "30227260445",
+    "head": "39b55d2",
+    "branches": {
+      "n20": 84.79,
+      "n22": 84.8
+    },
+    "threshold": 85
+  },
+  "pr4": {
+    "runId": "30227640186",
+    "head": "810d681",
+    "lines": 87.3,
+    "branches": 83.73,
+    "threshold": {
+      "lines": 90,
+      "branches": 85
+    }
+  },
+  "incorrectThresholdLowering": {
+    "commit": "db2affa",
+    "from": 85,
+    "to": 84
+  }
+}\n

@@ -1,0 +1,7 @@
+{
+  "mainAtStart": "70fc488",
+  "pr3": "MERGED",
+  "pr4": "MERGED",
+  "repairBranch": "feat/CCROUTE-AUTO-003C-coverage-gate-repair",
+  "note": "#3/#4 already merged before 003C; repair is a follow-up PR on main"
+}\n

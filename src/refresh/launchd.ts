@@ -90,13 +90,10 @@ export function validatePlistXml(xml: string): { ok: boolean; error?: string } {
   if (!xml.includes("<plist") || !xml.includes(launchdLabel())) {
     return { ok: false, error: "plist missing label or root" };
   }
-  if (
-    /KeepAlive\s*<\/key>\s*<true\s*\/>/i.test(xml) ||
-    /<key>KeepAlive<\/key>\s*<true/i.test(xml)
-  ) {
+  if (/<key>KeepAlive<\/key>\s*<true/i.test(xml)) {
     return { ok: false, error: "KeepAlive must not be true" };
   }
-  if (xml.includes("/bin/sh") || xml.includes("bash -c") || xml.includes("bash -c")) {
+  if (xml.includes("/bin/sh") || xml.includes("bash -c")) {
     return { ok: false, error: "shell pipelines forbidden" };
   }
   return { ok: true };

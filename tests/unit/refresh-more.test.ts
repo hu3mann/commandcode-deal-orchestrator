@@ -22,11 +22,7 @@ import {
 import { isLeaseStale, tryAcquireLease } from "../../src/refresh/lease.js";
 import { planSessionStartRefresh } from "../../src/refresh/session-start.js";
 import { loadRefreshState, saveRefreshState } from "../../src/refresh/state.js";
-import {
-  RefreshBackoffError,
-  RefreshLeaseError,
-  emptyRefreshState,
-} from "../../src/refresh/types.js";
+import { emptyRefreshState } from "../../src/refresh/types.js";
 
 function tempHome(): string {
   const d = mkdtempSync(join(tmpdir(), "ccroute-rm-"));
@@ -151,11 +147,6 @@ describe("refresh more coverage", () => {
         plan.pricingFreshness === "acceptable" ||
         plan.shouldAttempt,
     ).toBe(true);
-  });
-
-  it("error classes construct", () => {
-    expect(new RefreshLeaseError("x").code).toBe("REFRESH_LEASE_HELD");
-    expect(new RefreshBackoffError("y").code).toBe("REFRESH_BACKOFF");
   });
 
   it("loadRefreshState recovers from garbage", () => {

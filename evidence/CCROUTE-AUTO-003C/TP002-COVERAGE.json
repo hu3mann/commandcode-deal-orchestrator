@@ -1,0 +1,12 @@
+{
+  "lines": 91.34,
+  "branches": 85.01,
+  "functions": 99.11,
+  "statements": 91.34,
+  "ciCoverageReproduced": true,
+  "nodeVersionsValidated": [
+    "local"
+  ],
+  "originalImplementationCommit": "5bf7ad3",
+  "incorrectThresholdCommit": "db2affa"
+}\n
