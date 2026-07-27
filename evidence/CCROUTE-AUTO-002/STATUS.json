@@ -1,0 +1,11 @@
+ccroute status (project)
+  scope=project
+  packageVersion=0.2.0
+  commandCodeVersion=1.4.1
+  modSource=/Users/hue/code/cmdrouter/.worktrees/CCROUTE-AUTO-002/src/integrations/commandcode-mod
+  status=complete
+  modManager=available
+  modInSettings=true
+  modListMentionsSource=false
+Manifest status: complete
+OK

@@ -4,7 +4,7 @@
 
 ```bash
 npm pack
-npm install -g ./commandcode-deal-orchestrator-0.1.0.tgz
+npm install -g ./commandcode-deal-orchestrator-0.2.0.tgz
 ```
 
 Or from source:
@@ -15,6 +15,39 @@ npm run build
 npm link
 ```
 
+## Managed CommandCode integration lifecycle
+
+`ccroute install` registers the Mod via official `cmd mods add` and writes a managed
+manifest under `.commandcode/ccroute-install-manifest.json` (project) or
+`~/.commandcode/ccroute-install-manifest.json` (user).
+
+```bash
+ccroute install                  # project (default)
+ccroute install --user           # user/global (explicit)
+ccroute install --skill --hooks  # optional surfaces
+ccroute install --dry-run
+ccroute install status
+ccroute install update
+ccroute install repair
+ccroute uninstall
+```
+
+### Custody rules
+
+- Official Mod manager owns `mods.sources` registration.
+- Optional hook merges use ownership markers; unrelated settings/hooks are preserved.
+- Update/repair refuse user-modified managed files unless `--force`.
+- Uninstall removes only ccroute-owned files and settings entries — never full-backup restore over later user edits.
+- Reject simultaneous `--project` and `--user`.
+
+### Scope notes
+
+| Surface | Project | User | Headless `-p` |
+| --- | --- | --- | --- |
+| Mod auto-routing | trust-gated | always | user / `--mod` only |
+| Skill | optional | optional | loads when present |
+| Hook fallback | optional | optional | defence-in-depth |
+
 ## First run
 
 ```bash
@@ -24,6 +57,7 @@ ccroute models list
 ccroute deals status
 ccroute decide "Summarize this repository"
 ccroute explain "Refactor authentication across three services"
+ccroute install --dry-run
 ```
 
 ## Config paths

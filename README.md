@@ -54,6 +54,38 @@ ccroute deals refresh
 ccroute models list
 ```
 
+## CommandCode Mod installation (zero-friction routing)
+
+Install the deterministic router Mod through CommandCode’s official manager:
+
+```bash
+# Project scope (default) — requires workspace trust for interactive load
+ccroute install
+ccroute install --skill          # optional skill copy
+ccroute install --hooks          # optional fallback security hooks
+
+# User scope (explicit) — loads without project trust
+ccroute install --user
+
+ccroute install status
+ccroute install update
+ccroute install repair
+ccroute uninstall                # removes only ccroute-owned artifacts
+```
+
+Dry-run and conflict safety:
+
+```bash
+ccroute install --dry-run
+ccroute install update --dry-run
+ccroute uninstall --dry-run
+```
+
+Hard boundaries still apply after install: no automatic `--apply`, auto-accept, YOLO,
+git commit/push, invented model IDs, or LLM-based routing. Headless print mode loads
+**user-scope** and explicit `--mod` paths only — never require YOLO merely to load the
+router; use `ccroute run` or `cmd -p --mod <path>`.
+
 ## Common commands
 
 ```bash

@@ -1,0 +1,52 @@
+{
+  "ok": true,
+  "operation": "install",
+  "scope": "user",
+  "dryRun": false,
+  "actions": [
+    {
+      "kind": "mod-add",
+      "target": "/Users/hue/code/cmdrouter/.worktrees/CCROUTE-AUTO-002/src/integrations/commandcode-mod",
+      "detail": "cmd mods add -g /Users/hue/code/cmdrouter/.worktrees/CCROUTE-AUTO-002/src/integrations/commandcode-mod"
+    },
+    {
+      "kind": "write-manifest",
+      "target": "/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/home/.commandcode/ccroute-install-manifest.json"
+    }
+  ],
+  "conflicts": [],
+  "manifest": {
+    "schemaVersion": 1,
+    "scope": "user",
+    "packageVersion": "0.2.0",
+    "commandCodeVersion": "1.4.1",
+    "modApiVersion": "ModApi@command-code-1.4.1",
+    "installedAt": "2026-07-27T00:02:32.980Z",
+    "updatedAt": "2026-07-27T00:02:32.980Z",
+    "modSource": "/Users/hue/code/cmdrouter/.worktrees/CCROUTE-AUTO-002/src/integrations/commandcode-mod",
+    "managedFiles": [
+      {
+        "path": "/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/home/.commandcode/settings.json",
+        "sha256": "5458c77f3710f40c53d80dfd3d27401c47c18a96231605f322293c49d1457f34",
+        "method": "mod-manager",
+        "sourceArtifact": "cmd-mods-add:/Users/hue/code/cmdrouter/.worktrees/CCROUTE-AUTO-002/src/integrations/commandcode-mod",
+        "ownershipMarker": "ccroute-managed"
+      }
+    ],
+    "managedSettingsEntries": [],
+    "settingsBeforeHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "settingsAfterHash": "5458c77f3710f40c53d80dfd3d27401c47c18a96231605f322293c49d1457f34",
+    "backupPath": "",
+    "installationStatus": "complete",
+    "options": {
+      "skill": false,
+      "hooks": false,
+      "installMemory": false
+    }
+  },
+  "messages": [
+    "Mod installed via official manager: /Users/hue/code/cmdrouter/.worktrees/CCROUTE-AUTO-002/src/integrations/commandcode-mod",
+    "Manifest written: /var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/home/.commandcode/ccroute-install-manifest.json"
+  ],
+  "exitHint": "ok"
+}

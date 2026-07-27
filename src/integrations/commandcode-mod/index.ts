@@ -9,7 +9,8 @@
  *   - Must not store full prompts by default
  *
  * Load: `cmd --mod ./src/integrations/commandcode-mod/index.ts`
- * or install via `cmd mods add` once packaging lifecycle (TP-002) is available.
+ * or managed install: `ccroute install` / `ccroute install --user`
+ * (wraps official `cmd mods add` with a manifest and optional skill/hooks).
  */
 
 import { formatExplain, formatStatus, parseProfileArg, runRouteCommand } from "./commands.js";

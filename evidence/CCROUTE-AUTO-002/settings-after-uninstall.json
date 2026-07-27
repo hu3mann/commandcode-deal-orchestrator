@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(echo hi)"
+    ],
+    "deny": []
+  },
+  "taste": {
+    "x": 1
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo keep"
+          }
+        ]
+      }
+    ]
+  }
+}

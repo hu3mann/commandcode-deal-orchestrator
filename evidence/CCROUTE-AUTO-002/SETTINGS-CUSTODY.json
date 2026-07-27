@@ -1,0 +1,15 @@
+{
+  "permissionsPreserved": true,
+  "tastePreserved": true,
+  "unrelatedStopHookPreserved": true,
+  "modSourcePresent": true,
+  "managedHooksPresent": true,
+  "afterUninstall": {
+    "permissionsPreserved": true,
+    "tastePreserved": true,
+    "unrelatedStopHookPreserved": true,
+    "modSourceRemoved": true,
+    "managedHooksRemoved": true,
+    "fullBackupNotRestored": true
+  }
+}

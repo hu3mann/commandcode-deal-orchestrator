@@ -23,6 +23,16 @@ import { resolveCmdPath } from "./discovery/commandcode-cli.js";
 import { fetchLiveModelIds } from "./discovery/model-catalog.js";
 import type { RouteDecision } from "./domain/route.js";
 import type { ClassifiedTask, RoutingProfile } from "./domain/task.js";
+import {
+  type InstallCliOptions,
+  formatLifecycleResult,
+  installLifecycle,
+  repairLifecycle,
+  statusLifecycle,
+  uninstallLifecycle,
+  updateLifecycle,
+} from "./install/index.js";
+import { InstallError } from "./install/types.js";
 import { orchestrate, shouldOrchestrate } from "./orchestration/orchestrator.js";
 import { refreshDealsFromOfficial, refreshPricingFromOfficial } from "./pricing/refresh.js";
 import {
@@ -1367,6 +1377,141 @@ configCmd.command("validate").action(() => {
   }
   process.exit(ok ? 0 : 1);
 });
+
+/**
+ * Managed CommandCode installation lifecycle (TP-CCROUTE-AUTO-002).
+ * Uses official `cmd mods` for Mod registration; never clobbers unrelated settings.
+ */
+function parseInstallScopeOpts(opts: {
+  project?: boolean;
+  user?: boolean;
+  dryRun?: boolean;
+  force?: boolean;
+  skill?: boolean;
+  hooks?: boolean;
+  installMemory?: boolean;
+  json?: boolean;
+}): InstallCliOptions {
+  if (opts.project && opts.user) {
+    throw new CliUsageError("Reject simultaneous --project and --user; choose exactly one scope");
+  }
+  return {
+    project: opts.project,
+    user: opts.user,
+    dryRun: opts.dryRun,
+    force: opts.force,
+    skill: opts.skill,
+    hooks: opts.hooks,
+    installMemory: opts.installMemory,
+    json: opts.json,
+  };
+}
+
+function finishLifecycle(
+  result: ReturnType<typeof installLifecycle>,
+  json: boolean | undefined,
+): void {
+  console.log(formatLifecycleResult(result, Boolean(json)));
+  if (result.ok) process.exit(EXIT.SUCCESS);
+  if (result.exitHint === "usage") process.exit(EXIT.INVALID_CLI_USAGE);
+  if (result.exitHint === "conflict") process.exit(EXIT.REPOSITORY_SAFETY_VIOLATION);
+  if (result.exitHint === "subprocess") process.exit(EXIT.SUBPROCESS_FAILURE);
+  if (result.exitHint === "config") process.exit(EXIT.CONFIG_INVALID);
+  process.exit(EXIT.INTERNAL_INVARIANT_FAILURE);
+}
+
+const installCmd = program
+  .command("install")
+  .description("Install ccroute into CommandCode (Mod + optional skill/hooks)")
+  .option("--project", "Project-scope install (default)", false)
+  .option("--user", "User-scope install (explicit global)", false)
+  .option("--dry-run", "Preview actions without writing", false)
+  .option("--force", "Override conflicts on owned artifacts", false)
+  .option("--skill", "Also install the deal-orchestrator skill", false)
+  .option("--hooks", "Also install fallback security hooks", false)
+  .option("--install-memory", "Reserved; no-op until TP4 memory artifacts exist", false)
+  .option("--json", "JSON result", false)
+  .action((opts) => {
+    try {
+      const parsed = parseInstallScopeOpts(opts);
+      // Default scope is project when neither flag is set
+      if (!parsed.user) parsed.project = true;
+      finishLifecycle(installLifecycle(parsed), opts.json);
+    } catch (e) {
+      if (e instanceof InstallError) fail(e);
+      fail(e);
+    }
+  });
+
+installCmd
+  .command("status")
+  .description("Show managed installation status")
+  .option("--project", "Project scope (default)", false)
+  .option("--user", "User scope", false)
+  .option("--json", "JSON result", false)
+  .action((opts) => {
+    try {
+      const parsed = parseInstallScopeOpts(opts);
+      if (!parsed.user) parsed.project = true;
+      finishLifecycle(statusLifecycle(parsed), opts.json);
+    } catch (e) {
+      fail(e);
+    }
+  });
+
+installCmd
+  .command("update")
+  .description("Update managed installation")
+  .option("--project", "Project scope (default)", false)
+  .option("--user", "User scope", false)
+  .option("--dry-run", "Preview only", false)
+  .option("--force", "Override conflicts", false)
+  .option("--json", "JSON result", false)
+  .action((opts) => {
+    try {
+      const parsed = parseInstallScopeOpts(opts);
+      if (!parsed.user) parsed.project = true;
+      finishLifecycle(updateLifecycle(parsed), opts.json);
+    } catch (e) {
+      fail(e);
+    }
+  });
+
+installCmd
+  .command("repair")
+  .description("Repair missing or drifted managed installation state")
+  .option("--project", "Project scope (default)", false)
+  .option("--user", "User scope", false)
+  .option("--dry-run", "Preview only", false)
+  .option("--force", "Overwrite user-modified owned files", false)
+  .option("--json", "JSON result", false)
+  .action((opts) => {
+    try {
+      const parsed = parseInstallScopeOpts(opts);
+      if (!parsed.user) parsed.project = true;
+      finishLifecycle(repairLifecycle(parsed), opts.json);
+    } catch (e) {
+      fail(e);
+    }
+  });
+
+program
+  .command("uninstall")
+  .description("Remove managed ccroute installation (owned artifacts only)")
+  .option("--project", "Project scope (default)", false)
+  .option("--user", "User scope", false)
+  .option("--dry-run", "Preview only", false)
+  .option("--force", "Continue past non-blocking conflicts", false)
+  .option("--json", "JSON result", false)
+  .action((opts) => {
+    try {
+      const parsed = parseInstallScopeOpts(opts);
+      if (!parsed.user) parsed.project = true;
+      finishLifecycle(uninstallLifecycle(parsed), opts.json);
+    } catch (e) {
+      fail(e);
+    }
+  });
 
 /** True when this module is being executed directly (`node dist/cli.js ...` / the `ccroute`
  * bin), false when imported (e.g. from a test importing `{ program }`). Guards the

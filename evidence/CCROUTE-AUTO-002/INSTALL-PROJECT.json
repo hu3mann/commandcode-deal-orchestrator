@@ -1,0 +1,113 @@
+{
+  "ok": true,
+  "operation": "install",
+  "scope": "project",
+  "dryRun": false,
+  "actions": [
+    {
+      "kind": "mod-add",
+      "target": "/Users/hue/code/cmdrouter/.worktrees/CCROUTE-AUTO-002/src/integrations/commandcode-mod",
+      "detail": "cmd mods add /Users/hue/code/cmdrouter/.worktrees/CCROUTE-AUTO-002/src/integrations/commandcode-mod"
+    },
+    {
+      "kind": "copy-file",
+      "target": "/private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/skills/commandcode-deal-orchestrator",
+      "detail": "optional skill installation"
+    },
+    {
+      "kind": "settings-merge",
+      "target": "/private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/settings.json",
+      "detail": "optional fallback hook installation"
+    },
+    {
+      "kind": "copy-file",
+      "target": "/private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/ccroute-hooks",
+      "detail": "hook script files"
+    },
+    {
+      "kind": "write-manifest",
+      "target": "/private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/ccroute-install-manifest.json"
+    }
+  ],
+  "conflicts": [],
+  "manifest": {
+    "schemaVersion": 1,
+    "scope": "project",
+    "packageVersion": "0.2.0",
+    "commandCodeVersion": "1.4.1",
+    "modApiVersion": "ModApi@command-code-1.4.1",
+    "installedAt": "2026-07-27T00:02:13.404Z",
+    "updatedAt": "2026-07-27T00:02:13.404Z",
+    "modSource": "/Users/hue/code/cmdrouter/.worktrees/CCROUTE-AUTO-002/src/integrations/commandcode-mod",
+    "managedFiles": [
+      {
+        "path": "/private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/settings.json",
+        "sha256": "c8a623b7439e5bcc4895c380e76342dfd9b73d32aef373a1691b037f0b184cd9",
+        "method": "mod-manager",
+        "sourceArtifact": "cmd-mods-add:/Users/hue/code/cmdrouter/.worktrees/CCROUTE-AUTO-002/src/integrations/commandcode-mod",
+        "ownershipMarker": "ccroute-managed"
+      },
+      {
+        "path": "/private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/skills/commandcode-deal-orchestrator/SKILL.md",
+        "sha256": "30d17347a33d91fa570fcb5fc5af4792ad9542fcd7ff32dd0daced59995a2a95",
+        "method": "copy",
+        "sourceArtifact": "skill:SKILL.md",
+        "ownershipMarker": "ccroute-managed"
+      },
+      {
+        "path": "/private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/skills/commandcode-deal-orchestrator/.ccroute-owned",
+        "sha256": "5ca3d39560910be9dc482df5f2a501f77048b8933fb3ea8c5b4b7f0fcda65220",
+        "method": "copy",
+        "sourceArtifact": "skill:ownership-marker",
+        "ownershipMarker": "ccroute-managed"
+      },
+      {
+        "path": "/private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/ccroute-hooks/child-recursion-guard.mjs",
+        "sha256": "49784d3f4ff67dfc0f2596e385818b6b764429727229eb0e89ed2e26beaf1851",
+        "method": "copy",
+        "sourceArtifact": "hook:child-recursion-guard.mjs",
+        "ownershipMarker": "ccroute-managed"
+      },
+      {
+        "path": "/private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/ccroute-hooks/child-session-context.mjs",
+        "sha256": "fb1e3a04b0b9f30606a85e3df8566baafe8b0190fb76462de36db83b382b705d",
+        "method": "copy",
+        "sourceArtifact": "hook:child-session-context.mjs",
+        "ownershipMarker": "ccroute-managed"
+      }
+    ],
+    "managedSettingsEntries": [
+      {
+        "settingsPath": "/private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/settings.json",
+        "identity": "SessionStart\u0000\u0000node '/private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/ccroute-hooks/child-session-context.mjs' # ccroute-managed-hook\u0000ccroute-managed-hook",
+        "event": "SessionStart",
+        "command": "node '/private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/ccroute-hooks/child-session-context.mjs' # ccroute-managed-hook",
+        "ownershipMarker": "ccroute-managed-hook"
+      },
+      {
+        "settingsPath": "/private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/settings.json",
+        "identity": "PreToolUse\u0000shell\u0000node '/private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/ccroute-hooks/child-recursion-guard.mjs' # ccroute-managed-hook\u0000ccroute-managed-hook",
+        "event": "PreToolUse",
+        "matcher": "shell",
+        "command": "node '/private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/ccroute-hooks/child-recursion-guard.mjs' # ccroute-managed-hook",
+        "ownershipMarker": "ccroute-managed-hook"
+      }
+    ],
+    "settingsBeforeHash": "c8a623b7439e5bcc4895c380e76342dfd9b73d32aef373a1691b037f0b184cd9",
+    "settingsAfterHash": "dba6bc7a216b27daed276395755027f3e87a95634a0177a5cb9dbafabde6d717",
+    "backupPath": "/private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/ccroute-backups/settings-2026-07-27T00-02-13-402Z.json",
+    "installationStatus": "complete",
+    "options": {
+      "skill": true,
+      "hooks": true,
+      "installMemory": false
+    }
+  },
+  "messages": [
+    "Mod installed via official manager: /Users/hue/code/cmdrouter/.worktrees/CCROUTE-AUTO-002/src/integrations/commandcode-mod",
+    "Skill installed at /private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/skills/commandcode-deal-orchestrator",
+    "Fallback hooks installed with ownership markers",
+    "Manifest written: /private/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.qyt3td9ZtC/proj/.commandcode/ccroute-install-manifest.json"
+  ],
+  "exitHint": "ok"
+}
