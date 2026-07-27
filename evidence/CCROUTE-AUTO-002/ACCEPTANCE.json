@@ -14,7 +14,7 @@
   "commandCodeVersion": "1.4.1",
   "series": "CCROUTE-AUTO-2026-001",
   "tp": "TP-CCROUTE-AUTO-002",
-  "gitCommit": "PENDING",
+  "gitCommit": "5bf7ad33dbf6abb8026425834739c6a5b9686259",
   "limitations": [
     "Project mods require workspace trust before loading in interactive sessions",
     "Headless print mode loads user-scope and --mod only; project mods excluded unless --dangerously-skip-permissions",
@@ -51,5 +51,6 @@
     }
   },
   "lineCoverage": 91.39,
-  "branchCoverage": 85.03
+  "branchCoverage": 85.03,
+  "implementationCommit": "5bf7ad33dbf6abb8026425834739c6a5b9686259"
 }
