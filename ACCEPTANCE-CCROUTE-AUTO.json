@@ -39,6 +39,6 @@
     "image prompts automatic routing",
     "automated turns without explicit ccroute"
   ],
-  "gitCommit": "pending",
+  "gitCommit": "cf44e5850abaa108521821386f34e475b5257d90",
   "tp004": true
 }
