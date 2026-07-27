@@ -1,0 +1,4 @@
+{
+  "unloadThenRemove": true,
+  "idempotentWhenAbsent": true
+}

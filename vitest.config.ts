@@ -10,6 +10,8 @@ export default defineConfig({
       include: ["src/**/*.ts"],
       thresholds: {
         lines: 90,
+        // Defensive install/refresh custody paths leave residual branch gap on CI;
+        // line coverage remains the hard §35 bar at 90%.
         branches: 84,
         functions: 85,
         statements: 90,

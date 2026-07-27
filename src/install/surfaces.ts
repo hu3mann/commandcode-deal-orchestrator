@@ -98,7 +98,7 @@ export function removeSkillSurface(paths: InstallPaths, managed: ManagedFileEntr
     try {
       rmSync(paths.skillDestDir, { recursive: true, force: true });
     } catch {
-      /* ignore */
+      /* best-effort */
     }
   }
 }
@@ -206,7 +206,7 @@ export function removeHooksSurface(
     try {
       rmSync(paths.hooksDestDir, { recursive: true, force: true });
     } catch {
-      /* ignore */
+      /* best-effort */
     }
   }
 

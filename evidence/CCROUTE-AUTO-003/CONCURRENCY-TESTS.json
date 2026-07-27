@@ -1,0 +1,6 @@
+{
+  "simultaneousAttempts": 10,
+  "networkFetches": 1,
+  "leaseSkips": 9,
+  "singleNetworkRefreshUnderConcurrency": true
+}

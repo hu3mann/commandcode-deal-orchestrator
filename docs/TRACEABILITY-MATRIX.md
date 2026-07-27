@@ -91,6 +91,12 @@
 | REQ-AUTO-002-REPAIR | CCROUTE-AUTO-002 | repair owned state only | lifecycle repair | unit + evidence REPAIR.json | DONE |
 | REQ-AUTO-002-UNINSTALL | CCROUTE-AUTO-002 | owned-only uninstall | lifecycle uninstall | unit + evidence UNINSTALL.json | DONE |
 | REQ-AUTO-002-HEADLESS | CCROUTE-AUTO-002 | scope truth table | HEADLESS-QUALIFICATION.json | evidence | DONE |
+| REQ-AUTO-003-BOOTSTRAP | CCROUTE-AUTO-003 | bootstrap ≠ refresh | src/refresh/bootstrap.ts | unit refresh-core | DONE |
+| REQ-AUTO-003-LEASE | CCROUTE-AUTO-003 | cross-process lease | src/refresh/lease.ts | unit concurrency | DONE |
+| REQ-AUTO-003-BACKOFF | CCROUTE-AUTO-003 | stepped backoff | src/refresh/backoff.ts | unit | DONE |
+| REQ-AUTO-003-COORD | CCROUTE-AUTO-003 | coordinated refresh | src/refresh/coordinator.ts | unit | DONE |
+| REQ-AUTO-003-SESSION | CCROUTE-AUTO-003 | nonblocking session-start | session-start.ts + mod | unit | DONE |
+| REQ-AUTO-003-LAUNCHD | CCROUTE-AUTO-003 | macOS launchd lifecycle | src/refresh/launchd.ts | unit + CLI | DONE |
 
 ## Contradiction check
 

@@ -13,6 +13,12 @@
  * (wraps official `cmd mods add` with a manifest and optional skill/hooks).
  */
 
+import { spawn } from "node:child_process";
+import {
+  oneLineRefreshStatus,
+  planSessionStartRefresh,
+  spawnNonblockingRefresh,
+} from "../../refresh/session-start.js";
 import { formatExplain, formatStatus, parseProfileArg, runRouteCommand } from "./commands.js";
 import {
   canRouteAutomatically,
@@ -21,7 +27,7 @@ import {
 } from "./compatibility.js";
 import { shouldBlockChildCcroute } from "./recursion.js";
 import { routeTypedPrompt } from "./route-prompt.js";
-import { decideRoute } from "./router-client.js";
+import { decideRoute, resolveCcrouteInvocation } from "./router-client.js";
 import { createSessionState, recordFailure, recordSuccess } from "./session-state.js";
 import {
   buildRouteDecisionEvent,
@@ -136,6 +142,42 @@ export function createCcrouteMod(options: CreateModOptions = {}) {
             inspectModApi(cmd),
           );
           routingLive = canRouteAutomatically(compatibility);
+
+          // Non-blocking refresh: never wait, never model-call, never hard-fail session.
+          // SessionStart has no prompt — static facts only; typed-input remains the router.
+          try {
+            const plan = planSessionStartRefresh({ routingEnabled: routingLive });
+            if (plan.shouldAttempt) {
+              try {
+                const inv = resolveCcrouteInvocation(env);
+                if (inv.command === "node" && inv.prefixArgs[0]) {
+                  const child = spawn(
+                    process.execPath,
+                    [inv.prefixArgs[0], "refresh", "run", "--session-start"],
+                    { detached: true, stdio: "ignore", env, shell: false },
+                  );
+                  child.unref();
+                } else {
+                  spawnNonblockingRefresh({
+                    ccroutePath: inv.command === "ccroute" ? "ccroute" : inv.command,
+                    env,
+                  });
+                }
+              } catch {
+                /* nonblocking: ignore */
+              }
+            }
+            try {
+              const line = oneLineRefreshStatus();
+              if (line.includes("last error")) {
+                cmd.ui.notify(line, "warning");
+              }
+            } catch {
+              /* headless */
+            }
+          } catch {
+            /* session must not fail */
+          }
         },
 
         transformInput: async ({ text }) => {

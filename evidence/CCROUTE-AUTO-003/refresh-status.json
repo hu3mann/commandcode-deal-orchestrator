@@ -1,0 +1,32 @@
+{
+  "refresh": {
+    "state": {
+      "schemaVersion": 1,
+      "lastAttemptAt": null,
+      "lastSuccessAt": null,
+      "lastError": null,
+      "failureCount": 0,
+      "nextEligibleAttemptAt": null,
+      "activeLease": null,
+      "mode": null,
+      "snapshotHash": null,
+      "snapshotGeneration": 0
+    },
+    "backoff": {
+      "active": false,
+      "nextEligibleAt": null,
+      "remainingMs": 0
+    },
+    "leaseStale": true
+  },
+  "launchd": {
+    "label": "ai.commandcode.ccroute.refresh",
+    "plistPath": "/var/folders/dy/k9c_fpxn5h5cbb9hdsj3zzkm0000gn/T/tmp.idpFogS4Z0/home/Library/LaunchAgents/ai.commandcode.ccroute.refresh.plist",
+    "installed": false,
+    "loaded": false,
+    "messages": [
+      "plist=absent",
+      "loaded=false"
+    ]
+  }
+}

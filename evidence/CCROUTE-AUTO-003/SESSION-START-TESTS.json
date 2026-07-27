@@ -1,0 +1,7 @@
+{
+  "sessionStartNonblocking": true,
+  "noModelRequest": true,
+  "noTaskRoutingAtSessionStart": true,
+  "staticContextOnly": true,
+  "typedInputRemainsRouter": true
+}

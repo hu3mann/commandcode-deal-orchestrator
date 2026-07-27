@@ -1,0 +1,14 @@
+{
+  "plistValidates": true,
+  "noKeepAlive": true,
+  "noShellPipeline": true,
+  "absoluteProgramPathRequired": true,
+  "label": "ai.commandcode.ccroute.refresh",
+  "commands": [
+    "ccroute refresh install",
+    "ccroute refresh status",
+    "ccroute refresh run",
+    "ccroute refresh uninstall"
+  ],
+  "note": "Full launchctl load verified on macOS when launchctl available; plist contract unit-tested"
+}
