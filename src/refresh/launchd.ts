@@ -186,8 +186,6 @@ export function installLaunchd(opts: LaunchdInstallOptions): LaunchdResult {
   writeFileSync(plistPath, xml, { encoding: "utf8", mode: 0o644 });
   try {
     chmodSync(plistPath, 0o644);
-  /* v8 ignore next */
-  /* v8 ignore next */
   } catch {
     /* best-effort */
   }
@@ -262,8 +260,6 @@ export function statusLaunchd(opts?: { homeDir?: string }): LaunchdResult & {
   if (installed) {
     try {
       plist = readFileSync(plistPath, "utf8");
-    /* v8 ignore next */
-    /* v8 ignore next */
     } catch {
       /* best-effort */
     }

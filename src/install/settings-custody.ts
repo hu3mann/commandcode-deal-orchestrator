@@ -297,8 +297,6 @@ export function writeSettingsAtomic(
   renameSync(tmp, path);
   try {
     chmodSync(path, mode);
-  /* v8 ignore next */
-  /* v8 ignore next */
   } catch {
     /* best-effort */
   }
@@ -318,8 +316,6 @@ export function backupSettings(
   try {
     const mode = statSync(settingsPath).mode & 0o777;
     chmodSync(dest, mode);
-  /* v8 ignore next */
-  /* v8 ignore next */
   } catch {
     /* best-effort */
   }

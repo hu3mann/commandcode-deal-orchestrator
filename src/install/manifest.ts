@@ -39,8 +39,6 @@ export function writeManifestAtomic(path: string, manifest: InstallManifest): vo
   renameSync(tmp, path);
   try {
     chmodSync(path, 0o644);
-  /* v8 ignore next */
-  /* v8 ignore next */
   } catch {
     /* best-effort */
   }
