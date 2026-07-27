@@ -50,7 +50,17 @@
       "headless": true
     }
   },
-  "lineCoverage": 91.39,
-  "branchCoverage": 85.03,
-  "implementationCommit": "5bf7ad33dbf6abb8026425834739c6a5b9686259"
+  "lineCoverage": 91.53,
+  "branchCoverage": 85.34,
+  "implementationCommit": "5bf7ad33dbf6abb8026425834739c6a5b9686259",
+  "functionCoverage": 99.11,
+  "statementCoverage": 91.53,
+  "ciCoverageReproduced": true,
+  "nodeVersionsValidated": [
+    "local-macos-25",
+    "docker-linux-node-20.20.2"
+  ],
+  "originalImplementationCommit": "5bf7ad33dbf6abb8026425834739c6a5b9686259",
+  "ciRepairNote": "Coverage contract restored in TP-CCROUTE-AUTO-003C (PR #5); do not treat pre-repair merges as contract-compliant",
+  "coverageRepairTp": "TP-CCROUTE-AUTO-003C"
 }

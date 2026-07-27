@@ -7,3 +7,10 @@ tests: 548 passed / 0 failed
 build: PASS
 bootstrap/lease/concurrency/backoff/session-start/launchd-plist: PASS
 verdict: PASS_WITH_LIMITATIONS
+
+---
+003C coverage re-validation (2026-07-27T02:53:30.598313+00:00):
+  lines=91.53% branches=85.34% functions=99.11% statements=91.53%
+  thresholds restored to 90/85/85/90
+  Linux Node 20 docker: branches=85.33%
+  See evidence/CCROUTE-AUTO-003C/

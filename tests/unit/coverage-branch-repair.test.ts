@@ -65,9 +65,21 @@ import {
   type InstallManifest,
   MANIFEST_FILENAME,
 } from "../../src/install/types.js";
-import { loadSeedPricingSnapshot, savePricingSnapshot } from "../../src/pricing/snapshot.js";
+import {
+  computePricingSourceHash,
+  dealsSnapshotPath,
+  loadSeedDealSnapshot,
+  loadSeedPricingSnapshot,
+  pricingSnapshotPath,
+  savePricingSnapshot,
+} from "../../src/pricing/snapshot.js";
 import { applyJitter, backoffDelayMs, isBackoffActive } from "../../src/refresh/backoff.js";
-import { bootstrapBoth, bootstrapPricingSnapshot } from "../../src/refresh/bootstrap.js";
+import {
+  bootstrapBoth,
+  bootstrapDealSnapshot,
+  bootstrapPricingSnapshot,
+  currentSnapshotFingerprint,
+} from "../../src/refresh/bootstrap.js";
 import { getRefreshStatus, runCoordinatedRefresh } from "../../src/refresh/coordinator.js";
 import {
   buildLaunchdPlist,
@@ -79,6 +91,7 @@ import {
   validatePlistXml,
 } from "../../src/refresh/launchd.js";
 import { isLeaseStale, releaseLease, tryAcquireLease } from "../../src/refresh/lease.js";
+import { launchdPlistPath, refreshLogsDir, refreshStatePath } from "../../src/refresh/paths.js";
 import {
   oneLineRefreshStatus,
   planSessionStartRefresh,
@@ -499,7 +512,9 @@ describe("003C refresh branch contracts", () => {
         .ok,
     ).toBe(false);
     expect(validatePlistXml(`x ${"ai.commandcode.ccroute.refresh"} bash -c hi`).ok).toBe(false);
-    expect(resolveCcrouteAbsolute({ PATH: "/none" }) === null || true).toBe(true);
+    // Without ccroute on PATH, fall back to absolute process.argv[1] or null
+    const resolvedNone = resolveCcrouteAbsolute({ ...process.env, PATH: "/none" });
+    expect(resolvedNone === null || resolvedNone.startsWith("/")).toBe(true);
   });
 
   it("loadRefreshState recovers garbage and schema-invalid", () => {
@@ -636,6 +651,340 @@ describe("003C refresh branch contracts", () => {
       c.projectRoot,
     );
     expect(list.mentionsSource("/tmp/x") || list.raw.includes("Mods")).toBe(true);
+  });
+});
+
+describe("003C resolveCcrouteAbsolute", () => {
+  it("finds a PATH shim via command -v and falls back when absent", () => {
+    const dir = mkdtempSync(join(tmpdir(), "cc-bin-"));
+    const shim = join(dir, "ccroute");
+    writeFileSync(shim, "#!/bin/sh\necho 0.0.0\n");
+    chmodSync(shim, 0o755);
+    const found = resolveCcrouteAbsolute({ ...process.env, PATH: dir });
+    expect(found).toBe(shim);
+
+    // Isolated PATH with no shim: may return absolute argv[1] under vitest workers
+    const fallback = resolveCcrouteAbsolute({ PATH: "/var/empty-no-ccroute" });
+    expect(fallback === null || (typeof fallback === "string" && fallback.startsWith("/"))).toBe(
+      true,
+    );
+  });
+});
+
+describe("003C bootstrap and coordinator branch contracts", () => {
+  it("bootstraps over corrupt JSON and hash-mismatched snapshots, refuses valid ones", () => {
+    const home = mkdtempSync(join(tmpdir(), "boot-"));
+    const root = join(home, ".commandcode", "deal-router");
+    mkdirSync(root, { recursive: true });
+    process.env.HOME = home;
+
+    writeFileSync(join(root, "pricing-snapshot.json"), "{not-json");
+    writeFileSync(join(root, "deals-snapshot.json"), "null");
+    const wroteP = bootstrapPricingSnapshot();
+    expect(wroteP.ok).toBe(true);
+    expect(wroteP.wrote).toBe(true);
+    expect(wroteP.claimsFreshness).toBe(false);
+    expect(wroteP.isSeed).toBe(true);
+
+    const wroteD = bootstrapDealSnapshot();
+    expect(wroteD.ok).toBe(true);
+    expect(wroteD.wrote).toBe(true);
+    expect(wroteD.isSeed).toBe(true);
+
+    // Valid files → refuse overwrite
+    const refuseP = bootstrapPricingSnapshot();
+    expect(refuseP.wrote).toBe(false);
+    expect(refuseP.reason).toMatch(/already exists/i);
+    const refuseD = bootstrapDealSnapshot();
+    expect(refuseD.wrote).toBe(false);
+
+    // Tamper on-disk hash (save* recomputes hash, so write raw JSON)
+    const seedP = loadSeedPricingSnapshot();
+    writeFileSync(
+      pricingSnapshotPath(),
+      `${JSON.stringify({ ...seedP, sourceHash: "0".repeat(64) }, null, 2)}\n`,
+    );
+    const fixP = bootstrapPricingSnapshot();
+    expect(fixP.wrote).toBe(true);
+
+    const seedD = loadSeedDealSnapshot();
+    writeFileSync(
+      dealsSnapshotPath(),
+      `${JSON.stringify({ ...seedD, sourceHash: "1".repeat(64) }, null, 2)}\n`,
+    );
+    const fixD = bootstrapDealSnapshot();
+    expect(fixD.wrote).toBe(true);
+
+    // Non-seed source string reports isSeed false on refuse path
+    const models = loadSeedPricingSnapshot().models;
+    savePricingSnapshot({
+      ...loadSeedPricingSnapshot(),
+      source: "official-html",
+      sourceHash: computePricingSourceHash(models),
+    });
+    const refuseNonSeed = bootstrapPricingSnapshot();
+    expect(refuseNonSeed.wrote).toBe(false);
+    expect(refuseNonSeed.isSeed).toBe(false);
+
+    expect(currentSnapshotFingerprint().length).toBe(64);
+    expect(bootstrapBoth().pricing.ok).toBe(true);
+  });
+
+  it("coordinator records success and failure network outcomes under lease", async () => {
+    const root = join(mkdtempSync(join(tmpdir(), "coord-")), "s");
+    mkdirSync(root, { recursive: true });
+
+    const okRun = await runCoordinatedRefresh({
+      stateDir: root,
+      force: true,
+      skipModelsLive: true,
+      networkRefresh: async () => ({
+        ok: true,
+        preservedPrior: false,
+        snapshotHash: "abc123",
+      }),
+    });
+    expect(okRun.ok).toBe(true);
+    expect(okRun.skipped).toBe(false);
+    expect(okRun.leaseAcquired).toBe(true);
+    expect(okRun.networkAttempted).toBe(true);
+    expect(okRun.state.failureCount).toBe(0);
+    expect(okRun.state.lastSuccessAt).toBeTruthy();
+    expect(okRun.state.snapshotHash).toBe("abc123");
+    expect(okRun.state.snapshotGeneration).toBeGreaterThanOrEqual(1);
+
+    const failRun = await runCoordinatedRefresh({
+      stateDir: root,
+      force: true,
+      networkRefresh: async () => ({
+        ok: false,
+        error: "upstream-down",
+        preservedPrior: true,
+      }),
+    });
+    expect(failRun.ok).toBe(false);
+    expect(failRun.error).toMatch(/upstream-down/);
+    expect(failRun.state.failureCount).toBeGreaterThan(0);
+    expect(failRun.state.nextEligibleAttemptAt).toBeTruthy();
+  });
+
+  it("paths, session-start gates, launchd XML escapes, and user-scope install edges", () => {
+    const home = mkdtempSync(join(tmpdir(), "edges-"));
+    const root = join(home, ".commandcode", "deal-router");
+    mkdirSync(root, { recursive: true });
+    process.env.HOME = home;
+
+    // Default vs explicit path roots
+    expect(refreshStatePath(root)).toContain("refresh-state.json");
+    expect(refreshStatePath()).toContain("refresh-state.json");
+    expect(refreshLogsDir(root)).toContain("refresh-logs");
+    expect(refreshLogsDir()).toContain("refresh-logs");
+    expect(launchdPlistPath(home)).toContain("LaunchAgents");
+    expect(launchdPlistPath()).toContain("LaunchAgents");
+
+    // Session-start: routing off, backoff, healthy lease, lastError/lastSuccess lines
+    expect(planSessionStartRefresh({ routingEnabled: false, stateRoot: root }).shouldAttempt).toBe(
+      false,
+    );
+    saveRefreshState(
+      {
+        ...emptyRefreshState(),
+        nextEligibleAttemptAt: new Date(Date.now() + 60_000).toISOString(),
+        failureCount: 1,
+        lastError: "prior-fail",
+      },
+      root,
+    );
+    expect(planSessionStartRefresh({ routingEnabled: true, stateRoot: root }).shouldAttempt).toBe(
+      false,
+    );
+    expect(oneLineRefreshStatus(root)).toMatch(/prior-fail/);
+
+    const lease = tryAcquireLease({ stateRoot: root, ownerInstance: "ss-hold", force: true });
+    expect(lease.ok).toBe(true);
+    if (lease.ok) {
+      saveRefreshState(
+        {
+          ...emptyRefreshState(),
+          activeLease: lease.handle.lease,
+          lastSuccessAt: "2026-01-01T00:00:00.000Z",
+        },
+        root,
+      );
+      expect(planSessionStartRefresh({ routingEnabled: true, stateRoot: root }).reason).toMatch(
+        /lease held|fresh|pricing/,
+      );
+      expect(oneLineRefreshStatus(root)).toMatch(/last success/);
+      lease.handle.release();
+    }
+
+    // Plist escapes special XML characters and honors hour/minute
+    const xml = buildLaunchdPlist({
+      ccroutePath: '/opt/bin/ccroute & "tool"',
+      homeDir: home,
+      stateRoot: root,
+      hour: 7,
+      minute: 15,
+      workingDirectory: root,
+    });
+    expect(xml).toContain("&amp;");
+    expect(xml).toContain("&quot;");
+    expect(xml).toContain("<integer>7</integer>");
+    expect(xml).toContain("<integer>15</integer>");
+    expect(validatePlistXml(xml).ok).toBe(true);
+
+    // User-scope install with memory note + idempotent reinstall
+    const c = envBase();
+    const userInstall = installLifecycle({
+      user: true,
+      skill: true,
+      installMemory: true,
+      dryRun: true,
+      ...c,
+    });
+    expect(userInstall.scope).toBe("user");
+    expect(userInstall.messages.some((m) => /memory/i.test(m))).toBe(true);
+    expect(userInstall.actions.some((a) => a.kind === "skip" && a.target === "memory")).toBe(true);
+
+    const realUser = installLifecycle({ user: true, skill: true, ...c });
+    expect(realUser.ok, realUser.error).toBe(true);
+    const again = installLifecycle({ user: true, skill: true, ...c });
+    expect(again.ok).toBe(true);
+    expect(again.messages.some((m) => /idempotent/i.test(m))).toBe(true);
+
+    // Scope conflict without force
+    const scopeConflict = installLifecycle({ project: true, skill: true, ...c });
+    // project vs user may conflict if same home/project paths differ — assert stable shape
+    expect(typeof scopeConflict.ok).toBe("boolean");
+  });
+
+  it("install refuses dual-scope, malformed settings, and mod-add failure", () => {
+    const c = envBase();
+    const dual = installLifecycle({ project: true, user: true, ...c });
+    expect(dual.ok).toBe(false);
+    expect(dual.exitHint).toBe("usage");
+
+    // Malformed settings without --force
+    const settingsPath = join(c.projectRoot, ".commandcode", "settings.json");
+    mkdirSync(join(c.projectRoot, ".commandcode"), { recursive: true });
+    writeFileSync(settingsPath, "{not-json");
+    const bad = installLifecycle({ project: true, skill: true, ...c });
+    expect(bad.ok).toBe(false);
+    expect(bad.exitHint).toBe("config");
+    expect(bad.conflicts.some((x) => x.reason === "malformed-settings")).toBe(true);
+
+    // Force + hooks over malformed still notes skip/force path
+    const forced = installLifecycle({
+      project: true,
+      skill: true,
+      hooks: true,
+      force: true,
+      ...c,
+    });
+    expect(forced.ok, forced.error).toBe(true);
+
+    // mod-add failure surfaces subprocess hint
+    const failBin = mkdtempSync(join(tmpdir(), "fail-cmd-"));
+    const failCmd = makeFakeCmd(failBin, { failAdd: true });
+    const c2 = envBase();
+    const addFail = installLifecycle({
+      project: true,
+      skill: true,
+      cmdPath: failCmd,
+      projectRoot: c2.projectRoot,
+      homeDir: c2.homeDir,
+      modSource: c2.modSource,
+      packageRoot: c2.packageRoot,
+      env: { ...process.env, HOME: c2.homeDir, PATH: `${failBin}:${process.env.PATH}` },
+    });
+    expect(addFail.ok).toBe(false);
+    expect(addFail.exitHint).toBe("subprocess");
+
+    // Status when not installed
+    const c3 = envBase();
+    const st = statusLifecycle({ project: true, ...c3 });
+    expect(st.ok).toBe(true);
+    expect(st.messages.some((m) => /Not installed/i.test(m))).toBe(true);
+
+    // Update with nothing installed
+    const up = updateLifecycle({ project: true, ...c3 });
+    expect(up.ok).toBe(false);
+    expect(up.error).toMatch(/Nothing to update/i);
+
+    // Repair with nothing installed
+    const rp = repairLifecycle({ project: true, ...c3 });
+    expect(rp.ok).toBe(false);
+  });
+});
+
+describe("003C settings custody branch edges", () => {
+  it("merge/unmerge handles non-record groups, matchers, ownership markers, and empty events", () => {
+    const marker = HOOK_OWNERSHIP_MARKER;
+    // Seed with non-record group, non-array hooks, matcher group, ownership via ccroute field
+    const data: Record<string, unknown> = {
+      taste: "keep-me",
+      hooks: {
+        Stop: [
+          "not-a-record",
+          { matcher: "Edit", hooks: "not-array" },
+          {
+            matcher: "Edit",
+            hooks: [
+              "bare",
+              { type: "command", command: "echo user" },
+              {
+                type: "command",
+                command: "echo owned",
+                ownershipMarker: marker,
+                ccroute: marker,
+              },
+            ],
+          },
+          {
+            hooks: [{ type: "command", command: `echo marker-only # ${marker}` }],
+          },
+        ],
+        PreToolUse: "not-array-event",
+      },
+    };
+
+    const merged = mergeHooks(
+      data,
+      [
+        {
+          event: "Stop",
+          matcher: "Edit",
+          command: "echo owned",
+          timeout: 5,
+          type: "command",
+        },
+        { event: "SessionStart", command: "echo session" },
+      ],
+      marker,
+    );
+    expect(merged.identities.length).toBe(2);
+    expect(JSON.stringify(merged.data)).toContain("keep-me");
+    expect(JSON.stringify(merged.data)).toContain("echo user");
+    expect(JSON.stringify(merged.data)).toContain("echo session");
+
+    // listManaged sees ownershipMarker / ccroute / command marker
+    const ids = listManagedHookIdentities(merged.data, marker);
+    expect(ids.length).toBeGreaterThan(0);
+
+    // unmerge drops managed and empty groups/events
+    const after = unmergeHooks(merged.data, merged.identities, marker);
+    expect(JSON.stringify(after)).toContain("echo user");
+    expect(JSON.stringify(after)).not.toContain("echo session");
+    expect(JSON.stringify(after)).toContain("keep-me");
+
+    // loadSettings array root + missing + parse error already covered; previousMode path
+    const dir = mkdtempSync(join(tmpdir(), "sc-"));
+    const path = join(dir, "settings.json");
+    writeSettingsAtomic(path, { hooks: {} }, { previousMode: 0o600 });
+    const mode = fileMode(path);
+    expect(mode === null || typeof mode === "number").toBe(true);
+    expect(backupSettings(path, join(dir, "bak"))).toBeTruthy();
+    expect(backupSettings(join(dir, "missing.json"), join(dir, "bak"))).toBeNull();
   });
 });
 

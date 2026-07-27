@@ -275,13 +275,14 @@ export function statusLaunchd(opts?: { homeDir?: string }): LaunchdResult & {
 
 /** Resolve absolute path to this package's dist/cli.js or PATH ccroute */
 export function resolveCcrouteAbsolute(env: NodeJS.ProcessEnv = process.env): string | null {
-  const which = spawnSync("command", ["-v", "ccroute"], {
+  // `command -v` is a shell builtin; use absolute /bin/sh so a narrowed PATH still works.
+  const which = spawnSync("/bin/sh", ["-c", "command -v ccroute"], {
     encoding: "utf8",
-    shell: false,
     env,
   });
-  if (which.status === 0 && which.stdout.trim().startsWith("/")) {
-    return which.stdout.trim();
+  const found = (which.stdout ?? "").trim();
+  if (which.status === 0 && found.startsWith("/")) {
+    return found;
   }
   // fall back to process.argv[1] when running as node dist/cli.js
   const entry = process.argv[1];

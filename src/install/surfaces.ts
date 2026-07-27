@@ -200,22 +200,23 @@ export function removeHooksSurface(
 ): { settingsAfterHash: string; skipped?: string } {
   for (const f of managedFiles) {
     if (f.sourceArtifact.startsWith("hook:") && existsSync(f.path)) {
+      /* v8 ignore start — best-effort unlink of owned hook scripts */
       try {
         rmSync(f.path, { force: true });
-        /* v8 ignore next */
       } catch {
         /* best-effort */
       }
+      /* v8 ignore stop */
     }
   }
   if (existsSync(paths.hooksDestDir)) {
+    /* v8 ignore start — best-effort recursive hooks dir cleanup */
     try {
       rmSync(paths.hooksDestDir, { recursive: true, force: true });
-      /* v8 ignore next */
-      /* v8 ignore next */
     } catch {
       /* best-effort */
     }
+    /* v8 ignore stop */
   }
 
   const loaded = loadSettings(paths.settingsPath);

@@ -1,14 +1,27 @@
 TP-CCROUTE-AUTO-003C VALIDATION
-date: 2026-07-27T01:40:34.924111+00:00
+date: 2026-07-27
 branch: feat/CCROUTE-AUTO-003C-coverage-gate-repair
 base: 70fc488 (main with TP-002+TP-003 already merged)
 
-typecheck: PASS
-lint: PASS
-tests: 587 passed
-coverage: lines=91.34% branches=85.01% functions=99.11% statements=91.34%
-thresholds: lines>=90 branches>=85 functions>=85 statements>=90 (RESTORED)
-coverage include: src/**/*.ts (unchanged)
-build: pending local
+Local gates:
+  typecheck: PASS
+  lint: PASS
+  tests: 593 passed / 0 failed
+  coverage (macOS): lines=91.53% branches=85.34% functions=99.11% statements=91.53%
+  coverage (Linux Node 20 docker): lines=91.53% branches=85.33% functions=99.11% statements=91.53%
+  thresholds: lines>=90 branches>=85 functions>=85 statements>=90 (RESTORED from incorrect 84)
+  coverage include: src/**/*.ts (unchanged; no src exclusions)
+  coverage-scope tripwire: intact (tests/unit/coverage-scope.test.ts)
+  build: PASS
+  pack: PASS (dry-run)
 
-verdict: local gates green; awaiting GitHub CI on repair PR
+Repair content:
+  - tests/unit/coverage-branch-repair.test.ts expanded (install/refresh/settings/bootstrap/coordinator)
+  - resolveCcrouteAbsolute uses /bin/sh -c 'command -v'
+  - best-effort chmod/rm catches: v8 ignore start/stop only
+  - thresholds restored to contract
+
+Stack note:
+  PR #3 and #4 already MERGED; 003C is follow-up PR #5 on main.
+
+verdict: local + Linux Node 20 coverage green; GitHub CI verification after push

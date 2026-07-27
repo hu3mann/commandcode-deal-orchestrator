@@ -1,26 +1,36 @@
 {
+  "schemaVersion": 1,
   "pr3": {
     "runId": "30227260445",
-    "head": "39b55d2",
-    "branches": {
-      "n20": 84.79,
-      "n22": 84.8
-    },
-    "threshold": 85
+    "head": "39b55d22d744d3fae8bf6d0f942b9b9791f29bcd",
+    "failingCommand": "npm run test:coverage",
+    "metric": "branches",
+    "reported": { "node20": 84.79, "node22": 84.8 },
+    "threshold": 85,
+    "lines": 91.4,
+    "differsByNode": false,
+    "downstreamSkipped": true
   },
   "pr4": {
     "runId": "30227640186",
-    "head": "810d681",
-    "lines": 87.3,
-    "branches": 83.73,
-    "threshold": {
-      "lines": 90,
-      "branches": 85
-    }
+    "head": "810d681a1c88b2921ebf9082770ac9cb3e057db3",
+    "failingCommand": "npm run test:coverage",
+    "metrics": { "lines": 87.3, "statements": 87.3, "branches": 83.73 },
+    "threshold": { "lines": 90, "branches": 85, "functions": 85, "statements": 90 },
+    "cause": "src/refresh/** without matching coverage tests"
   },
   "incorrectThresholdLowering": {
     "commit": "db2affa",
     "from": 85,
-    "to": 84
-  }
-}\n
+    "to": 84,
+    "note": "Merged with #3; 003C restores 85"
+  },
+  "pr5FirstAttempt": {
+    "runId": "30230373049",
+    "head": "f4541b9c384d1248f3422283c02983f36dedd7c0",
+    "node20Branches": 84.99,
+    "node22": "pass",
+    "threshold": 85
+  },
+  "rootCause": "Real branch shortfall under v8 on Linux, not a CI flake or measurement bug"
+}

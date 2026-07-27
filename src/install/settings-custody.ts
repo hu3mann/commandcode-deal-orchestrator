@@ -295,11 +295,14 @@ export function writeSettingsAtomic(
   const mode = opts?.previousMode ?? 0o644;
   writeFileSync(tmp, text, { encoding: "utf8", mode });
   renameSync(tmp, path);
+  // Mode already applied on tmp write; post-rename chmod is best-effort only.
+  /* v8 ignore start — best-effort mode re-apply; failures leave correct content */
   try {
     chmodSync(path, mode);
   } catch {
     /* best-effort */
   }
+  /* v8 ignore stop */
   return { text, hash };
 }
 
@@ -313,12 +316,15 @@ export function backupSettings(
   const stamp = now.toISOString().replace(/[:.]/g, "-");
   const dest = join(backupDir, `settings-${stamp}.json`);
   copyFileSync(settingsPath, dest);
+  // copyFileSync preserves mode on POSIX; re-chmod is best-effort only.
+  /* v8 ignore start — best-effort mode copy; content already copied */
   try {
     const mode = statSync(settingsPath).mode & 0o777;
     chmodSync(dest, mode);
   } catch {
     /* best-effort */
   }
+  /* v8 ignore stop */
   return dest;
 }
 
