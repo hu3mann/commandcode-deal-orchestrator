@@ -1,0 +1,9 @@
+TP-CCROUTE-AUTO-003 VALIDATION
+branch: feat/CCROUTE-AUTO-003-refresh-automation
+base: 39b55d2 (TP-002)
+typecheck: PASS
+lint: PASS
+tests: 548 passed / 0 failed
+build: PASS
+bootstrap/lease/concurrency/backoff/session-start/launchd-plist: PASS
+verdict: PASS_WITH_LIMITATIONS
