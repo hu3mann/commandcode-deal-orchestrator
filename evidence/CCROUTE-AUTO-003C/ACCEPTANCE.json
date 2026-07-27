@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "tp": "TP-CCROUTE-AUTO-003C",
-  "verdict": "PASS_READY_FOR_MERGE",
+  "verdict": "PASS_MERGED",
   "pr3Head": "merged-pre-003C",
   "pr4Head": "merged-pre-003C",
   "pr5Head": "5935ddd391b68092f418c9e8f6375819cc687c4b",
@@ -36,7 +36,10 @@
   "tp004Authorized": true,
   "limitations": [
     "PR #3 and #4 already merged with weakened branch threshold before 003C; integrity restored only after PR #5 merges",
-    "Branch coverage margin remains modest (~0.3–0.4pp above 85%); further tests welcome but not required for gate",
+    "Branch coverage margin remains modest (~0.3\u20130.4pp above 85%); further tests welcome but not required for gate",
     "Do not start TP-004 implementation until operator merges PR #5"
-  ]
+  ],
+  "mergeCommit": "09a5463565627a8056458df1990005fd18d75906",
+  "mainCiRunId": "30233494337",
+  "mainCiGreen": true
 }
